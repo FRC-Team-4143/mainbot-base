@@ -1,0 +1,126 @@
+{
+    "subsystems": [
+        "Climber"
+    ],
+    "drive": {
+        "com": {
+            "CENTER_OFFSET_X": 18,
+            "SLIP_CURRENT": 50,
+            "SPEED_AT_12V": 5.0,
+            "COUPLE_RATIO": 3.5,
+            "WHEEL_RADIUS_INCH": 1.8,
+            "MAX_DRIVE_SPEED": 5.0,
+            "MAX_DRIVE_ANGULAR_RATE": 10,
+            "STEER_MOTOR_REVERSED": true,
+            "DRIVE_GAINS_P": 0.5,
+            "DRIVE_GAINS_I": 0,
+            "DRIVE_GAINS_D": 0,
+            "DRIVE_GAINS_S": 0.18,
+            "DRIVE_GAINS_V": 0.117,
+            "DRIVE_GAINS_A": 0,
+            "STEER_GAINS_P": 80,
+            "STEER_GAINS_I": 0,
+            "STEER_GAINS_D": 0,
+            "STEER_GAINS_S": 0,
+            "STEER_GAINS_V": 0,
+            "STEER_GAINS_A": 0
+        },
+        "fl": {
+            "DRIVE_ID": 1,
+            "STEER_ID": 2,
+            "ENCODER_ID": 0,
+            "X_POSITION": 7.5,
+            "Y_POSITION": 7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4N",
+            "MODULE_GEARING": "L2+"
+        },
+        "fr": {
+            "DRIVE_ID": 3,
+            "STEER_ID": 4,
+            "ENCODER_ID": 1,
+            "X_POSITION": 7.5,
+            "Y_POSITION": -7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4I",
+            "MODULE_GEARING": "L2+"
+        },
+        "bl": {
+            "DRIVE_ID": 5,
+            "STEER_ID": 6,
+            "ENCODER_ID": 2,
+            "X_POSITION": -7.5,
+            "Y_POSITION": 7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4N",
+            "MODULE_GEARING": "L2+"
+        },
+        "br": {
+            "DRIVE_ID": 7,
+            "STEER_ID": 8,
+            "ENCODER_ID": 3,
+            "X_POSITION": -7.5,
+            "Y_POSITION": -7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4I",
+            "MODULE_GEARING": "L2+"
+        },
+        "traj_controller": {
+            "TRANSLATION_P": 0.5,
+            "TRANSLATION_I": 0.0,
+            "TRANSLATION_D": 0.0,
+            "HEADING_P": 2.0,
+            "HEADING_I": 0.0,
+            "HEADING_D": 0.0
+        },
+        "pose_controller": {
+            "TRANSLATION_P": 5.0,
+            "TRANSLATION_I": 0.0,
+            "TRANSLATION_D": 0.75,
+            "HEADING_P": 4.0,
+            "HEADING_I": 0.0,
+            "HEADING_D": 0.0
+        }
+    },
+    "imp": {
+        "coral_offset": -1,
+        "algae_offset": 0
+    },
+    "elevator": {
+        "CONTROLLER_P": 1.0,
+        "CONTROLLER_I": 0.0,
+        "CONTROLLER_D": 0.08,
+        "CONTROLLER_S": 0.06766,
+        "CONTROLLER_V": 0.11733,
+        "CONTROLLER_A": 0.0070285,
+        "CONTROLLER_G": 0.43,
+        "HEIGHT_PIVOT_MIN": 28.5,
+        "HEIGHT_PIVOT_MAX": 84,
+        "ELEVATOR_GEAR_RATIO": 5
+    },
+    "arm": {
+        "CONTROLLER_P": 40.0,
+        "CONTROLLER_I": 0.0,
+        "CONTROLLER_D": 0.0,
+        "CONTROLLER_S": 0.024495,
+        "CONTROLLER_V": 8.778,
+        "CONTROLLER_A": 0.25148,
+        "CONTROLLER_G": 0.28
+    },
+    "vision": {
+        "camera0": {
+            "NAME": "PC_Camera",
+            "location": {
+                "X": 0,
+                "Y": -11.75,
+                "Z": 8.25,
+                "ROLL": 0,
+                "PITCH": -5,
+                "YAW": 25
+            }
+        }
+    },
+    "auto": {
+        "SCORING_DELAY": 0.2
+    }
+}
