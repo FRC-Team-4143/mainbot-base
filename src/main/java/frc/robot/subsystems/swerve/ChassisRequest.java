@@ -1,15 +1,12 @@
-/*
- * Copyright (C) Cross The Road Electronics.  All rights reserved.
- * License information can be found in CTRE_LICENSE.txt
- * For support and suggestions contact support@ctr-electronics.com or file
- * an issue tracker at https://github.com/CrossTheRoadElec/Phoenix-Releases
- */
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -26,13 +23,13 @@ public interface ChassisRequest {
    * The reference for "forward" is sometimes different if you're talking about field relative. This
    * addresses which forward to use.
    */
-  public enum ForwardReference {
+  public enum XPositiveReference {
     /**
      * This forward reference makes it so "forward" (positive X) is always towards the red alliance.
      * This is important in situations such as path following where positive X is always towards the
      * red alliance wall, regardless of where the operator physically are located.
      */
-    RedAlliance,
+    TowardsRedAlliance,
     /**
      * This forward references makes it so "forward" (positive X) is determined from the operator's
      * perspective. This is important for most teleop driven field-centric requests, where positive
@@ -47,12 +44,12 @@ public interface ChassisRequest {
   /*
    * Contains everything the control requests need to calculate the module state.
    */
-  public class SwerveControlRequestParameters {
+  public class ChassisRequestParameters {
     public SwerveDriveKinematics kinematics;
     public ChassisSpeeds currentChassisSpeed;
     public Pose2d currentPose;
     public double timestamp;
-    public Translation2d[] swervePositions;
+    public Translation2d[] moduleLocations;
     public Rotation2d operatorForwardDirection;
     public double updatePeriod;
   }
@@ -64,7 +61,7 @@ public interface ChassisRequest {
    * @param parameters Parameters the control request needs to calculate the module state
    * @param modulesToApply Modules to which the control request is applied
    */
-  public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply);
+  public void apply(ChassisRequestParameters parameters, Module... modulesToApply);
 
   /**
    * Sets the swerve drive module states to point inward on the robot in an "X" fashion, creating a
@@ -78,11 +75,11 @@ public interface ChassisRequest {
     /** The type of control request to use for the steer motor. */
     public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
 
       for (int i = 0; i < modulesToApply.length; ++i) {
         SwerveModuleState state =
-            new SwerveModuleState(0, parameters.swervePositions[i].getAngle());
+            new SwerveModuleState(0, parameters.moduleLocations[i].getAngle());
         modulesToApply[i].runSetpoint(state, DriveRequestType, SteerRequestType);
       }
     }
@@ -116,29 +113,11 @@ public interface ChassisRequest {
    * <p>When users use this request, they specify the direction the robot should travel oriented
    * against the field, and the rate at which their robot should rotate about the center of the
    * robot.
-   *
-   * <p>An example scenario is that the robot is oriented to the east, the VelocityX is +5 m/s,
-   * VelocityY is 0 m/s, and RotationRate is 0.5 rad/s. In this scenario, the robot would drive
-   * northward at 5 m/s and turn counterclockwise at 0.5 rad/s.
    */
   public class FieldCentric implements ChassisRequest {
-    /**
-     * The velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
-     */
-    public double VelocityX = 0;
 
-    /**
-     * The velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     */
-    public double VelocityY = 0;
-
-    /**
-     * The angular rate to rotate at, in radians per second. Angular rate is defined as
-     * counterclockwise positive, so this determines how fast to turn counterclockwise.
-     */
-    public double RotationalRate = 0;
+    /** The desired x/y and rotation rate */
+    public Twist2d Twist = new Twist2d();
 
     /** The allowable deadband of the request. */
     public double Deadband = 0;
@@ -159,22 +138,23 @@ public interface ChassisRequest {
     public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
 
     /** The perspective to use when determining which direction is forward. */
-    public ForwardReference ForwardReference = ChassisRequest.ForwardReference.OperatorPerspective;
+    public XPositiveReference XPositiveReference =
+        ChassisRequest.XPositiveReference.OperatorPerspective;
 
     /** The last applied state in case we don't have anything to drive. */
     protected SwerveModuleState[] m_lastAppliedState = null;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
-      double toApplyX = VelocityX;
-      double toApplyY = VelocityY;
-      if (ForwardReference == ChassisRequest.ForwardReference.OperatorPerspective) {
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
+      double toApplyX = Twist.dx;
+      double toApplyY = Twist.dy;
+      if (XPositiveReference == ChassisRequest.XPositiveReference.OperatorPerspective) {
         /* If we're operator perspective, modify the X/Y translation by the angle */
         Translation2d tmp = new Translation2d(toApplyX, toApplyY);
         tmp = tmp.rotateBy(parameters.operatorForwardDirection);
         toApplyX = tmp.getX();
         toApplyY = tmp.getY();
       }
-      double toApplyOmega = RotationalRate;
+      double toApplyOmega = Twist.dtheta;
       if (Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
         toApplyX = 0;
         toApplyY = 0;
@@ -197,38 +177,13 @@ public interface ChassisRequest {
     }
 
     /**
-     * Sets the velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
+     * The linear and angular velocity to apply to the drivetrain.
      *
-     * @param velocityX Velocity in the X direction, in m/s
+     * @param twist x/y and rotation rate to apply
      * @return this request
      */
-    public FieldCentric withVelocityX(double velocityX) {
-      this.VelocityX = velocityX;
-      return this;
-    }
-
-    /**
-     * Sets the velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     *
-     * @param velocityY Velocity in the Y direction, in m/s
-     * @return this request
-     */
-    public FieldCentric withVelocityY(double velocityY) {
-      this.VelocityY = velocityY;
-      return this;
-    }
-
-    /**
-     * The angular rate to rotate at, in radians per second. Angular rate is defined as
-     * counterclockwise positive, so this determines how fast to turn counterclockwise.
-     *
-     * @param rotationalRate Angular rate to rotate at, in radians per second
-     * @return this request
-     */
-    public FieldCentric withRotationalRate(double rotationalRate) {
-      this.RotationalRate = rotationalRate;
+    public FieldCentric withTwist(Twist2d twist) {
+      this.Twist = twist;
       return this;
     }
 
@@ -286,6 +241,17 @@ public interface ChassisRequest {
       this.SteerRequestType = steerRequestType;
       return this;
     }
+
+    /**
+     * Sets the perspective to use when determining which direction is forward.
+     *
+     * @param xPositiveReference The perspective to use when determining which direction is forward.
+     * @return this request
+     */
+    public FieldCentric withXPositiveReference(XPositiveReference xPositiveReference) {
+      this.XPositiveReference = xPositiveReference;
+      return this;
+    }
   }
 
   /**
@@ -295,29 +261,16 @@ public interface ChassisRequest {
    * <p>When users use this request, they specify the direction the robot should travel oriented
    * against the field, and the direction the robot should be facing.
    *
-   * <p>An example scenario is that the robot is oriented to the east, the VelocityX is +5 m/s,
-   * VelocityY is 0 m/s, and TargetDirection is 180 degrees. In this scenario, the robot would drive
-   * northward at 5 m/s and turn clockwise to a target of 180 degrees.
-   *
    * <p>This control request is especially useful for autonomous control, where the robot should be
    * facing a changing direction throughout the motion.
    */
   public class FieldCentricFacingAngle implements ChassisRequest {
-    /**
-     * The velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
-     */
-    public double VelocityX = 0;
+
+    /** The desired x/y and rotation rate */
+    public Twist2d Twist = new Twist2d();
 
     /**
-     * The velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     */
-    public double VelocityY = 0;
-
-    /**
-     * The desired direction to face. 0 Degrees is defined as in the direction of the X axis. As a
-     * result, a TargetDirection of 90 degrees will point along the Y axis, or to the left.
+     * The direction the robot should face. 0 Degrees is defined as in the direction of the X axis.
      */
     public Rotation2d TargetDirection = new Rotation2d();
 
@@ -326,6 +279,9 @@ public interface ChassisRequest {
 
     /** The rotational deadband of the request. */
     public double RotationalDeadband = 0;
+
+    /** The maximum absolute rotational rate of the request. */
+    public double MaxAbsRotationalRate = 0;
 
     /**
      * The center of rotation the robot should rotate around. This is (0,0) by default, which will
@@ -349,14 +305,15 @@ public interface ChassisRequest {
     public PhoenixPIDController HeadingController = new PhoenixPIDController(7.3, 0, 0.07);
 
     /** The perspective to use when determining which direction is forward. */
-    public ForwardReference ForwardReference = ChassisRequest.ForwardReference.OperatorPerspective;
+    public XPositiveReference XPositiveReference =
+        ChassisRequest.XPositiveReference.OperatorPerspective;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
-      double toApplyX = VelocityX;
-      double toApplyY = VelocityY;
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
+      double toApplyX = Twist.dx;
+      double toApplyY = Twist.dy;
       Rotation2d angleToFace = TargetDirection;
       HeadingController.enableContinuousInput(0, 2 * Math.PI);
-      if (ForwardReference == ChassisRequest.ForwardReference.OperatorPerspective) {
+      if (XPositiveReference == ChassisRequest.XPositiveReference.OperatorPerspective) {
         /* If we're operator perspective, modify the X/Y translation by the angle */
         Translation2d tmp = new Translation2d(toApplyX, toApplyY);
         tmp = tmp.rotateBy(parameters.operatorForwardDirection);
@@ -381,6 +338,9 @@ public interface ChassisRequest {
       if (Math.abs(toApplyOmega) < RotationalDeadband) {
         toApplyOmega = 0;
       }
+      if (MaxAbsRotationalRate > 0) {
+        toApplyOmega = MathUtil.clamp(toApplyOmega, -MaxAbsRotationalRate, MaxAbsRotationalRate);
+      }
 
       ChassisSpeeds speeds =
           ChassisSpeeds.discretize(
@@ -396,26 +356,13 @@ public interface ChassisRequest {
     }
 
     /**
-     * Sets the velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
+     * The linear and angular velocity to apply to the drivetrain.
      *
-     * @param velocityX Velocity in the X direction, in m/s
+     * @param twist x/y and rotation rate to apply
      * @return this request
      */
-    public FieldCentricFacingAngle withVelocityX(double velocityX) {
-      this.VelocityX = velocityX;
-      return this;
-    }
-
-    /**
-     * Sets the velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     *
-     * @param velocityY Velocity in the Y direction, in m/s
-     * @return this request
-     */
-    public FieldCentricFacingAngle withVelocityY(double velocityY) {
-      this.VelocityY = velocityY;
+    public FieldCentricFacingAngle withTwist(Twist2d twist) {
+      this.Twist = twist;
       return this;
     }
 
@@ -426,7 +373,7 @@ public interface ChassisRequest {
      * @param targetDirection Desired direction to face
      * @return this request
      */
-    public FieldCentricFacingAngle withTargetDirection(Rotation2d targetDirection) {
+    public FieldCentricFacingAngle withTargetHeading(Rotation2d targetDirection) {
       this.TargetDirection = targetDirection;
       return this;
     }
@@ -450,6 +397,17 @@ public interface ChassisRequest {
      */
     public FieldCentricFacingAngle withRotationalDeadband(double rotationalDeadband) {
       this.RotationalDeadband = rotationalDeadband;
+      return this;
+    }
+
+    /**
+     * Sets the maximum absolute rotational rate of the request.
+     *
+     * @param maxAbsRotationalRate The maximum absolute rotational rate of the
+     * @return this request
+     */
+    public FieldCentricFacingAngle withMaxAbsRotationalRate(double maxAbsRotationalRate) {
+      this.MaxAbsRotationalRate = maxAbsRotationalRate;
       return this;
     }
 
@@ -485,6 +443,17 @@ public interface ChassisRequest {
       this.SteerRequestType = steerRequestType;
       return this;
     }
+
+    /**
+     * Sets the perspective to use when determining which direction is forward.
+     *
+     * @param xPositiveReference The perspective to use when determining which direction is forward.
+     * @return this request
+     */
+    public FieldCentricFacingAngle withXPositiveReference(XPositiveReference xPositiveReference) {
+      this.XPositiveReference = xPositiveReference;
+      return this;
+    }
   }
 
   /**
@@ -492,7 +461,7 @@ public interface ChassisRequest {
    * drive mechanism.
    */
   public class Idle implements ChassisRequest {
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {}
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {}
   }
 
   /** Sets the swerve drive modules to point to a specified direction. */
@@ -510,7 +479,7 @@ public interface ChassisRequest {
     /** The type of control request to use for the steer motor. */
     public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
 
       for (int i = 0; i < modulesToApply.length; ++i) {
         SwerveModuleState state = new SwerveModuleState(0, ModuleDirection);
@@ -565,23 +534,9 @@ public interface ChassisRequest {
    * eastward at 5 m/s and turn counterclockwise at 0.5 rad/s.
    */
   public class RobotCentric implements ChassisRequest {
-    /**
-     * The velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
-     */
-    public double VelocityX = 0;
 
-    /**
-     * The velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     */
-    public double VelocityY = 0;
-
-    /**
-     * The angular rate to rotate at, in radians per second. Angular rate is defined as
-     * counterclockwise positive, so this determines how fast to turn counterclockwise.
-     */
-    public double RotationalRate = 0;
+    /** The desired x/y and rotation rate */
+    public Twist2d Twist = new Twist2d();
 
     /** The allowable deadband of the request. */
     public double Deadband = 0;
@@ -601,10 +556,10 @@ public interface ChassisRequest {
     /** The type of control request to use for the steer motor. */
     public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
-      double toApplyX = VelocityX;
-      double toApplyY = VelocityY;
-      double toApplyOmega = RotationalRate;
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
+      double toApplyX = Twist.dx;
+      double toApplyY = Twist.dy;
+      double toApplyOmega = Twist.dtheta;
       if (Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
         toApplyX = 0;
         toApplyY = 0;
@@ -622,38 +577,13 @@ public interface ChassisRequest {
     }
 
     /**
-     * Sets the velocity in the X direction, in m/s. X is defined as forward according to WPILib
-     * convention, so this determines how fast to travel forward.
+     * The linear and angular velocity to apply to the drivetrain.
      *
-     * @param velocityX Velocity in the X direction, in m/s
+     * @param twist x/y and rotation rate to apply
      * @return this request
      */
-    public RobotCentric withVelocityX(double velocityX) {
-      this.VelocityX = velocityX;
-      return this;
-    }
-
-    /**
-     * Sets the velocity in the Y direction, in m/s. Y is defined as to the left according to WPILib
-     * convention, so this determines how fast to travel to the left.
-     *
-     * @param velocityY Velocity in the Y direction, in m/s
-     * @return this request
-     */
-    public RobotCentric withVelocityY(double velocityY) {
-      this.VelocityY = velocityY;
-      return this;
-    }
-
-    /**
-     * The angular rate to rotate at, in radians per second. Angular rate is defined as
-     * counterclockwise positive, so this determines how fast to turn counterclockwise.
-     *
-     * @param rotationalRate Angular rate to rotate at, in radians per second
-     * @return this request
-     */
-    public RobotCentric withRotationalRate(double rotationalRate) {
-      this.RotationalRate = rotationalRate;
+    public RobotCentric withTwist(Twist2d twist) {
+      this.Twist = twist;
       return this;
     }
 
@@ -728,7 +658,7 @@ public interface ChassisRequest {
     /** The type of control request to use for the steer motor. */
     public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
 
-    public void apply(SwerveControlRequestParameters parameters, Module... modulesToApply) {
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
       var states = parameters.kinematics.toSwerveModuleStates(Speeds, CenterOfRotation);
       for (int i = 0; i < modulesToApply.length; ++i) {
         modulesToApply[i].runSetpoint(states[i], DriveRequestType, SteerRequestType);
@@ -775,6 +705,82 @@ public interface ChassisRequest {
      * @return this request
      */
     public ApplyChassisSpeeds withSteerRequestType(Module.SteerControlMode steerRequestType) {
+      this.SteerRequestType = steerRequestType;
+      return this;
+    }
+  }
+
+  /** Accepts a generic Field Relative ChassisSpeeds to apply to the drivetrain. */
+  public class ApplyFieldSpeeds implements ChassisRequest {
+
+    /** The chassis speeds to apply to the drivetrain. */
+    public ChassisSpeeds Speeds = new ChassisSpeeds();
+
+    /**
+     * The center of rotation the robot should rotate around. This is (0,0) by default, which will
+     * rotate around the center of the robot.
+     */
+    public Translation2d CenterOfRotation = new Translation2d();
+
+    /** The type of control request to use for the drive motor. */
+    public Module.DriveControlMode DriveRequestType = Module.DriveControlMode.OPEN_LOOP;
+
+    /** The type of control request to use for the steer motor. */
+    public Module.SteerControlMode SteerRequestType = Module.SteerControlMode.CLOSED_LOOP;
+
+    public void apply(ChassisRequestParameters parameters, Module... modulesToApply) {
+      ChassisSpeeds speeds =
+          ChassisSpeeds.discretize(
+              ChassisSpeeds.fromFieldRelativeSpeeds(Speeds, parameters.currentPose.getRotation()),
+              parameters.updatePeriod);
+
+      var states = parameters.kinematics.toSwerveModuleStates(speeds, CenterOfRotation);
+
+      for (int i = 0; i < modulesToApply.length; ++i) {
+        modulesToApply[i].runSetpoint(states[i], DriveRequestType, SteerRequestType);
+      }
+    }
+
+    /**
+     * Sets the chassis speeds to apply to the drivetrain.
+     *
+     * @param speeds Chassis speeds to apply to the drivetrain
+     * @return this request
+     */
+    public ApplyFieldSpeeds withSpeeds(ChassisSpeeds speeds) {
+      this.Speeds = speeds;
+      return this;
+    }
+
+    /**
+     * Sets the center of rotation of the request
+     *
+     * @param centerOfRotation The center of rotation the robot should rotate around.
+     * @return this request
+     */
+    public ApplyFieldSpeeds withCenterOfRotation(Translation2d centerOfRotation) {
+      this.CenterOfRotation = centerOfRotation;
+      return this;
+    }
+
+    /**
+     * Sets the type of control request to use for the drive motor.
+     *
+     * @param driveRequestType The type of control request to use for the drive motor
+     * @return this request
+     */
+    public ApplyFieldSpeeds withDriveRequestType(Module.DriveControlMode driveRequestType) {
+      this.DriveRequestType = driveRequestType;
+      return this;
+    }
+
+    /**
+     * Sets the type of control request to use for the steer motor.
+     *
+     * @param steerRequestType The type of control request to use for the steer motor
+     * @return this request
+     */
+    public ApplyFieldSpeeds withSteerRequestType(Module.SteerControlMode steerRequestType) {
       this.SteerRequestType = steerRequestType;
       return this;
     }

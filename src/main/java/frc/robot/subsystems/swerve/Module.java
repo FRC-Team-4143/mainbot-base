@@ -21,14 +21,13 @@ import frc.robot.subsystems.swerve.ModuleIO.ModuleIOInputs;
 public class Module {
   private final ModuleIO io;
   private final ModuleIOInputs inputs = new ModuleIOInputs();
-  private final int index;
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
+  private final int index;
 
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
-  private final Alert turnEncoderDisconnectedAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public enum DriveControlMode {
@@ -55,10 +54,6 @@ public class Module {
     turnDisconnectedAlert =
         new Alert(
             "Disconnected turn motor on module " + Integer.toString(index) + ".", AlertType.kError);
-    turnEncoderDisconnectedAlert =
-        new Alert(
-            "Disconnected turn encoder on module " + Integer.toString(index) + ".",
-            AlertType.kError);
   }
 
   public void periodic() {
@@ -76,7 +71,6 @@ public class Module {
     // Update alerts
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
-    turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

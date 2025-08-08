@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.mw_lib.subsystem.SubsystemManager;
-import frc.robot.subsystems.*;
+import frc.robot.subsystems.pose_estimator.PoseEstimator;
 
 public class RobotContainer extends SubsystemManager {
   private static RobotContainer instance;
@@ -19,7 +19,7 @@ public class RobotContainer extends SubsystemManager {
 
   public RobotContainer() {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
-    registerSubsystem(SwerveDrivetrain.getInstance());
+    // registerSubsystem(Swerve.getInstance());
     registerSubsystem(PoseEstimator.getInstance());
 
     // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!

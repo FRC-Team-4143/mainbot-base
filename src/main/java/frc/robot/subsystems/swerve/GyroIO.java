@@ -12,11 +12,11 @@ import monologue.Annotations.Log;
 
 public interface GyroIO {
   public static class GyroIOInputs {
-    @Log.File public boolean connected = false;
-    @Log.File public Rotation2d yawPosition = new Rotation2d();
-    @Log.File public double yawVelocityRadPerSec = 0.0;
-    @Log.File public double[] odometryYawTimestamps = new double[] {};
-    @Log.File public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
+    @Log.NT public boolean connected = false;
+    @Log.NT public Rotation2d yawPosition = new Rotation2d();
+    @Log.NT public double yawVelocityRadPerSec = 0.0;
+    @Log.NT public double[] odometryYawTimestamps = new double[] {};
+    @Log.NT public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}
