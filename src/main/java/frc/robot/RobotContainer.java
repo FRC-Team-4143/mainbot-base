@@ -8,13 +8,13 @@ import frc.mw_lib.subsystem.SubsystemManager;
 import frc.robot.subsystems.pose_estimator.PoseEstimator;
 
 public class RobotContainer extends SubsystemManager {
-  private static RobotContainer instance;
+  private static RobotContainer instance_;
 
   public static synchronized RobotContainer getInstance() {
-    if (instance == null) {
-      instance = new RobotContainer();
+    if (instance_ == null) {
+      instance_ = new RobotContainer();
     }
-    return instance;
+    return instance_;
   }
 
   public RobotContainer() {
