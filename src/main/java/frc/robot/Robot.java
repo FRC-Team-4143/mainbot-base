@@ -4,27 +4,56 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.proxy_server.ProxyServer;
+import frc.robot.subsystems.pose_estimator.PoseEstimator;
+import frc.robot.subsystems.swerve.Swerve;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class Robot extends TimedRobot {
-  private RobotContainer robot_container_;
+public class Robot extends LoggedRobot {
 
-  @Override
-  public void robotInit() {
-    robot_container_ = RobotContainer.getInstance();
+  public Robot() {
+    // Record metadata
+    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    switch (BuildConstants.DIRTY) {
+      case 0:
+        Logger.recordMetadata("GitDirty", "All changes committed");
+        break;
+      case 1:
+        Logger.recordMetadata("GitDirty", "Uncomitted changes");
+        break;
+      default:
+        Logger.recordMetadata("GitDirty", "Unknown");
+        break;
+    }
+
+    // Setup Logging
+    Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    Logger.start();
+
     OI.configureBindings();
     ProxyServer.configureServer();
+
+    // Ensure subsystems are created
+    PoseEstimator.getInstance(); // ensure pose estimator is created
+    Swerve.getInstance(); // ensure swerve is created
   }
+
+  @Override
+  public void robotInit() {}
 
   @Override
   public void robotPeriodic() {
     // Call the scheduler so that commands work for buttons
     CommandScheduler.getInstance().run();
-
-    // tell the subsystems to output telemetry to smartdashboard
-    robot_container_.outputTelemetry();
 
     // updates data from chassis proxy server
     ProxyServer.updateData();

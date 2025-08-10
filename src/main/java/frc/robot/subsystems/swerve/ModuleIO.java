@@ -8,26 +8,28 @@
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import monologue.Annotations.Log;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
+
+  @AutoLog
   public static class ModuleIOInputs {
-    @Log.NT public boolean driveConnected = false;
-    @Log.NT public double drivePositionRad = 0.0;
-    @Log.NT public double driveVelocityRadPerSec = 0.0;
-    @Log.NT public double driveAppliedVolts = 0.0;
-    @Log.NT public double driveCurrentAmps = 0.0;
+    public boolean driveConnected = false;
+    public double drivePositionRad = 0.0;
+    public double driveVelocityRadPerSec = 0.0;
+    public double driveAppliedVolts = 0.0;
+    public double driveCurrentAmps = 0.0;
 
-    @Log.NT public boolean turnConnected = false;
-    @Log.NT public Rotation2d turnAbsolutePosition = new Rotation2d();
-    @Log.NT public Rotation2d turnPosition = new Rotation2d();
-    @Log.NT public double turnVelocityRadPerSec = 0.0;
-    @Log.NT public double turnAppliedVolts = 0.0;
-    @Log.NT public double turnCurrentAmps = 0.0;
+    public boolean turnConnected = false;
+    public Rotation2d turnAbsolutePosition = new Rotation2d();
+    public Rotation2d turnPosition = new Rotation2d();
+    public double turnVelocityRadPerSec = 0.0;
+    public double turnAppliedVolts = 0.0;
+    public double turnCurrentAmps = 0.0;
 
-    @Log.NT public double[] odometryTimestamps = new double[] {};
-    @Log.NT public double[] odometryDrivePositionsRad = new double[] {};
-    @Log.NT public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+    public double[] odometryTimestamps = new double[] {};
+    public double[] odometryDrivePositionsRad = new double[] {};
+    public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
   }
 
   /** Updates the set of loggable inputs. */
