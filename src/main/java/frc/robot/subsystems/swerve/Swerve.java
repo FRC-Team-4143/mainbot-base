@@ -46,13 +46,23 @@ public class Swerve extends SubsystemBase {
 
   public static Swerve getInstance() {
     if (instance_ == null) {
-      instance_ =
-          new Swerve(
-              new GyroIOPigeon2(),
-              new ModuleIOTalonFXAnalog(SwerveConstants.FL_MODULE_CONSTANTS),
-              new ModuleIOTalonFXAnalog(SwerveConstants.FR_MODULE_CONSTANTS),
-              new ModuleIOTalonFXAnalog(SwerveConstants.BL_MODULE_CONSTANTS),
-              new ModuleIOTalonFXAnalog(SwerveConstants.BR_MODULE_CONSTANTS));
+      if (Constants.IS_ROBOT_REAL) {
+        instance_ =
+            new Swerve(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFXAnalog(SwerveConstants.FL_MODULE_CONSTANTS),
+                new ModuleIOTalonFXAnalog(SwerveConstants.FR_MODULE_CONSTANTS),
+                new ModuleIOTalonFXAnalog(SwerveConstants.BL_MODULE_CONSTANTS),
+                new ModuleIOTalonFXAnalog(SwerveConstants.BR_MODULE_CONSTANTS));
+      } else {
+        instance_ =
+            new Swerve(
+                new GyroIOPigeon2(),
+                new ModuleIOSim(SwerveConstants.FL_MODULE_CONSTANTS),
+                new ModuleIOSim(SwerveConstants.FR_MODULE_CONSTANTS),
+                new ModuleIOSim(SwerveConstants.BL_MODULE_CONSTANTS),
+                new ModuleIOSim(SwerveConstants.BR_MODULE_CONSTANTS));
+      }
     }
     return instance_;
   }

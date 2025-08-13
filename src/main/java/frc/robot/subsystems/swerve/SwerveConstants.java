@@ -104,15 +104,17 @@ public class SwerveConstants {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FL_MODULE_CONSTANTS =
           ConstantCreator.createModuleConstants(
-              LOADER.getIntValue("drive", "fl", "STEER_ID"),
-              LOADER.getIntValue("drive", "fl", "DRIVE_ID"),
-              LOADER.getIntValue("drive", "fl", "ENCODER_ID"),
-              0,
-              FL_MODULE_TRANSLATION.getX(),
-              FL_MODULE_TRANSLATION.getY(),
-              LOADER.getBoolValue("drive", "fl", "INVERT_DRIVE"),
-              FL_MODULE_TYPE.steerInverted,
-              false);
+                  LOADER.getIntValue("drive", "fl", "STEER_ID"),
+                  LOADER.getIntValue("drive", "fl", "DRIVE_ID"),
+                  LOADER.getIntValue("drive", "fl", "ENCODER_ID"),
+                  0,
+                  FL_MODULE_TRANSLATION.getX(),
+                  FL_MODULE_TRANSLATION.getY(),
+                  LOADER.getBoolValue("drive", "fl", "INVERT_DRIVE"),
+                  FL_MODULE_TYPE.steerInverted,
+                  false)
+              .withDriveMotorGearRatio(FL_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(FL_MODULE_TYPE.steerRatio);
 
   private static final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("fr");
   public static final Translation2d FR_MODULE_TRANSLATION =
@@ -123,15 +125,17 @@ public class SwerveConstants {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FR_MODULE_CONSTANTS =
           ConstantCreator.createModuleConstants(
-              LOADER.getIntValue("drive", "fr", "STEER_ID"),
-              LOADER.getIntValue("drive", "fr", "DRIVE_ID"),
-              LOADER.getIntValue("drive", "fr", "ENCODER_ID"),
-              0,
-              FR_MODULE_TRANSLATION.getX(),
-              FR_MODULE_TRANSLATION.getY(),
-              LOADER.getBoolValue("drive", "fr", "INVERT_DRIVE"),
-              FR_MODULE_TYPE.steerInverted,
-              false);
+                  LOADER.getIntValue("drive", "fr", "STEER_ID"),
+                  LOADER.getIntValue("drive", "fr", "DRIVE_ID"),
+                  LOADER.getIntValue("drive", "fr", "ENCODER_ID"),
+                  0,
+                  FR_MODULE_TRANSLATION.getX(),
+                  FR_MODULE_TRANSLATION.getY(),
+                  LOADER.getBoolValue("drive", "fr", "INVERT_DRIVE"),
+                  FR_MODULE_TYPE.steerInverted,
+                  false)
+              .withDriveMotorGearRatio(FR_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio);
 
   private static final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("bl");
   public static final Translation2d BL_MODULE_TRANSLATION =
@@ -142,15 +146,17 @@ public class SwerveConstants {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BL_MODULE_CONSTANTS =
           ConstantCreator.createModuleConstants(
-              LOADER.getIntValue("drive", "bl", "STEER_ID"),
-              LOADER.getIntValue("drive", "bl", "DRIVE_ID"),
-              LOADER.getIntValue("drive", "bl", "ENCODER_ID"),
-              0,
-              BL_MODULE_TRANSLATION.getX(),
-              BL_MODULE_TRANSLATION.getY(),
-              LOADER.getBoolValue("drive", "bl", "INVERT_DRIVE"),
-              BL_MODULE_TYPE.steerInverted,
-              false);
+                  LOADER.getIntValue("drive", "bl", "STEER_ID"),
+                  LOADER.getIntValue("drive", "bl", "DRIVE_ID"),
+                  LOADER.getIntValue("drive", "bl", "ENCODER_ID"),
+                  0,
+                  BL_MODULE_TRANSLATION.getX(),
+                  BL_MODULE_TRANSLATION.getY(),
+                  LOADER.getBoolValue("drive", "bl", "INVERT_DRIVE"),
+                  BL_MODULE_TYPE.steerInverted,
+                  false)
+              .withDriveMotorGearRatio(BL_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(BL_MODULE_TYPE.steerRatio);
 
   private static final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("br");
   public static final Translation2d BR_MODULE_TRANSLATION =
@@ -161,15 +167,17 @@ public class SwerveConstants {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BR_MODULE_CONSTANTS =
           ConstantCreator.createModuleConstants(
-              LOADER.getIntValue("drive", "br", "STEER_ID"),
-              LOADER.getIntValue("drive", "br", "DRIVE_ID"),
-              LOADER.getIntValue("drive", "br", "ENCODER_ID"),
-              0,
-              BR_MODULE_TRANSLATION.getX(),
-              BR_MODULE_TRANSLATION.getY(),
-              LOADER.getBoolValue("drive", "br", "INVERT_DRIVE"),
-              BR_MODULE_TYPE.steerInverted,
-              false);
+                  LOADER.getIntValue("drive", "br", "STEER_ID"),
+                  LOADER.getIntValue("drive", "br", "DRIVE_ID"),
+                  LOADER.getIntValue("drive", "br", "ENCODER_ID"),
+                  0,
+                  BR_MODULE_TRANSLATION.getX(),
+                  BR_MODULE_TRANSLATION.getY(),
+                  LOADER.getBoolValue("drive", "br", "INVERT_DRIVE"),
+                  BR_MODULE_TYPE.steerInverted,
+                  false)
+              .withDriveMotorGearRatio(BR_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(BR_MODULE_TYPE.steerRatio);
 
   // Choreo Constants
   public static final boolean FLIP_TRAJECTORY_ON_RED = true;
