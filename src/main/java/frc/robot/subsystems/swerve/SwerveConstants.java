@@ -30,6 +30,9 @@ public class SwerveConstants {
   public static final double ODOMETRY_FREQUENCY =
       new CANBus(SwerveConstants.MODULE_CANBUS_NAME).isNetworkFD() ? 250.0 : 100.0;
 
+  public static final double DRIVE_INERTIA = 0.05; // kg*m^2, inertia of the drive motor
+
+  
   // Forward Reference rotation constants
   public enum OperatorPerspective {
     BLUE_ALLIANCE(Rotation2d.fromDegrees(0.0)),
@@ -67,8 +70,8 @@ public class SwerveConstants {
   public static final double SPEED_AT_12V_MPS =
       LOADER.getDoubleValue("drive", "com", "SPEED_AT_12V");
   private static final double COUPLE_RATIO = LOADER.getDoubleValue("drive", "com", "COUPLE_RATIO");
-  private static final double WHEEL_RADIUS_INCH =
-      LOADER.getDoubleValue("drive", "com", "WHEEL_RADIUS_INCH");
+  private static final double WHEEL_RADIUS_METERS =
+      Units.inchesToMeters(LOADER.getDoubleValue("drive", "com", "WHEEL_RADIUS_INCH"));
   public static final double MAX_TRANSLATION_RATE =
       LOADER.getDoubleValue("drive", "com", "MAX_DRIVE_SPEED");
   public static final double MAX_ANGULAR_RATE =
@@ -82,7 +85,7 @@ public class SwerveConstants {
       ConstantCreator =
           new SwerveModuleConstantsFactory<
                   TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-              .withWheelRadius(WHEEL_RADIUS_INCH)
+              .withWheelRadius(WHEEL_RADIUS_METERS)
               .withCouplingGearRatio(COUPLE_RATIO)
               .withSteerMotorGains(STEER_GAINS)
               .withDriveMotorGains(DRIVE_GAINS)
@@ -114,7 +117,8 @@ public class SwerveConstants {
                   FL_MODULE_TYPE.steerInverted,
                   false)
               .withDriveMotorGearRatio(FL_MODULE_TYPE.driveRatio)
-              .withSteerMotorGearRatio(FL_MODULE_TYPE.steerRatio);
+              .withSteerMotorGearRatio(FL_MODULE_TYPE.steerRatio)
+              .withDriveInertia(DRIVE_INERTIA);
 
   private static final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("fr");
   public static final Translation2d FR_MODULE_TRANSLATION =
@@ -135,7 +139,8 @@ public class SwerveConstants {
                   FR_MODULE_TYPE.steerInverted,
                   false)
               .withDriveMotorGearRatio(FR_MODULE_TYPE.driveRatio)
-              .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio);
+              .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio)
+              .withDriveInertia(DRIVE_INERTIA);
 
   private static final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("bl");
   public static final Translation2d BL_MODULE_TRANSLATION =
@@ -156,7 +161,8 @@ public class SwerveConstants {
                   BL_MODULE_TYPE.steerInverted,
                   false)
               .withDriveMotorGearRatio(BL_MODULE_TYPE.driveRatio)
-              .withSteerMotorGearRatio(BL_MODULE_TYPE.steerRatio);
+              .withSteerMotorGearRatio(BL_MODULE_TYPE.steerRatio)
+              .withDriveInertia(DRIVE_INERTIA);
 
   private static final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("br");
   public static final Translation2d BR_MODULE_TRANSLATION =
@@ -177,7 +183,8 @@ public class SwerveConstants {
                   BR_MODULE_TYPE.steerInverted,
                   false)
               .withDriveMotorGearRatio(BR_MODULE_TYPE.driveRatio)
-              .withSteerMotorGearRatio(BR_MODULE_TYPE.steerRatio);
+              .withSteerMotorGearRatio(BR_MODULE_TYPE.steerRatio)
+              .withDriveInertia(DRIVE_INERTIA);
 
   // Choreo Constants
   public static final boolean FLIP_TRAJECTORY_ON_RED = true;

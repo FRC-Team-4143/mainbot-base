@@ -84,7 +84,8 @@ public class Module {
     // Apply setpoints
     switch (DriveMode) {
       case CLOSED_LOOP -> io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius);
-      case OPEN_LOOP -> io.setDriveOpenLoop(state.speedMetersPerSecond / constants.WheelRadius);
+      case OPEN_LOOP -> io.setDriveOpenLoop(
+          state.speedMetersPerSecond / SwerveConstants.SPEED_AT_12V_MPS * 12.0);
     }
     switch (SteerMode) {
       case CLOSED_LOOP -> io.setTurnPosition(state.angle);

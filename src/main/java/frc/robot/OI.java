@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.swerve.Swerve;
 import java.util.Optional;
 
 public abstract class OI {
@@ -13,7 +14,9 @@ public abstract class OI {
   // Sets up both controllers
   private static CommandXboxController driver_controller_ = new CommandXboxController(0);
 
-  public static void configureBindings() {}
+  public static void configureBindings() {
+    driver_controller_.leftStick().onTrue(Swerve.getInstance().toggleFieldCentric());
+  }
 
   /**
    * @return driver controller left joystick x axis scaled quadratically

@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -80,12 +81,13 @@ public class ModuleIOSim implements ModuleIO {
     } else {
       turnController.reset();
     }
-
-    // Update simulation state
-    driveSim.setInputVoltage(MathUtil.clamp(driveAppliedVolts, -12.0, 12.0));
-    turnSim.setInputVoltage(MathUtil.clamp(turnAppliedVolts, -12.0, 12.0));
-    driveSim.update(0.02);
-    turnSim.update(0.02);
+    if (DriverStation.isEnabled()) {
+      // Update simulation state
+      driveSim.setInputVoltage(MathUtil.clamp(driveAppliedVolts, -12.0, 12.0));
+      turnSim.setInputVoltage(MathUtil.clamp(turnAppliedVolts, -12.0, 12.0));
+      driveSim.update(0.02);
+      turnSim.update(0.02);
+    }
 
     // Update drive inputs
     inputs.driveConnected = true;

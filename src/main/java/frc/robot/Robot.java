@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.proxy_server.ProxyServer;
 import frc.robot.subsystems.pose_estimator.PoseEstimator;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveConstants;
+import java.util.Optional;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -15,8 +19,11 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
 
+  private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
+
   public Robot() {
     // Record metadata
+
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -63,7 +70,20 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+
+      if (alliance.get() != alliance_) {
+        alliance_ = alliance.get();
+        Swerve.getInstance()
+            .setOperatorForwardDirection(
+                alliance_ == Alliance.Blue
+                    ? SwerveConstants.OperatorPerspective.BLUE_ALLIANCE
+                    : SwerveConstants.OperatorPerspective.RED_ALLIANCE);
+      }
+    }
+  }
 
   @Override
   public void autonomousInit() {}

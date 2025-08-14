@@ -2,9 +2,11 @@ package frc.robot.subsystems.pose_estimator;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.FieldConstants;
 import frc.robot.subsystems.swerve.Swerve;
 
 public class PoseEstimator extends SubsystemBase {
@@ -26,7 +28,8 @@ public class PoseEstimator extends SubsystemBase {
             Swerve.getInstance().getKinematics(),
             Swerve.getInstance().getGyroRotation(),
             Swerve.getInstance().getModulePositions(),
-            new Pose2d());
+            new Pose2d(
+                FieldConstants.FIELD_LENGTH / 2, FieldConstants.FIELD_WIDTH / 2, Rotation2d.kZero));
 
     robot_pose_pub_ =
         NetworkTableInstance.getDefault()

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -39,6 +40,7 @@ import frc.robot.subsystems.swerve.Module.SteerControlMode;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
@@ -90,8 +92,8 @@ public class Swerve extends SubsystemBase {
   }
 
   // State identifiers for the swerve drive
-  private SystemState system_state_ = SystemState.FIELD_CENTRIC;
-  private WantedState wanted_state_ = WantedState.FIELD_CENTRIC;
+  @AutoLogOutput private SystemState system_state_ = SystemState.FIELD_CENTRIC;
+  @AutoLogOutput private WantedState wanted_state_ = WantedState.FIELD_CENTRIC;
 
   // State specific variables
   Trajectory<SwerveSample> desired_choreo_traj_;
@@ -257,7 +259,7 @@ public class Swerve extends SubsystemBase {
       }
 
       // Update gyro angle
-      if (gyro_inputs_.connected) {
+      if (gyro_inputs_.connected && Constants.IS_ROBOT_REAL) {
         // Use the real gyro angle
         raw_gyro_rotation_ = gyro_inputs_.odometryYawPositions[i];
       } else {
@@ -365,6 +367,9 @@ public class Swerve extends SubsystemBase {
     request_parameters_.operatorForwardDirection = operator_forward_direction_;
 
     request_to_apply_.apply(request_parameters_, modules_);
+    Logger.recordOutput("swerveModuleStates", getModuleStates());
+    Logger.recordOutput("chasisSpeed", getChassisSpeeds());
+    Logger.recordOutput("gyroRotation", getGyroRotation());
     gyro_disconnected_alert_.set(!gyro_inputs_.connected && Constants.IS_ROBOT_REAL);
   }
 
@@ -488,6 +493,17 @@ public class Swerve extends SubsystemBase {
     wanted_state_ = WantedState.ROTATION_LOCK;
   }
 
+  public Command toggleFieldCentric() {
+    return runOnce(
+        () -> {
+          if (system_state_ == SystemState.FIELD_CENTRIC) {
+            setWantedState(WantedState.ROBOT_CENTRIC);
+          } else {
+            setWantedState(WantedState.FIELD_CENTRIC);
+          }
+        });
+  }
+
   // ------------------------------------------------
   // Operator Interface Methods
   // ------------------------------------------------
@@ -504,15 +520,19 @@ public class Swerve extends SubsystemBase {
     }
 
     double x_magnitude =
-        MathUtil.applyDeadband(OI.getDriverJoystickLeftY(), Constants.CONTROLLER_DEADBAND);
+        -MathUtil.applyDeadband(OI.getDriverJoystickLeftY(), Constants.CONTROLLER_DEADBAND);
     double y_magnitude =
-        MathUtil.applyDeadband(OI.getDriverJoystickLeftX(), Constants.CONTROLLER_DEADBAND);
+        -MathUtil.applyDeadband(OI.getDriverJoystickLeftX(), Constants.CONTROLLER_DEADBAND);
     double angular_magnitude =
-        MathUtil.applyDeadband(OI.getDriverJoystickRightX(), Constants.CONTROLLER_DEADBAND);
-    return new Twist2d(
-        x_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
-        y_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
-        angular_magnitude * SwerveConstants.MAX_ANGULAR_RATE);
+        -MathUtil.applyDeadband(OI.getDriverJoystickRightX(), Constants.CONTROLLER_DEADBAND);
+
+    Twist2d Twist =
+        new Twist2d(
+            x_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
+            y_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
+            angular_magnitude * SwerveConstants.MAX_ANGULAR_RATE);
+    Logger.recordOutput("joystickTwist", Twist);
+    return Twist;
   }
 
   /**
@@ -647,7 +667,7 @@ public class Swerve extends SubsystemBase {
   // ------------------------------------------------
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
       states[i] = modules_[i].getState();
