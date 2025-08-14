@@ -1,10 +1,3 @@
-// Copyright (c) 2021-2025 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
@@ -259,9 +252,9 @@ public class Swerve extends SubsystemBase {
       }
 
       // Update gyro angle
-      if (gyro_inputs_.connected && Constants.IS_ROBOT_REAL) {
+      if (gyro_inputs_.connected_ && Constants.IS_ROBOT_REAL) {
         // Use the real gyro angle
-        raw_gyro_rotation_ = gyro_inputs_.odometryYawPositions[i];
+        raw_gyro_rotation_ = gyro_inputs_.odometry_yaw_positions_[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
         Twist2d twist = kinematics_.toTwist2d(moduleDeltas);
@@ -370,7 +363,7 @@ public class Swerve extends SubsystemBase {
     Logger.recordOutput("swerveModuleStates", getModuleStates());
     Logger.recordOutput("chasisSpeed", getChassisSpeeds());
     Logger.recordOutput("gyroRotation", getGyroRotation());
-    gyro_disconnected_alert_.set(!gyro_inputs_.connected && Constants.IS_ROBOT_REAL);
+    gyro_disconnected_alert_.set(!gyro_inputs_.connected_ && Constants.IS_ROBOT_REAL);
   }
 
   // ------------------------------------------------

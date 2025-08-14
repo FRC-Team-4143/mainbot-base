@@ -1,10 +1,3 @@
-// Copyright (c) 2021-2025 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,11 +7,11 @@ public interface GyroIO {
 
   @AutoLog
   public static class GyroIOInputs {
-    public boolean connected = false;
-    public Rotation2d yawPosition = new Rotation2d();
-    public double yawVelocityRadPerSec = 0.0;
-    public double[] odometryYawTimestamps = new double[] {};
-    public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
+    public boolean connected_ = false;
+    public Rotation2d yaw_position_ = new Rotation2d();
+    public double yaw_velocity_ = 0.0;
+    public double[] odometry_yaw_timestamps_ = new double[] {};
+    public Rotation2d[] odometry_yaw_positions_ = new Rotation2d[] {};
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}

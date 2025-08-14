@@ -1,10 +1,3 @@
-// Copyright (c) 2021-2025 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -90,24 +83,24 @@ public class ModuleIOSim implements ModuleIO {
     }
 
     // Update drive inputs
-    inputs.driveConnected = true;
-    inputs.drivePositionRad = driveSim.getAngularPositionRad();
-    inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
-    inputs.driveAppliedVolts = driveAppliedVolts;
-    inputs.driveCurrentAmps = Math.abs(driveSim.getCurrentDrawAmps());
+    inputs.drive_connected_ = true;
+    inputs.drive_position_ = driveSim.getAngularPositionRad();
+    inputs.drive_velocity_ = driveSim.getAngularVelocityRadPerSec();
+    inputs.drive_applied_volts_ = driveAppliedVolts;
+    inputs.drive_current_ = Math.abs(driveSim.getCurrentDrawAmps());
 
     // Update turn inputs
-    inputs.turnConnected = true;
-    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
-    inputs.turnAppliedVolts = turnAppliedVolts;
-    inputs.turnCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
+    inputs.turn_connected_ = true;
+    inputs.turn_absolute_position_ = new Rotation2d(turnSim.getAngularPositionRad());
+    inputs.turn_position_ = new Rotation2d(turnSim.getAngularPositionRad());
+    inputs.turn_velocity_ = turnSim.getAngularVelocityRadPerSec();
+    inputs.turn_applied_volts_ = turnAppliedVolts;
+    inputs.turn_current_ = Math.abs(turnSim.getCurrentDrawAmps());
 
     // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't matter)
-    inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
-    inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad};
-    inputs.odometryTurnPositions = new Rotation2d[] {inputs.turnPosition};
+    inputs.odometry_timestamps_ = new double[] {Timer.getFPGATimestamp()};
+    inputs.odometry_drive_positions_ = new double[] {inputs.drive_position_};
+    inputs.odometry_turn_positions_ = new Rotation2d[] {inputs.turn_position_};
   }
 
   @Override

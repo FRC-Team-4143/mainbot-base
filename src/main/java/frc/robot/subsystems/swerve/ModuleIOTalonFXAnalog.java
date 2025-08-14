@@ -1,10 +1,3 @@
-// Copyright (c) 2021-2025 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -167,27 +160,27 @@ public class ModuleIOTalonFXAnalog implements ModuleIO {
         BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
 
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
-    inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
-    inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
-    inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
-    inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
+    inputs.drive_connected_ = driveConnectedDebounce.calculate(driveStatus.isOK());
+    inputs.drive_position_ = Units.rotationsToRadians(drivePosition.getValueAsDouble());
+    inputs.drive_velocity_ = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
+    inputs.drive_applied_volts_ = driveAppliedVolts.getValueAsDouble();
+    inputs.drive_current_ = driveCurrent.getValueAsDouble();
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
-    inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
-    inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
-    inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
+    inputs.turn_connected_ = turnConnectedDebounce.calculate(turnStatus.isOK());
+    inputs.turn_position_ = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
+    inputs.turn_velocity_ = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
+    inputs.turn_applied_volts_ = turnAppliedVolts.getValueAsDouble();
+    inputs.turn_current_ = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    inputs.odometryTimestamps =
+    inputs.odometry_timestamps_ =
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryDrivePositionsRad =
+    inputs.odometry_drive_positions_ =
         drivePositionQueue.stream()
             .mapToDouble((Double value) -> Units.rotationsToRadians(value))
             .toArray();
-    inputs.odometryTurnPositions =
+    inputs.odometry_turn_positions_ =
         turnPositionQueue.stream()
             .map((Double value) -> Rotation2d.fromRotations(value))
             .toArray(Rotation2d[]::new);

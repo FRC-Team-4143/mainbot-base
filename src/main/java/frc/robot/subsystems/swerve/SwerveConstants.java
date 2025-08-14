@@ -32,7 +32,6 @@ public class SwerveConstants {
 
   public static final double DRIVE_INERTIA = 0.05; // kg*m^2, inertia of the drive motor
 
-  
   // Forward Reference rotation constants
   public enum OperatorPerspective {
     BLUE_ALLIANCE(Rotation2d.fromDegrees(0.0)),
