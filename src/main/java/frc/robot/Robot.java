@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.proxy_server.ProxyServer;
-import frc.robot.subsystems.pose_estimator.PoseEstimator;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -50,7 +50,6 @@ public class Robot extends LoggedRobot {
     ProxyServer.configureServer();
 
     // Ensure subsystems are created
-    PoseEstimator.getInstance(); // ensure pose estimator is created
     Swerve.getInstance(); // ensure swerve is created
   }
 
@@ -110,4 +109,25 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {}
+
+  @Override
+  public void simulationInit() {
+    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
+      SimulatedArena.getInstance().addDriveTrainSimulation(SwerveConstants.SWERVE_SIMULATION);
+    }
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
+      SimulatedArena.getInstance().simulationPeriodic();
+      Logger.recordOutput(
+          "FieldSimulation/RobotPosition",
+          SwerveConstants.SWERVE_SIMULATION.getSimulatedDriveTrainPose());
+      Logger.recordOutput(
+          "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+      Logger.recordOutput(
+          "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+    }
+  }
 }

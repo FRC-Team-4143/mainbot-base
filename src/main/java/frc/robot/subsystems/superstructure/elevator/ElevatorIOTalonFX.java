@@ -51,9 +51,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
    * @param position The target position in meters.
    */
   public void setTargetPosition(double position) {
-    leader_motor_.setControl(control_request_.withPosition(position / ElevatorConstants.ROTATIONS_TO_TRANSLATION));
+    leader_motor_.setControl(
+        control_request_.withPosition(position / ElevatorConstants.ROTATIONS_TO_TRANSLATION));
     follower_motor_.setControl(new StrictFollower(leader_motor_.getDeviceID()));
-
   }
 
   /** Zeroes the elevator position. */
@@ -62,12 +62,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     follower_motor_.setPosition(0.0);
   }
 
-    /**
-     * Updates the gains for the elevator.
-     *
-     * @param gains The new gains to apply.
-     */
-    public void updateGains(Slot0Configs gains) {
-        leader_motor_.getConfigurator().apply(gains);
-    }
+  /**
+   * Updates the gains for the elevator.
+   *
+   * @param gains The new gains to apply.
+   */
+  public void updateGains(Slot0Configs gains) {
+    leader_motor_.getConfigurator().apply(gains);
+  }
 }

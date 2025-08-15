@@ -51,5 +51,5 @@ public interface ElevatorIO {
    *
    * @param gains The new gains to apply.
    */
-  public default void updateGains(Slot0Configs gains){}
+  public default void updateGains(Slot0Configs gains) {}
 }

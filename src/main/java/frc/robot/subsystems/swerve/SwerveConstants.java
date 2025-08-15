@@ -1,5 +1,10 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -9,10 +14,16 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.util.ConstantsLoader;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class SwerveConstants {
 
@@ -30,7 +41,13 @@ public class SwerveConstants {
   public static final double ODOMETRY_FREQUENCY =
       new CANBus(SwerveConstants.MODULE_CANBUS_NAME).isNetworkFD() ? 250.0 : 100.0;
 
-  public static final double DRIVE_INERTIA = 0.05; // kg*m^2, inertia of the drive motor
+  public static final double DRIVE_INERTIA = 0.025; // kg*m^2, inertia of the drive motor
+  public static final double STEER_INERTIA = 0.004;
+  public static final double DRIVE_FRICTION_VOLTAGE = 0.2;
+  public static final double STEER_FRICTION_VOLTAGE = 0.2;
+
+  public static final double ROBOT_MASS_LBS = 140.0; // Mass of the robot in pounds
+  public static final double WHEEL_COF = 1.2; // Coefficient of friction for the wheels
 
   // Forward Reference rotation constants
   public enum OperatorPerspective {
@@ -204,4 +221,30 @@ public class SwerveConstants {
   public static final double TRACTOR_BEAM_CONTROLLER_KP = 0.0;
   public static final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
   public static final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
+
+  // Swerve Simulation
+  public static final DriveTrainSimulationConfig SWERVE_SIMULATION_CONFIG =
+      DriveTrainSimulationConfig.Default()
+          .withRobotMass(Kilograms.of(Units.lbsToKilograms(ROBOT_MASS_LBS)))
+          .withCustomModuleTranslations(
+              new Translation2d[] {
+                FL_MODULE_TRANSLATION,
+                FR_MODULE_TRANSLATION,
+                BL_MODULE_TRANSLATION,
+                BR_MODULE_TRANSLATION
+              })
+          .withGyro(COTS.ofPigeon2())
+          .withSwerveModule(
+              new SwerveModuleSimulationConfig(
+                  DCMotor.getKrakenX60(1),
+                  DCMotor.getFalcon500(1),
+                  FL_MODULE_TYPE.driveRatio,
+                  FL_MODULE_TYPE.steerRatio,
+                  Volts.of(DRIVE_FRICTION_VOLTAGE),
+                  Volts.of(STEER_FRICTION_VOLTAGE),
+                  Meters.of(WHEEL_RADIUS_METERS),
+                  KilogramSquareMeters.of(STEER_INERTIA),
+                  WHEEL_COF));
+  public static final SwerveDriveSimulation SWERVE_SIMULATION =
+      new SwerveDriveSimulation(SWERVE_SIMULATION_CONFIG, new Pose2d(3, 3, Rotation2d.kZero));
 }

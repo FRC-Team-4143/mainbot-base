@@ -6,25 +6,25 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.util.ConstantsLoader;
 import frc.robot.subsystems.superstructure.elevator.ElevatorIO.ElevatorConfig;
 
 public class ElevatorConstants {
 
-    // ConstantsLoader instance for loading configuration values
-    private static final ConstantsLoader LOADER = ConstantsLoader.getInstance();
+  // ConstantsLoader instance for loading configuration values
+  private static final ConstantsLoader LOADER = ConstantsLoader.getInstance();
 
-    public static final ElevatorConfig ELEVATOR_CONFIG = new ElevatorConfig();
+  public static final ElevatorConfig ELEVATOR_CONFIG = new ElevatorConfig();
 
-    public static final NeutralModeValue NEUTRAL_MODE =
-        NeutralModeValue.Brake; // Default neutral mode for the elevator motors
-    public static final double STATOR_CURRENT_LIMIT = 80.0; // Stator current limit in Amps
-    // Units.inchesToMeters(Sprocket Circumference * Math.PI) / gearbox ratio * rigging
-    public static final double ROTATIONS_TO_TRANSLATION = Units.inchesToMeters(1.751 * Math.PI)
-    / LOADER.getDoubleValue("elevator", "ELEVATOR_GEAR_RATIO")
-    * 2; // Conversion factor from motor rotations to meters for the elevator
+  public static final NeutralModeValue NEUTRAL_MODE =
+      NeutralModeValue.Brake; // Default neutral mode for the elevator motors
+  public static final double STATOR_CURRENT_LIMIT = 80.0; // Stator current limit in Amps
+  // Units.inchesToMeters(Sprocket Circumference * Math.PI) / gearbox ratio * rigging
+  public static final double ROTATIONS_TO_TRANSLATION =
+      Units.inchesToMeters(1.751 * Math.PI)
+          / LOADER.getDoubleValue("elevator", "ELEVATOR_GEAR_RATIO")
+          * 2; // Conversion factor from motor rotations to meters for the elevator
 
   static {
     ELEVATOR_CONFIG.leader_id_ = 21; // ID for the leader motor

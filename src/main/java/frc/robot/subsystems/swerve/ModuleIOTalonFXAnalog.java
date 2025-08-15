@@ -29,47 +29,47 @@ import java.util.Queue;
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
  * an Analog Encoder. Configured using a set of module constants from Phoenix.
  */
-public class ModuleIOTalonFXAnalog implements ModuleIO {
-  private final SwerveModuleConstants<
+public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
+  protected final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
 
   // Hardware objects
-  private final TalonFX driveTalon;
-  private final TalonFX turnTalon;
-  private final AnalogEncoder encoder;
+  protected final TalonFX driveTalon;
+  protected final TalonFX turnTalon;
+  protected final AnalogEncoder encoder;
 
   // Voltage control requests
-  private final VoltageOut voltageRequest = new VoltageOut(0);
-  private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
-  private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
+  protected final VoltageOut voltageRequest = new VoltageOut(0);
+  protected final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
+  protected final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
 
   // Torque-current control requests
-  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
-  private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
+  protected final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
+  protected final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0);
-  private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
+  protected final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
       new VelocityTorqueCurrentFOC(0.0);
 
   // Timestamp inputs from Phoenix thread
-  private final Queue<Double> timestampQueue;
+  protected final Queue<Double> timestampQueue;
 
   // Inputs from drive motor
-  private final StatusSignal<Angle> drivePosition;
-  private final Queue<Double> drivePositionQueue;
-  private final StatusSignal<AngularVelocity> driveVelocity;
-  private final StatusSignal<Voltage> driveAppliedVolts;
-  private final StatusSignal<Current> driveCurrent;
+  protected final StatusSignal<Angle> drivePosition;
+  protected final Queue<Double> drivePositionQueue;
+  protected final StatusSignal<AngularVelocity> driveVelocity;
+  protected final StatusSignal<Voltage> driveAppliedVolts;
+  protected final StatusSignal<Current> driveCurrent;
 
   // Inputs from turn motor
-  private final StatusSignal<Angle> turnPosition;
-  private final Queue<Double> turnPositionQueue;
-  private final StatusSignal<AngularVelocity> turnVelocity;
-  private final StatusSignal<Voltage> turnAppliedVolts;
-  private final StatusSignal<Current> turnCurrent;
+  protected final StatusSignal<Angle> turnPosition;
+  protected final Queue<Double> turnPositionQueue;
+  protected final StatusSignal<AngularVelocity> turnVelocity;
+  protected final StatusSignal<Voltage> turnAppliedVolts;
+  protected final StatusSignal<Current> turnCurrent;
 
   // Inputs from turn encoder
-  private final Rotation2d turnAbsolutePosition;
+  protected final Rotation2d turnAbsolutePosition;
 
   // Connection debouncers
   private final Debouncer driveConnectedDebounce = new Debouncer(0.5);

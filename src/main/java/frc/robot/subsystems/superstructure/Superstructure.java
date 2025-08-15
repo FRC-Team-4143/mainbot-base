@@ -18,14 +18,16 @@ public class Superstructure extends SubsystemBase {
 
   public static Superstructure getInstance() {
     if (instance_ == null) {
-      if (Constants.IS_ROBOT_REAL) {
+      if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
         // Initialize with real IO components
         instance_ =
             new Superstructure(
                 new ElevatorIOTalonFX(ElevatorConstants.ELEVATOR_CONFIG), new ArmIOTalonFX());
-      } else {
+      } else if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
         // Initialize with simulated IO components
         instance_ = new Superstructure(new ElevatorIOSim(), new ArmIOSim());
+      } else {
+        instance_ = new Superstructure(new ElevatorIO() {}, new ArmIO() {});
       }
     }
     return instance_;
