@@ -687,6 +687,7 @@ public class Swerve extends SubsystemBase {
   // ------------------------------------------------
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+  @AutoLogOutput(key = "Swerve/ModuleStates")
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
@@ -696,6 +697,7 @@ public class Swerve extends SubsystemBase {
   }
 
   /** Returns the module positions (turn angles and drive positions) for all of the modules. */
+  @AutoLogOutput(key = "Swerve/ModulePositions")
   public SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] states = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
@@ -705,16 +707,19 @@ public class Swerve extends SubsystemBase {
   }
 
   /** Returns the measured chassis speeds of the robot. */
+  @AutoLogOutput(key = "Swerve/ChassisSpeeds")
   public ChassisSpeeds getChassisSpeeds() {
     return kinematics_.toChassisSpeeds(getModuleStates());
   }
 
   /** Returns the current odometry pose */
+  @AutoLogOutput(key = "Swerve/Pose")
   public Pose2d getPose() {
     return pose_estimator_.getEstimatedPosition();
   }
 
   /** Returns the current odometry rotation */
+  @AutoLogOutput(key = "Swerve/Rotation")
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }

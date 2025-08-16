@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import static frc.mw_lib.util.PhoenixUtil.tryUntilOk;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -96,8 +98,8 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    driveTalon.getConfigurator().apply(driveConfig, 0.25);
-    driveTalon.setPosition(0.0, 0.25);
+    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
+    tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
@@ -113,7 +115,7 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
         constants.SteerMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    turnTalon.getConfigurator().apply(turnConfig, 0.25);
+    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
 
     // Configure Analog encoder
 
