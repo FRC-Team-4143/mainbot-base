@@ -8,6 +8,19 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
 
-  public static final boolean IS_ROBOT_REAL = RobotBase.isReal();
+  public static final Mode SIM_MODE = Mode.SIM;
+  public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
+
   public static final double CONTROLLER_DEADBAND = 0.05;
 }
