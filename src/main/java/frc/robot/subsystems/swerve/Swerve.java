@@ -185,8 +185,6 @@ public class Swerve extends SubsystemBase {
   // Simulation
   private final Consumer<Pose2d> reset_simulation_pose_callback_;
 
-  // private final SysIdRoutine sysId;
-
   /**
    * Creates a new Swerve subsystem with the specified gyro and module IOs.
    *
