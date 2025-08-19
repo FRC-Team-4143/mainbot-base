@@ -1,9 +1,20 @@
+// Copyright 2021-2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import frc.mw_lib.util.PhoenixUtil;
 import java.util.Arrays;
@@ -17,9 +28,7 @@ public class ModuleIOTalonFXAnalogSim extends ModuleIOTalonFXAnalog {
   private final SwerveModuleSimulation simulation;
 
   public ModuleIOTalonFXAnalogSim(
-      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-          constants,
-      SwerveModuleSimulation simulation) {
+      SwerveModuleConstants constants, SwerveModuleSimulation simulation) {
     super(PhoenixUtil.regulateModuleConstantForSimulation(constants));
 
     this.simulation = simulation;
