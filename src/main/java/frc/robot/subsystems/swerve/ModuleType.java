@@ -61,7 +61,7 @@ public class ModuleType {
   }
 
   /**
-   * @param position String represneting the module location [fl, fr, bl, br, etc..]
+   * @param position String representing the module location [fl, fr, bl, br, etc..]
    * @return ModuleType to be load the gear ratio constants from
    */
   public static ModuleType getModuleType(String position) {

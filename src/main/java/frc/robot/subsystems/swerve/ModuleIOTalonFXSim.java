@@ -33,7 +33,8 @@ public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
     this.simulation = simulation;
     simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
 
-    simulation.useSteerMotorController(new PhoenixUtil.TalonFXMotorControllerSim(turnTalon));
+    simulation.useSteerMotorController(
+        new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
   }
 
   @Override
@@ -41,13 +42,13 @@ public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
     super.updateInputs(inputs);
 
     // Update odometry inputs
-    inputs.odometry_timestamps_ = PhoenixUtil.getSimulationOdometryTimeStamps();
+    inputs.odometryTimestamps = PhoenixUtil.getSimulationOdometryTimeStamps();
 
-    inputs.odometry_drive_positions_ =
+    inputs.odometryDrivePositionsRad =
         Arrays.stream(simulation.getCachedDriveWheelFinalPositions())
             .mapToDouble(angle -> angle.in(Radians))
             .toArray();
 
-    inputs.odometry_turn_positions_ = simulation.getCachedSteerAbsolutePositions();
+    inputs.odometryTurnPositions = simulation.getCachedSteerAbsolutePositions();
   }
 }

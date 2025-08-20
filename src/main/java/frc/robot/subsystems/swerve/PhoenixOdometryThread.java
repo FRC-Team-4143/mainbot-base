@@ -1,9 +1,23 @@
+// Copyright 2021-2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +44,8 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-  private static boolean isCANFD = new CANBus(SwerveConstants.MODULE_CANBUS_NAME).isNetworkFD();
+  private static boolean isCANFD =
+      new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD();
   private static PhoenixOdometryThread instance = null;
 
   public static PhoenixOdometryThread getInstance() {
@@ -47,7 +62,7 @@ public class PhoenixOdometryThread extends Thread {
 
   @Override
   public void start() {
-    if (timestampQueues.size() > 0) {
+    if (!timestampQueues.isEmpty() && RobotBase.isReal()) {
       super.start();
     }
   }

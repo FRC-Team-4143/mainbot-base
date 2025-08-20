@@ -1,3 +1,16 @@
+// Copyright 2021-2024 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -27,18 +40,18 @@ public class GyroIOPigeon2 implements GyroIO {
     yawVelocity.setUpdateFrequency(50.0);
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
+    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
   }
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected_ = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
-    inputs.yaw_position_ = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    inputs.yaw_velocity_ = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    inputs.odometry_yaw_timestamps_ =
+    inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometry_yaw_positions_ =
+    inputs.odometryYawPositions =
         yawPositionQueue.stream()
             .map((Double value) -> Rotation2d.fromDegrees(value))
             .toArray(Rotation2d[]::new);

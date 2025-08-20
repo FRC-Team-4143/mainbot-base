@@ -36,7 +36,8 @@ public class ModuleIOTalonFXReal extends ModuleIOTalonFX {
     this.timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     this.drivePositionQueue =
         PhoenixOdometryThread.getInstance().registerSignal(super.drivePosition);
-    this.turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(super.turnPosition);
+    this.turnPositionQueue =
+        PhoenixOdometryThread.getInstance().registerSignal(super.turnAbsolutePosition);
   }
 
   @Override
@@ -44,11 +45,11 @@ public class ModuleIOTalonFXReal extends ModuleIOTalonFX {
     super.updateInputs(inputs);
 
     // Update odometry inputs
-    inputs.odometry_timestamps_ =
+    inputs.odometryTimestamps =
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometry_drive_positions_ =
+    inputs.odometryDrivePositionsRad =
         drivePositionQueue.stream().mapToDouble(Units::rotationsToRadians).toArray();
-    inputs.odometry_turn_positions_ =
+    inputs.odometryTurnPositions =
         turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
     timestampQueue.clear();
     drivePositionQueue.clear();

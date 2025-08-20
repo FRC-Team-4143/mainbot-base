@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -60,7 +59,7 @@ public abstract class OI {
    * Resets the simulation field to the starting position
    */
   public static void resetSimulationField() {
-    SwerveConstants.SWERVE_SIMULATION.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
+    Robot.swerve_simulation_.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
     SimulatedArena.getInstance().resetFieldForAuto();
   }
 

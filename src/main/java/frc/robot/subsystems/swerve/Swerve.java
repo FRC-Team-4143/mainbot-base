@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.Robot;
 import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
 import frc.robot.subsystems.swerve.ChassisRequest.XPositiveReference;
 import frc.robot.subsystems.swerve.Module.DriveControlMode;
@@ -53,22 +54,30 @@ public class Swerve extends SubsystemBase {
                 new ModuleIOTalonFXReal(SwerveConstants.BR_MODULE_CONSTANTS),
                 (pose) -> {});
       } else if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
+        // instance_ =
+        //     new Swerve(
+        //         new GyroIOSim(Robot.swerve_simulation_.getGyroSimulation()),
+        //         new ModuleIOTalonFXSim(
+        //             TunerConstants.FrontLeft, Robot.swerve_simulation_.getModules()[0]),
+        //         new ModuleIOTalonFXSim(
+        //             TunerConstants.FrontRight, Robot.swerve_simulation_.getModules()[1]),
+        //         new ModuleIOTalonFXSim(
+        //             TunerConstants.BackLeft, Robot.swerve_simulation_.getModules()[2]),
+        //         new ModuleIOTalonFXSim(
+        //             TunerConstants.BackRight, Robot.swerve_simulation_.getModules()[3]),
+        //         Robot.swerve_simulation_::setSimulationWorldPose);
         instance_ =
             new Swerve(
-                new GyroIOSim(SwerveConstants.SWERVE_SIMULATION.getGyroSimulation()),
+                new GyroIOSim(Robot.swerve_simulation_.getGyroSimulation()),
                 new ModuleIOTalonFXSim(
-                    SwerveConstants.FL_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[0]),
+                    SwerveConstants.FL_MODULE_CONSTANTS, Robot.swerve_simulation_.getModules()[0]),
                 new ModuleIOTalonFXSim(
-                    SwerveConstants.FR_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[1]),
+                    SwerveConstants.FR_MODULE_CONSTANTS, Robot.swerve_simulation_.getModules()[1]),
                 new ModuleIOTalonFXSim(
-                    SwerveConstants.BL_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[2]),
+                    SwerveConstants.BL_MODULE_CONSTANTS, Robot.swerve_simulation_.getModules()[2]),
                 new ModuleIOTalonFXSim(
-                    SwerveConstants.BR_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[3]),
-                SwerveConstants.SWERVE_SIMULATION::setSimulationWorldPose);
+                    SwerveConstants.BL_MODULE_CONSTANTS, Robot.swerve_simulation_.getModules()[3]),
+                Robot.swerve_simulation_::setSimulationWorldPose);
       } else {
         instance_ =
             new Swerve(
@@ -202,6 +211,10 @@ public class Swerve extends SubsystemBase {
       ModuleIO brModuleIO,
       Consumer<Pose2d> reset_simulation_pose_callback) {
     this.gyro_IO_ = gyroIO;
+    // modules_[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
+    // modules_[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
+    // modules_[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
+    // modules_[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
     modules_[0] = new Module(flModuleIO, 0, SwerveConstants.FL_MODULE_CONSTANTS);
     modules_[1] = new Module(frModuleIO, 1, SwerveConstants.FR_MODULE_CONSTANTS);
     modules_[2] = new Module(blModuleIO, 2, SwerveConstants.BL_MODULE_CONSTANTS);
@@ -287,9 +300,9 @@ public class Swerve extends SubsystemBase {
       }
 
       // Update gyro angle
-      if (gyro_inputs_.connected_ && Constants.CURRENT_MODE == Constants.Mode.REAL) {
+      if (gyro_inputs_.connected) {
         // Use the real gyro angle
-        raw_gyro_rotation_ = gyro_inputs_.odometry_yaw_positions_[i];
+        raw_gyro_rotation_ = gyro_inputs_.odometryYawPositions[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
         Twist2d twist = kinematics_.toTwist2d(module_deltas);
@@ -396,7 +409,7 @@ public class Swerve extends SubsystemBase {
 
     request_to_apply_.apply(request_parameters_, modules_);
     gyro_disconnected_alert_.set(
-        !gyro_inputs_.connected_ && Constants.CURRENT_MODE == Constants.Mode.REAL);
+        !gyro_inputs_.connected && Constants.CURRENT_MODE == Constants.Mode.REAL);
 
     Logger.recordOutput("Swerve/ModuleStates", getModuleStates());
     Logger.recordOutput("Swerve/ChassisSpeeds", getChassisSpeeds());
@@ -745,6 +758,11 @@ public class Swerve extends SubsystemBase {
   /** Returns an array of module translations. */
   public Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
+      // new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+      // new Translation2d(TunerConstants.FrontRight.LocationX,
+      // TunerConstants.FrontRight.LocationY),
+      // new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+      // new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
       SwerveConstants.FL_MODULE_TRANSLATION,
       SwerveConstants.FR_MODULE_TRANSLATION,
       SwerveConstants.BL_MODULE_TRANSLATION,
