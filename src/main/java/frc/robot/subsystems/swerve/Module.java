@@ -1,7 +1,18 @@
+// Copyright 2021-2024 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -14,10 +25,8 @@ import org.littletonrobotics.junction.Logger;
 public class Module {
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
-  private final SwerveModuleConstants<
-          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      constants;
   private final int index;
+  private final SwerveModuleConstants constants;
 
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
@@ -32,11 +41,7 @@ public class Module {
     CLOSED_LOOP
   }
 
-  public Module(
-      ModuleIO io,
-      int index,
-      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-          constants) {
+  public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
     this.io = io;
     this.index = index;
     this.constants = constants;
@@ -51,7 +56,7 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Swerve/Module" + index, inputs);
+    Logger.processInputs("Swerve/Modules/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometry_timestamps_.length; // All signals are sampled together
@@ -69,18 +74,20 @@ public class Module {
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
   public void runSetpoint(
-      SwerveModuleState state, DriveControlMode DriveMode, SteerControlMode SteerMode) {
+      SwerveModuleState state,
+      Module.DriveControlMode drive_mode,
+      Module.SteerControlMode steer_mode) {
     // Optimize velocity setpoint
     state.optimize(getAngle());
     state.cosineScale(inputs.turn_position_);
 
     // Apply setpoints
-    switch (DriveMode) {
+    switch (drive_mode) {
       case CLOSED_LOOP -> io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius);
       case OPEN_LOOP -> io.setDriveOpenLoop(
           state.speedMetersPerSecond / SwerveConstants.SPEED_AT_12V_MPS * 12.0);
     }
-    switch (SteerMode) {
+    switch (steer_mode) {
       case CLOSED_LOOP -> io.setTurnPosition(state.angle);
         // Steer open loop is for characterization only
     }

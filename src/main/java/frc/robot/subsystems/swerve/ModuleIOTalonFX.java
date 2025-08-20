@@ -1,7 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.mw_lib.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -22,11 +20,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.AnalogEncoder;
-import frc.mw_lib.util.MWPreferences;
 import frc.robot.Constants;
 
-public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
+public abstract class ModuleIOTalonFX implements ModuleIO {
   protected final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -57,24 +53,17 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
   protected final StatusSignal<Voltage> turnAppliedVolts;
   protected final StatusSignal<Current> turnCurrent;
 
-  // Analog encoder
-  protected AnalogEncoder turnEncoder = null;
-
   // Connection debouncers
   private final Debouncer driveConnectedDebounce = new Debouncer(0.5);
   private final Debouncer turnConnectedDebounce = new Debouncer(0.5);
 
-  protected ModuleIOTalonFXAnalog(
+  protected ModuleIOTalonFX(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
     this.constants = constants;
 
     driveTalon = new TalonFX(constants.DriveMotorId, SwerveConstants.MODULE_CANBUS_NAME);
     turnTalon = new TalonFX(constants.SteerMotorId, SwerveConstants.MODULE_CANBUS_NAME);
-
-    if (Constants.CURRENT_MODE != Constants.Mode.SIM) {
-      turnEncoder = new AnalogEncoder(constants.EncoderId);
-    }
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -136,17 +125,6 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
         turnAppliedVolts,
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
-
-    // Read from Analog Encoder and offset steering motor position
-    if (Constants.CURRENT_MODE != Constants.Mode.SIM) {
-      double offset =
-          MWPreferences.getInstance()
-              .getPreferenceDouble("Module" + constants.EncoderId + "offset", 0);
-      double absolutePosition = turnEncoder.get() - offset;
-      turnTalon.setPosition(absolutePosition);
-    } else {
-      turnTalon.setPosition(0);
-    }
   }
 
   @Override
@@ -154,7 +132,8 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
     // Refresh all signals
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
-    var turnStatus = BaseStatusSignal.refreshAll(turnVelocity, turnAppliedVolts, turnCurrent);
+    var turnStatus =
+        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
 
     // Update drive inputs
     inputs.drive_connected_ = driveConnectedDebounce.calculate(driveStatus.isOK());
@@ -167,10 +146,8 @@ public abstract class ModuleIOTalonFXAnalog implements ModuleIO {
 
     // Update turn inputs
     inputs.turn_connected_ = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turn_absolute_position_ =
-        Rotation2d.fromRotations(turnPosition.getValue().in(Rotations));
-    inputs.turn_velocity_ =
-        Units.rotationsToRadians(turnVelocity.getValue().in(RotationsPerSecond));
+    inputs.turn_position_ = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
+    inputs.turn_velocity_ = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
     inputs.turn_applied_volts_ = turnAppliedVolts.getValueAsDouble();
     inputs.turn_current_ = turnCurrent.getValueAsDouble();
   }

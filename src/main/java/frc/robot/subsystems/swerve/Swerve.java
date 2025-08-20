@@ -47,25 +47,25 @@ public class Swerve extends SubsystemBase {
         instance_ =
             new Swerve(
                 new GyroIOPigeon2(),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.FL_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.FR_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.BL_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.BR_MODULE_CONSTANTS),
+                new ModuleIOTalonFXReal(SwerveConstants.FL_MODULE_CONSTANTS),
+                new ModuleIOTalonFXReal(SwerveConstants.FR_MODULE_CONSTANTS),
+                new ModuleIOTalonFXReal(SwerveConstants.BL_MODULE_CONSTANTS),
+                new ModuleIOTalonFXReal(SwerveConstants.BR_MODULE_CONSTANTS),
                 (pose) -> {});
       } else if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
         instance_ =
             new Swerve(
                 new GyroIOSim(SwerveConstants.SWERVE_SIMULATION.getGyroSimulation()),
-                new ModuleIOTalonFXAnalogSim(
+                new ModuleIOTalonFXSim(
                     SwerveConstants.FL_MODULE_CONSTANTS,
                     SwerveConstants.SWERVE_SIMULATION.getModules()[0]),
-                new ModuleIOTalonFXAnalogSim(
+                new ModuleIOTalonFXSim(
                     SwerveConstants.FR_MODULE_CONSTANTS,
                     SwerveConstants.SWERVE_SIMULATION.getModules()[1]),
-                new ModuleIOTalonFXAnalogSim(
+                new ModuleIOTalonFXSim(
                     SwerveConstants.BL_MODULE_CONSTANTS,
                     SwerveConstants.SWERVE_SIMULATION.getModules()[2]),
-                new ModuleIOTalonFXAnalogSim(
+                new ModuleIOTalonFXSim(
                     SwerveConstants.BR_MODULE_CONSTANTS,
                     SwerveConstants.SWERVE_SIMULATION.getModules()[3]),
                 SwerveConstants.SWERVE_SIMULATION::setSimulationWorldPose);
@@ -332,12 +332,12 @@ public class Swerve extends SubsystemBase {
         double x_component = velocity_output * direction_of_travel.getCos();
         double y_component = velocity_output * direction_of_travel.getSin();
 
-        Logger.recordOutput("TractorBeam/X Velocity Component", x_component);
-        Logger.recordOutput("TractorBeam/Y Velocity Component", y_component);
-        Logger.recordOutput("TractorBeam/Velocity Output", velocity_output);
-        Logger.recordOutput("TractorBeam/Linear Distance", linear_distance);
-        Logger.recordOutput("TractorBeam/Direction of Travel", direction_of_travel);
-        Logger.recordOutput("TractorBeam/Desired Point", desired_tractor_beam_pose_);
+        Logger.recordOutput("Swerve/TractorBeam/X Velocity Component", x_component);
+        Logger.recordOutput("Swerve/TractorBeam/Y Velocity Component", y_component);
+        Logger.recordOutput("Swerve/TractorBeam/Velocity Output", velocity_output);
+        Logger.recordOutput("Swerve/TractorBeam/Linear Distance", linear_distance);
+        Logger.recordOutput("Swerve/TractorBeam/Direction of Travel", direction_of_travel);
+        Logger.recordOutput("Swerve/TractorBeam/Desired Point", desired_tractor_beam_pose_);
 
         if (Double.isNaN(max_ang_vel_for_tractor_beam_)) {
           request_to_apply_ =
@@ -358,13 +358,14 @@ public class Swerve extends SubsystemBase {
       case CHOREO_PATH:
         if (choreo_sample_to_apply_.isPresent()) {
           SwerveSample sample = choreo_sample_to_apply_.get();
-          Logger.recordOutput("Choreo/Timer Value", choreo_timer_.get());
-          Logger.recordOutput("Choreo/Traj Name", desired_choreo_traj_.name());
-          Logger.recordOutput("Choreo/Total time", desired_choreo_traj_.getTotalTime());
-          Logger.recordOutput("Choreo/sample/Desired Pose", sample.getPose());
-          Logger.recordOutput("Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
-          Logger.recordOutput("Choreo/sample/Module Forces X", sample.moduleForcesX());
-          Logger.recordOutput("Choreo/sample/Module Forces Y", sample.moduleForcesY());
+          Logger.recordOutput("Swerve/Choreo/Timer Value", choreo_timer_.get());
+          Logger.recordOutput("Swerve/Choreo/Traj Name", desired_choreo_traj_.name());
+          Logger.recordOutput("Swerve/Choreo/Total time", desired_choreo_traj_.getTotalTime());
+          Logger.recordOutput("Swerve/Choreo/sample/Desired Pose", sample.getPose());
+          Logger.recordOutput(
+              "Swerve/Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
+          Logger.recordOutput("Swerve/Choreo/sample/Module Forces X", sample.moduleForcesX());
+          Logger.recordOutput("Swerve/Choreo/sample/Module Forces Y", sample.moduleForcesY());
           Pose2d pose = getPose();
           ChassisSpeeds target_speeds = sample.getChassisSpeeds();
           target_speeds.vxMetersPerSecond += choreo_x_controller_.calculate(pose.getX(), sample.x);
@@ -396,6 +397,10 @@ public class Swerve extends SubsystemBase {
     request_to_apply_.apply(request_parameters_, modules_);
     gyro_disconnected_alert_.set(
         !gyro_inputs_.connected_ && Constants.CURRENT_MODE == Constants.Mode.REAL);
+
+    Logger.recordOutput("Swerve/ModuleStates", getModuleStates());
+    Logger.recordOutput("Swerve/ChassisSpeeds", getChassisSpeeds());
+    Logger.recordOutput("Swerve/Rotation", getRotation());
   }
 
   // ------------------------------------------------

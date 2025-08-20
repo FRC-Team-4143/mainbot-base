@@ -24,13 +24,13 @@ import java.util.Queue;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class ModuleIOTalonFXAnalogReal extends ModuleIOTalonFXAnalog {
+public class ModuleIOTalonFXReal extends ModuleIOTalonFX {
   // Queue to read inputs from odometry thread
   private final Queue<Double> timestampQueue;
   private final Queue<Double> drivePositionQueue;
   private final Queue<Double> turnPositionQueue;
 
-  public ModuleIOTalonFXAnalogReal(SwerveModuleConstants constants) {
+  public ModuleIOTalonFXReal(SwerveModuleConstants constants) {
     super(constants);
 
     this.timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
