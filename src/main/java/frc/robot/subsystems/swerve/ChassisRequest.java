@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.subsystems.swerve.module.Module;
 
 /**
  * Container for all the Swerve Requests. Use this to find all applicable swerve drive requests.

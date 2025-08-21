@@ -1,10 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -16,19 +11,10 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.mw_lib.util.ConstantsLoader;
-import frc.robot.Constants;
-import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import frc.robot.subsystems.swerve.module.ModuleType;
 
 public class SwerveConstants {
-
-  // ConstantsLoader instance for loading configuration values
-  private static final ConstantsLoader LOADER = ConstantsLoader.getInstance();
-
   // CAN bus name and CAN ID for the pigeon2
   public static final int PIGEON2_ID = 0;
   public static final String PIGEON2_CANBUS_NAME = "CANivore";
@@ -45,8 +31,14 @@ public class SwerveConstants {
   public static final double DRIVE_FRICTION_VOLTAGE = 0.2;
   public static final double STEER_FRICTION_VOLTAGE = 0.2;
 
-  public static final double ROBOT_MASS_LBS = 140.0; // Mass of the robot in pounds
-  public static final double WHEEL_COF = 1.2; // Coefficient of friction for the wheels
+  public static final double ROBOT_MASS_KG =
+      Units.lbsToKilograms(140.0); // Mass of the robot in pounds
+  public static final double BUMPER_WIDTH_METERS =
+      Units.inchesToMeters(34.75); // Width of the bumpers in meters (y axis : left -> right)
+  public static final double BUMPER_LENGTH_METERS =
+      Units.inchesToMeters(34.75); // Length of the bumpers in meters (x axis : front -> back)
+  public static final double WHEEL_COF =
+      1.916; // Coefficient of friction for the wheels VEX Grip V2
 
   // Forward Reference rotation constants
   public enum OperatorPerspective {
@@ -62,47 +54,30 @@ public class SwerveConstants {
 
   // The steer motor uses MotionMagicVoltage control
   private static final Slot0Configs STEER_GAINS =
-      new Slot0Configs()
-          .withKP(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_P"))
-          .withKI(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_I"))
-          .withKD(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_D"))
-          .withKS(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_S"))
-          .withKV(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_V"))
-          .withKA(LOADER.getDoubleValue("drive", "com", "STEER_GAINS_A"));
+      new Slot0Configs().withKP(80).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   // When using closed-loop control, the drive motor uses VelocityVoltage
   private static final Slot0Configs DRIVE_GAINS =
-      new Slot0Configs()
-          .withKP(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_P"))
-          .withKI(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_I"))
-          .withKD(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_D"))
-          .withKS(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_S"))
-          .withKV(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_V"))
-          .withKA(LOADER.getDoubleValue("drive", "com", "DRIVE_GAINS_A"));
+      new Slot0Configs().withKP(0.5).withKI(0).withKD(0).withKS(0.18).withKV(0.117).withKA(0);
 
   // Control Constants for the swerve modules
-  private static final double SLIP_CURRENT_AMPS =
-      LOADER.getDoubleValue("drive", "com", "SLIP_CURRENT");
-  public static final double SPEED_AT_12V_MPS =
-      LOADER.getDoubleValue("drive", "com", "SPEED_AT_12V");
-  private static final double COUPLE_RATIO = LOADER.getDoubleValue("drive", "com", "COUPLE_RATIO");
-  private static final double WHEEL_RADIUS_METERS =
-      Units.inchesToMeters(LOADER.getDoubleValue("drive", "com", "WHEEL_RADIUS_INCH"));
-  public static final double MAX_TRANSLATION_RATE =
-      LOADER.getDoubleValue("drive", "com", "MAX_DRIVE_SPEED");
-  public static final double MAX_ANGULAR_RATE =
-      LOADER.getDoubleValue("drive", "com", "MAX_DRIVE_ANGULAR_RATE");
+  public static final double SLIP_CURRENT_AMPS = 50;
+  public static final double SPEED_AT_12V_MPS = 5.0;
+  public static final double COUPLE_RATIO = 3.5;
+  public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.8);
+  public static final double MAX_TRANSLATION_RATE = 5.0;
+  public static final double MAX_ANGULAR_RATE = 10.0;
 
   private static final SwerveModuleConstantsFactory<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      ConstantCreator =
+      CONSTANT_CREATOR =
           new SwerveModuleConstantsFactory<
                   TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
               // .withDriveMotorGearRatio(kDriveGearRatio) Unique to Module Type
               // .withSteerMotorGearRatio(kSteerGearRatio) Unique to Module Type
               .withCouplingGearRatio(COUPLE_RATIO)
               .withWheelRadius(WHEEL_RADIUS_METERS)
-              // .withSteerMotorGains(steerGains) Unique to Module Type
-              // .withDriveMotorGains(driveGains) Unique to Module Type
+              .withSteerMotorGains(STEER_GAINS)
+              .withDriveMotorGains(DRIVE_GAINS)
               .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
               .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
               .withSlipCurrent(SLIP_CURRENT_AMPS)
@@ -119,110 +94,88 @@ public class SwerveConstants {
               .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE);
 
   // Front Left Module Constants
-  private static final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("fl");
+  private static final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
   public static final Translation2d FL_MODULE_TRANSLATION =
-      new Translation2d(
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "fl", "X_POSITION")),
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "fl", "Y_POSITION")));
+      new Translation2d(Units.inchesToMeters(11.4), Units.inchesToMeters(11.4));
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FL_MODULE_CONSTANTS =
-          ConstantCreator.createModuleConstants(
-                  LOADER.getIntValue("drive", "fl", "STEER_ID"),
-                  LOADER.getIntValue("drive", "fl", "DRIVE_ID"),
-                  LOADER.getIntValue("drive", "fl", "ENCODER_ID"),
+          CONSTANT_CREATOR
+              .createModuleConstants(
+                  2,
+                  1,
+                  0,
                   0,
                   FL_MODULE_TRANSLATION.getX(),
                   FL_MODULE_TRANSLATION.getY(),
-                  LOADER.getBoolValue("drive", "fl", "INVERT_DRIVE"),
+                  false,
                   FL_MODULE_TYPE.steerInverted,
                   false)
               .withDriveMotorGearRatio(FL_MODULE_TYPE.driveRatio)
               .withSteerMotorGearRatio(FL_MODULE_TYPE.steerRatio);
 
   // Front Right Module Constants
-  private static final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("fr");
+  private static final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
   public static final Translation2d FR_MODULE_TRANSLATION =
-      new Translation2d(
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "fr", "X_POSITION")),
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "fr", "Y_POSITION")));
+      new Translation2d(Units.inchesToMeters(11.4), Units.inchesToMeters(-11.4));
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FR_MODULE_CONSTANTS =
-          ConstantCreator.createModuleConstants(
-                  LOADER.getIntValue("drive", "fr", "STEER_ID"),
-                  LOADER.getIntValue("drive", "fr", "DRIVE_ID"),
-                  LOADER.getIntValue("drive", "fr", "ENCODER_ID"),
+          CONSTANT_CREATOR
+              .createModuleConstants(
+                  4,
+                  3,
+                  1,
                   0,
                   FR_MODULE_TRANSLATION.getX(),
                   FR_MODULE_TRANSLATION.getY(),
-                  LOADER.getBoolValue("drive", "fr", "INVERT_DRIVE"),
+                  false,
                   FR_MODULE_TYPE.steerInverted,
                   false)
-              .withDriveMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? FR_MODULE_TYPE.driveRatio
-                      : FL_MODULE_TYPE.driveRatio) // Use FL drive ratio in sim
-              .withSteerMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? FR_MODULE_TYPE.steerRatio
-                      : FL_MODULE_TYPE.steerRatio); // Use FL steer ratio in sim
+              .withDriveMotorGearRatio(FR_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio);
 
   // Back Left Module Constants
-  private static final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("bl");
+  private static final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
   public static final Translation2d BL_MODULE_TRANSLATION =
-      new Translation2d(
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "bl", "X_POSITION")),
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "bl", "Y_POSITION")));
+      new Translation2d(Units.inchesToMeters(-11.4), Units.inchesToMeters(11.4));
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BL_MODULE_CONSTANTS =
-          ConstantCreator.createModuleConstants(
-                  LOADER.getIntValue("drive", "bl", "STEER_ID"),
-                  LOADER.getIntValue("drive", "bl", "DRIVE_ID"),
-                  LOADER.getIntValue("drive", "bl", "ENCODER_ID"),
+          CONSTANT_CREATOR
+              .createModuleConstants(
+                  6,
+                  5,
+                  2,
                   0,
                   BL_MODULE_TRANSLATION.getX(),
                   BL_MODULE_TRANSLATION.getY(),
-                  LOADER.getBoolValue("drive", "bl", "INVERT_DRIVE"),
+                  false,
                   BL_MODULE_TYPE.steerInverted,
                   false)
-              .withDriveMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? BL_MODULE_TYPE.driveRatio
-                      : FL_MODULE_TYPE.driveRatio) // Use FL drive ratio in sim
-              .withSteerMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? BL_MODULE_TYPE.steerRatio
-                      : FL_MODULE_TYPE.steerRatio); // Use FL steer ratio in sim
+              .withDriveMotorGearRatio(BL_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(BL_MODULE_TYPE.steerRatio);
 
   // Back Right Module Constants
-  private static final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("br");
+  private static final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
   public static final Translation2d BR_MODULE_TRANSLATION =
-      new Translation2d(
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "br", "X_POSITION")),
-          Units.inchesToMeters(LOADER.getDoubleValue("drive", "br", "Y_POSITION")));
+      new Translation2d(Units.inchesToMeters(-11.4), Units.inchesToMeters(-11.4));
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BR_MODULE_CONSTANTS =
-          ConstantCreator.createModuleConstants(
-                  LOADER.getIntValue("drive", "br", "STEER_ID"),
-                  LOADER.getIntValue("drive", "br", "DRIVE_ID"),
-                  LOADER.getIntValue("drive", "br", "ENCODER_ID"),
+          CONSTANT_CREATOR
+              .createModuleConstants(
+                  8,
+                  7,
+                  3,
                   0,
                   BR_MODULE_TRANSLATION.getX(),
                   BR_MODULE_TRANSLATION.getY(),
-                  LOADER.getBoolValue("drive", "br", "INVERT_DRIVE"),
+                  false,
                   BR_MODULE_TYPE.steerInverted,
                   false)
-              .withDriveMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? BR_MODULE_TYPE.driveRatio
-                      : FL_MODULE_TYPE.driveRatio) // Use FL drive ratio in sim
-              .withSteerMotorGearRatio(
-                  (Constants.CURRENT_MODE != Constants.Mode.SIM)
-                      ? BR_MODULE_TYPE.steerRatio
-                      : FL_MODULE_TYPE.steerRatio); // Use FL steer ratio in sim
+              .withDriveMotorGearRatio(BR_MODULE_TYPE.driveRatio)
+              .withSteerMotorGearRatio(BR_MODULE_TYPE.steerRatio);
 
   // Choreo Constants
   public static final boolean FLIP_TRAJECTORY_ON_RED = true;
@@ -243,54 +196,4 @@ public class SwerveConstants {
   public static final double TRACTOR_BEAM_CONTROLLER_KP = 0.0;
   public static final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
   public static final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
-
-  public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG =
-      DriveTrainSimulationConfig.Default()
-          .withRobotMass(Pounds.of(ROBOT_MASS_LBS))
-          .withCustomModuleTranslations(
-              new Translation2d[] {
-                FL_MODULE_TRANSLATION,
-                FR_MODULE_TRANSLATION,
-                BL_MODULE_TRANSLATION,
-                BR_MODULE_TRANSLATION
-              })
-          .withGyro(COTS.ofPigeon2())
-          .withSwerveModule(
-              new SwerveModuleSimulationConfig(
-                  DCMotor.getKrakenX60(1),
-                  DCMotor.getFalcon500(1),
-                  FL_MODULE_CONSTANTS.DriveMotorGearRatio,
-                  FL_MODULE_CONSTANTS.SteerMotorGearRatio,
-                  Volts.of(FL_MODULE_CONSTANTS.DriveFrictionVoltage),
-                  Volts.of(FL_MODULE_CONSTANTS.SteerFrictionVoltage),
-                  Meters.of(FL_MODULE_CONSTANTS.WheelRadius),
-                  KilogramSquareMeters.of(FL_MODULE_CONSTANTS.SteerInertia),
-                  WHEEL_COF));
-
-  //   public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG =
-  //       DriveTrainSimulationConfig.Default()
-  //           .withRobotMass(Pounds.of(ROBOT_MASS_LBS))
-  //           .withCustomModuleTranslations(
-  //               new Translation2d[] {
-  //                 new Translation2d(
-  //                     TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-  //                 new Translation2d(
-  //                     TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
-  //                 new Translation2d(
-  //                     TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-  //                 new Translation2d(
-  //                     TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
-  //               })
-  //           .withGyro(COTS.ofPigeon2())
-  //           .withSwerveModule(
-  //               new SwerveModuleSimulationConfig(
-  //                   DCMotor.getKrakenX60(1),
-  //                   DCMotor.getFalcon500(1),
-  //                   TunerConstants.FrontLeft.DriveMotorGearRatio,
-  //                   TunerConstants.FrontLeft.SteerMotorGearRatio,
-  //                   Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-  //                   Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-  //                   Meters.of(TunerConstants.FrontLeft.WheelRadius),
-  //                   KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-  //                   WHEEL_COF));
 }

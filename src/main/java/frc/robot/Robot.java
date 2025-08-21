@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -14,7 +12,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -25,9 +22,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
 
   private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
-  public static SwerveDriveSimulation swerve_simulation_ =
-      new SwerveDriveSimulation(
-          SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, Rotation2d.kZero));
 
   public Robot() {
     // Record metadata
@@ -100,23 +94,16 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationInit() {
-    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
-      SimulatedArena.getInstance().addDriveTrainSimulation(swerve_simulation_);
-      OI.resetSimulationField();
-    }
+    SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   @Override
   public void simulationPeriodic() {
-    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
-      SimulatedArena.getInstance().simulationPeriodic();
-      Logger.recordOutput(
-          "FieldSimulation/RobotPosition", swerve_simulation_.getSimulatedDriveTrainPose());
-      Logger.recordOutput(
-          "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-      Logger.recordOutput(
-          "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-    }
+    SimulatedArena.getInstance().simulationPeriodic();
+    Logger.recordOutput(
+        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+    Logger.recordOutput(
+        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
   }
 
   /** Record build metadata (git sha, branch, etc.) to the log on robot startup */

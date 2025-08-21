@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.subsystems.swerve.module;
 
 import static frc.mw_lib.util.PhoenixUtil.tryUntilOk;
 
@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
+import frc.robot.subsystems.swerve.SwerveConstants;
 
 public abstract class ModuleIOTalonFX implements ModuleIO {
   protected final SwerveModuleConstants<
@@ -65,9 +66,9 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
           constants) {
     this.constants = constants;
 
-    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    cancoder = new CANcoder(constants.EncoderId, TunerConstants.DrivetrainConstants.CANBusName);
+    driveTalon = new TalonFX(constants.DriveMotorId, SwerveConstants.MODULE_CANBUS_NAME);
+    turnTalon = new TalonFX(constants.SteerMotorId, SwerveConstants.MODULE_CANBUS_NAME);
+    cancoder = new CANcoder(constants.EncoderId, SwerveConstants.MODULE_CANBUS_NAME);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;

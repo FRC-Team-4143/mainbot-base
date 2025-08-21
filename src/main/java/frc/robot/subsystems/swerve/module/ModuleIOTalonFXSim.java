@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve;
+package frc.robot.subsystems.swerve.module;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -28,7 +28,7 @@ public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
   private final SwerveModuleSimulation simulation;
 
   public ModuleIOTalonFXSim(SwerveModuleConstants constants, SwerveModuleSimulation simulation) {
-    super(PhoenixUtil.regulateModuleConstantForSimulation(constants));
+    super(constants);
 
     this.simulation = simulation;
     simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
