@@ -21,5 +21,20 @@ public class Intake extends SubsystemBase {
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
   private final IntakeIO intake_io;
-  private final IntakeIOInputsAutoLogged intake_io_inputs_auto_logged;
+  private final IntakeIOInputsAutoLogged intake_io_inputs = new IntakeIOInputsAutoLogged();
+
+  public Intake(IntakeIO IO){
+    intake_io = IO;
+  }
+
+  @Override
+  public void periodic() {
+    intake_io.updateInputs(intake_io_inputs);
+
+    switch (systemState) {
+        case DEPLOYING:
+        
+    }
+
+  }
 }
