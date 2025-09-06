@@ -3,12 +3,10 @@ package frc.robot.subsystems.swerve.gyro;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import org.littletonrobotics.junction.Logger;
 
 public class Gyro {
 
   private final GyroIO io;
-  private final GyroIOInputsAutoLogged inputs = new GyroIOInputsAutoLogged();
   private final Alert gyroDisconnectedAlert;
 
   public Gyro(GyroIO io) {

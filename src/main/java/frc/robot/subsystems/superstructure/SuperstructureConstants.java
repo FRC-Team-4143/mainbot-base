@@ -1,4 +1,4 @@
-package frc.robot.subsystems.superstructure.elevator;
+package frc.robot.subsystems.superstructure;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -8,9 +8,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.util.ConstantsLoader;
-import frc.robot.subsystems.superstructure.elevator.ElevatorIO.ElevatorConfig;
+import frc.robot.subsystems.superstructure.SuperstructureIO.ArmConfig;
+import frc.robot.subsystems.superstructure.SuperstructureIO.ElevatorConfig;
 
-public class ElevatorConstants {
+public class SuperstructureConstants {
 
   // ConstantsLoader instance for loading configuration values
   private static final ConstantsLoader LOADER = ConstantsLoader.getInstance();
@@ -57,4 +58,6 @@ public class ElevatorConstants {
     ELEVATOR_CONFIG.follower_config_.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
     ELEVATOR_CONFIG.follower_config_.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
   }
+
+  public static final ArmConfig ARM_CONFIG = new ArmConfig();
 }

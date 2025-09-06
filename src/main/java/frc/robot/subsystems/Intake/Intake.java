@@ -1,8 +1,23 @@
-package frc.robot.subsystems.Intake;
+package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.mw_lib.subsystem.MWSubsystem;
+import frc.robot.Constants;
 
-public class Intake extends SubsystemBase {
+public class Intake extends MWSubsystem {
+
+  private static Intake instance_ = null;
+
+  public static Intake getInstance() {
+    if (instance_ == null) {
+      if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
+        instance_ = new Intake(new IntakeIOReal());
+      } else {
+        instance_ = new Intake(new IntakeIOSim());
+      }
+    }
+    return instance_;
+  }
+
   public enum WantedState {
     IDLE,
     PICKUP,
@@ -20,21 +35,18 @@ public class Intake extends SubsystemBase {
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
-  private final IntakeIO intake_io;
-  private final IntakeIOInputsAutoLogged intake_io_inputs = new IntakeIOInputsAutoLogged();
 
-  public Intake(IntakeIO IO){
-    intake_io = IO;
+  public Intake(IntakeIO io){
+    this.io = io;
   }
 
   @Override
-  public void periodic() {
-    intake_io.updateInputs(intake_io_inputs);
+  public void updateLogic(double timestamp) {
+    
+  }
 
-    switch (systemState) {
-        case DEPLOYING:
-        
-    }
-
+  @Override
+  public void reset() {
+      
   }
 }

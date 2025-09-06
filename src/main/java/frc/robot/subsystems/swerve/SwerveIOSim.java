@@ -13,6 +13,9 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+
+import dev.doglog.DogLog;
+
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,9 +36,8 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.littletonrobotics.junction.Logger;
 
-public class SwerveIOSim implements SwerveIO {
+public class SwerveIOSim extends SwerveIO {
 
   private final Pose2d SIM_START_POSE = new Pose2d(3, 3, Rotation2d.kZero);
 
@@ -194,7 +196,7 @@ public class SwerveIOSim implements SwerveIO {
   }
 
   @Override
-  public void updateInputs(SwerveIOInputs inputs) {
+  public void readInputs(double timestamp) {
     Swerve.odometry_lock_.lock(); // Prevents odometry updates while reading data
     for (var module : modules_) {
       module.periodic();
@@ -216,40 +218,40 @@ public class SwerveIOSim implements SwerveIO {
     for (int i = 0; i < sample_count; i++) {
       // Read wheel positions and deltas from each module
       for (int module_index = 0; module_index < 4; module_index++) {
-        inputs.module_positions_[module_index] = modules_[module_index].getOdometryPositions()[i];
-        inputs.module_deltas_[module_index] =
+        module_positions[module_index] = modules_[module_index].getOdometryPositions()[i];
+        module_deltas[module_index] =
             new SwerveModulePosition(
-                inputs.module_positions_[module_index].distanceMeters
-                    - inputs.last_module_positions_[module_index].distanceMeters,
-                inputs.module_positions_[module_index].angle);
-        inputs.last_module_positions_[module_index] = inputs.module_positions_[module_index];
-        inputs.module_states_[module_index] = modules_[module_index].getState();
+                module_positions[module_index].distanceMeters
+                    - last_module_positions[module_index].distanceMeters,
+                module_positions[module_index].angle);
+        last_module_positions[module_index] = module_positions[module_index];
+        module_states[module_index] = modules_[module_index].getState();
       }
-      inputs.chassis_speeds_ = kinematics_.toChassisSpeeds(inputs.module_states_);
+      chassis_speeds = kinematics_.toChassisSpeeds(module_states);
 
       // Update gyro angle
       if (gyro_.isConnected()) {
         // Use the real gyro angle
-        inputs.raw_gyro_rotation_ = gyro_.getOdometryYawPositions()[i];
+        raw_gyro_rotation = gyro_.getOdometryYawPositions()[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
-        Twist2d twist = kinematics_.toTwist2d(inputs.module_deltas_);
-        inputs.raw_gyro_rotation_ = inputs.raw_gyro_rotation_.plus(new Rotation2d(twist.dtheta));
+        Twist2d twist = kinematics_.toTwist2d(module_deltas);
+        raw_gyro_rotation = raw_gyro_rotation.plus(new Rotation2d(twist.dtheta));
       }
       pose_estimator_.updateWithTime(
-          sample_timestamps[i], inputs.raw_gyro_rotation_, inputs.module_positions_);
+          sample_timestamps[i], raw_gyro_rotation, module_positions);
     }
-    inputs.pose_ = pose_estimator_.getEstimatedPosition();
+    pose = pose_estimator_.getEstimatedPosition();
 
     // Update Simulated Position
-    Logger.recordOutput(
+    DogLog.log(
         "FieldSimulation/RobotPosition", swerve_simulation_.getSimulatedDriveTrainPose());
   }
 
-  public void applyRequest(ChassisRequest request, ChassisRequestParameters request_parameters) {
-    request_parameters.kinematics = kinematics_;
-    request_parameters.moduleLocations = getModuleTranslations();
-    request.apply(request_parameters, modules_);
+  public void writeOutputs(double timestamp) {
+    current_request_parameters.kinematics = kinematics_;
+    current_request_parameters.moduleLocations = getModuleTranslations();
+    current_request.apply(current_request_parameters, modules_);
   }
 
   public void resetPose(Pose2d pose) {

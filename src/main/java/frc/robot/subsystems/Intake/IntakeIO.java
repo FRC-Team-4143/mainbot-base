@@ -1,14 +1,12 @@
-package frc.robot.subsystems.Intake;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import org.littletonrobotics.junction.AutoLog;
+import frc.mw_lib.subsystem.SubsystemIO;
 
-public interface IntakeIO {
-  @AutoLog
-  public static class IntakeIOInputs {
-    public Rotation2d angle = Rotation2d.kZero;
-    public double tofDist = 0.0;
-  }
+public class IntakeIO implements SubsystemIO {
+  public Rotation2d current_pivot_angle = Rotation2d.kZero;
+  public double tof_dist = 0.0;
 
-  public default void updateInputs(IntakeIOInputs inputs) {}
+  public Rotation2d target_pivot_angle = current_pivot_angle;
+  public double roller_output = 0.0;
 }
