@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Swerve extends MWSubsystem {
+public class Swerve extends MWSubsystem<SwerveIO> {
   private static Swerve instance_ = null;
 
   public static Swerve getInstance() {
@@ -257,12 +257,12 @@ public class Swerve extends MWSubsystem {
     }
 
     // Set state static request parameters
-    io.request_parameters_.currentChassisSpeed = getChassisSpeeds();
-    io.request_parameters_.currentPose = getPose();
-    io.request_parameters_.updatePeriod =
-        Timer.getFPGATimestamp() - io.request_parameters_.timestamp;
-    io.request_parameters_.timestamp = Timer.getFPGATimestamp();
-    io.request_parameters_.operatorForwardDirection = operator_forward_direction_;
+    io.current_request_parameters.currentChassisSpeed = getChassisSpeeds();
+    io.current_request_parameters.currentPose = getPose();
+    io.current_request_parameters.updatePeriod =
+        Timer.getFPGATimestamp() - io.current_request_parameters.timestamp;
+    io.current_request_parameters.timestamp = Timer.getFPGATimestamp();
+    io.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
 
     DogLog.log("Swerve/ModuleStates", getModuleStates());
     DogLog.log("Swerve/ChassisSpeeds", getChassisSpeeds());
@@ -395,7 +395,7 @@ public class Swerve extends MWSubsystem {
   }
 
   public Command toggleFieldCentric() {
-    return runOnce(
+    return Commands.runOnce(
         () -> {
           if (system_state_ == SystemState.FIELD_CENTRIC) {
             setWantedState(WantedState.ROBOT_CENTRIC);
@@ -596,7 +596,7 @@ public class Swerve extends MWSubsystem {
 
   /** Returns the raw gyro rotation */
   public Rotation2d getGyroRotation() {
-    return swerve_inputs_.raw_gyro_rotation_;
+    return io.raw_gyro_rotation;
   }
 
   // ------------------------------------------------
