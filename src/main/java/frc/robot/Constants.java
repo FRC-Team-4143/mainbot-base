@@ -4,22 +4,21 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
 
-  public static final Mode SIM_MODE = Mode.SIM;
-  public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+  public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+  public static final BooleanSupplier IS_REAL = () -> CURRENT_MODE == Mode.REAL;
 
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
 
     /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
+    SIM
   }
 
   public static final double CONTROLLER_DEADBAND = 0.05;

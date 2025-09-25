@@ -5,53 +5,49 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.mw_lib.subsystem.SubsystemIO;
 import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
 import frc.robot.subsystems.swerve.module.Module;
-import org.littletonrobotics.junction.AutoLog;
 
-public interface SwerveIO {
-  @AutoLog
-  public class SwerveIOInputs {
-    public SwerveModuleState[] module_states_ =
-        new SwerveModuleState[] {
-          new SwerveModuleState(),
-          new SwerveModuleState(),
-          new SwerveModuleState(),
-          new SwerveModuleState()
-        };
-    public SwerveModulePosition[] module_positions_ =
-        new SwerveModulePosition[] {
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition()
-        };
-    public SwerveModulePosition[] module_deltas_ =
-        new SwerveModulePosition[] {
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition()
-        };
-    public SwerveModulePosition[] last_module_positions_ =
-        new SwerveModulePosition[] {
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition(),
-          new SwerveModulePosition()
-        };
-    public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
-    public Rotation2d raw_gyro_rotation_ = Rotation2d.kZero;
-    public Pose2d pose_ = new Pose2d();
-  }
+public class SwerveIO implements SubsystemIO {
+  public SwerveModuleState[] module_states =
+      new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+      };
+  public SwerveModulePosition[] module_positions =
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
+  public SwerveModulePosition[] module_deltas =
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
+  public SwerveModulePosition[] last_module_positions =
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
+  public ChassisSpeeds chassis_speeds = new ChassisSpeeds();
+  public Rotation2d raw_gyro_rotation = Rotation2d.kZero;
+  public Pose2d pose = new Pose2d();
 
-  default void updateInputs(SwerveIOInputs inputs) {}
+  public ChassisRequest current_request = new ChassisRequest.Idle();
+  public ChassisRequestParameters current_request_parameters = new ChassisRequestParameters();
 
-  default void applyRequest(ChassisRequest request, ChassisRequestParameters request_parameters) {}
+  void resetPose(Pose2d pose) {}
 
-  default void resetPose(Pose2d pose) {}
-
-  default Module[] getModules() {
+  Module[] getModules() {
     return new Module[4];
   }
 }
