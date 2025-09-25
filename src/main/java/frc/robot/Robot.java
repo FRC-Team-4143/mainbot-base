@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.logging.GitLogger;
@@ -15,9 +17,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
-
-import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
 
 public class Robot extends TimedRobot {
 
@@ -110,14 +109,12 @@ public class Robot extends TimedRobot {
   private void setupDataReceiversAndLogging() {
     switch (Constants.CURRENT_MODE) {
       case REAL:
-        DogLog.setOptions(new DogLogOptions().withCaptureNt(true)
-        .withCaptureDs(true));
+        DogLog.setOptions(new DogLogOptions().withCaptureNt(true).withCaptureDs(true));
         DogLog.setPdh(new PowerDistribution());
         break;
 
       case SIM:
-        DogLog.setOptions(new DogLogOptions().withNtPublish(true)
-        .withCaptureDs(true));
+        DogLog.setOptions(new DogLogOptions().withNtPublish(true).withCaptureDs(true));
         break;
     }
     DogLog.setEnabled(true);

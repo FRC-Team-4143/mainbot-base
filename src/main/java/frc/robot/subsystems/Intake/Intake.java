@@ -36,17 +36,13 @@ public class Intake extends MWSubsystem {
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
 
-  public Intake(IntakeIO io){
+  public Intake(IntakeIO io) {
     this.io = io;
   }
 
   @Override
-  public void updateLogic(double timestamp) {
-    
-  }
+  public void updateLogic(double timestamp) {}
 
   @Override
-  public void reset() {
-      
-  }
+  public void reset() {}
 }

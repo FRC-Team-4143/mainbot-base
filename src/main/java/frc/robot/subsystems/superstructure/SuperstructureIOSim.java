@@ -4,31 +4,21 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 
 public class SuperstructureIOSim extends SuperstructureIO {
 
-
-  public SuperstructureIOSim() {
-  
-  }
+  public SuperstructureIOSim() {}
 
   /** Updates the set of loggable inputs. */
-  public void readInputs(double timestamp) {
-  
-  }
+  public void readInputs(double timestamp) {}
 
   /** Writes the desired outputs to the motors. */
-  public void writeOutputs(double timestamp) {
-  
-  }
+  public void writeOutputs(double timestamp) {}
 
   /** Zeroes the elevator position. */
-  public void tarePosition() {
-  
-  }
+  public void tarePosition() {}
 
   /**
    * Updates the gains for the elevator.
    *
    * @param gains The new gains to apply.
    */
-  public void updateGains(Slot0Configs gains) {
-  }
+  public void updateGains(Slot0Configs gains) {}
 }

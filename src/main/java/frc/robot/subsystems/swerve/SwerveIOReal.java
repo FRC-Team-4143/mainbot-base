@@ -96,8 +96,7 @@ public class SwerveIOReal extends SwerveIO {
         Twist2d twist = kinematics_.toTwist2d(module_deltas);
         raw_gyro_rotation = raw_gyro_rotation.plus(new Rotation2d(twist.dtheta));
       }
-      pose_estimator_.updateWithTime(
-          sample_timestamps[i], raw_gyro_rotation, module_positions);
+      pose_estimator_.updateWithTime(sample_timestamps[i], raw_gyro_rotation, module_positions);
     }
     pose = pose_estimator_.getEstimatedPosition();
   }

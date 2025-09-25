@@ -6,7 +6,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.util.Units;
 
 public class SuperstructureIOReal extends SuperstructureIO {
@@ -18,7 +17,6 @@ public class SuperstructureIOReal extends SuperstructureIO {
   private final MotionMagicVoltage elevator_control_request_ = new MotionMagicVoltage(0.0);
   private final MotionMagicVoltage arm_control_request_ = new MotionMagicVoltage(0.0);
 
-
   public SuperstructureIOReal() {
     // Initialize the TalonFX motors
     leader_motor_ = new TalonFX(SuperstructureConstants.ELEVATOR_CONFIG.leader_id_);
@@ -27,7 +25,9 @@ public class SuperstructureIOReal extends SuperstructureIO {
 
     // Apply the configurations to the motors
     leader_motor_.getConfigurator().apply(SuperstructureConstants.ELEVATOR_CONFIG.leader_config_);
-    follower_motor_.getConfigurator().apply(SuperstructureConstants.ELEVATOR_CONFIG.follower_config_);
+    follower_motor_
+        .getConfigurator()
+        .apply(SuperstructureConstants.ELEVATOR_CONFIG.follower_config_);
     arm_motor_.getConfigurator().apply(SuperstructureConstants.ARM_CONFIG.motor_config_);
   }
 
@@ -48,14 +48,17 @@ public class SuperstructureIOReal extends SuperstructureIO {
     follower_temp = follower_motor_.getDeviceTemp().getValue().in(Fahrenheit);
 
     // Update additional inputs
-    current_elevator_position = current_leader_position * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
-    current_elevator_velocity = current_leader_velocity * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
+    current_elevator_position =
+        current_leader_position * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
+    current_elevator_velocity =
+        current_leader_velocity * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
   }
 
   /** Writes the desired outputs to the motors. */
   public void writeOutputs(double timestamp) {
     // Set the control request for the leader motor
-    elevator_control_request_.withPosition(target_elevator_position / SuperstructureConstants.ROTATIONS_TO_TRANSLATION);
+    elevator_control_request_.withPosition(
+        target_elevator_position / SuperstructureConstants.ROTATIONS_TO_TRANSLATION);
     leader_motor_.setControl(elevator_control_request_);
 
     // Set the follower motor to follow the leader motor
@@ -63,7 +66,7 @@ public class SuperstructureIOReal extends SuperstructureIO {
 
     // Set the arm motor control request
     arm_motor_.setControl(
-      arm_control_request_.withPosition(Units.radiansToRotations(target_arm_position)));
+        arm_control_request_.withPosition(Units.radiansToRotations(target_arm_position)));
   }
 
   /** Zeroes the elevator position. */

@@ -4,9 +4,8 @@
 
 package frc.robot;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.wpilibj.RobotBase;
+import java.util.function.BooleanSupplier;
 
 public final class Constants {
 

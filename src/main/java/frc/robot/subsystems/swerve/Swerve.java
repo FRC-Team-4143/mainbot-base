@@ -20,12 +20,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
 import frc.robot.subsystems.swerve.ChassisRequest.XPositiveReference;
 import frc.robot.subsystems.swerve.module.Module.DriveControlMode;
 import frc.robot.subsystems.swerve.module.Module.SteerControlMode;
@@ -180,11 +178,11 @@ public class Swerve extends MWSubsystem {
       case SYS_ID:
         break;
       case FIELD_CENTRIC:
-      io.current_request =
+        io.current_request =
             field_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case ROBOT_CENTRIC:
-      io.current_request =
+        io.current_request =
             robot_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case TRACTOR_BEAM:
@@ -227,7 +225,7 @@ public class Swerve extends MWSubsystem {
         }
         break;
       case ROTATION_LOCK:
-      io.current_request = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
+        io.current_request = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
         break;
       case CHOREO_PATH:
         if (choreo_sample_to_apply_.isPresent()) {
@@ -236,8 +234,7 @@ public class Swerve extends MWSubsystem {
           DogLog.log("Swerve/Choreo/Traj Name", desired_choreo_traj_.name());
           DogLog.log("Swerve/Choreo/Total time", desired_choreo_traj_.getTotalTime());
           DogLog.log("Swerve/Choreo/sample/Desired Pose", sample.getPose());
-          DogLog.log(
-              "Swerve/Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
+          DogLog.log("Swerve/Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
           DogLog.log("Swerve/Choreo/sample/Module Forces X", sample.moduleForcesX());
           DogLog.log("Swerve/Choreo/sample/Module Forces Y", sample.moduleForcesY());
           Pose2d pose = getPose();
@@ -247,7 +244,7 @@ public class Swerve extends MWSubsystem {
           target_speeds.omegaRadiansPerSecond +=
               choreo_theta_controller_.calculate(pose.getRotation().getRadians(), sample.heading);
 
-              io.current_request = field_speeds_request_.withSpeeds(target_speeds);
+          io.current_request = field_speeds_request_.withSpeeds(target_speeds);
         } else {
           // If no sample is available, we will just stop the robot
           io.current_request = new ChassisRequest.Idle();
@@ -255,14 +252,15 @@ public class Swerve extends MWSubsystem {
         break;
       case IDLE:
       default:
-      io.current_request = new ChassisRequest.Idle();
+        io.current_request = new ChassisRequest.Idle();
         break;
     }
 
     // Set state static request parameters
     io.request_parameters_.currentChassisSpeed = getChassisSpeeds();
     io.request_parameters_.currentPose = getPose();
-    io.request_parameters_.updatePeriod = Timer.getFPGATimestamp() - io.request_parameters_.timestamp;
+    io.request_parameters_.updatePeriod =
+        Timer.getFPGATimestamp() - io.request_parameters_.timestamp;
     io.request_parameters_.timestamp = Timer.getFPGATimestamp();
     io.request_parameters_.operatorForwardDirection = operator_forward_direction_;
 
@@ -274,8 +272,7 @@ public class Swerve extends MWSubsystem {
   }
 
   @Override
-  public void reset() {      
-  }
+  public void reset() {}
 
   // ------------------------------------------------
   // Subsystem State Update Methods
@@ -554,7 +551,8 @@ public class Swerve extends MWSubsystem {
    * @return the distance from the tractor beam setpoint in meters
    */
   public double getDistanceFromTractorBeamSetpoint() {
-    double diff = desired_tractor_beam_pose_.getTranslation().minus(getPose().getTranslation()).getNorm();
+    double diff =
+        desired_tractor_beam_pose_.getTranslation().minus(getPose().getTranslation()).getNorm();
     return diff;
   }
 

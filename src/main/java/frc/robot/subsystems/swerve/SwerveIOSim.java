@@ -13,10 +13,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-
-import dev.doglog.DogLog;
-
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,7 +24,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
 import frc.robot.subsystems.swerve.gyro.Gyro;
 import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.module.Module;
@@ -238,14 +235,12 @@ public class SwerveIOSim extends SwerveIO {
         Twist2d twist = kinematics_.toTwist2d(module_deltas);
         raw_gyro_rotation = raw_gyro_rotation.plus(new Rotation2d(twist.dtheta));
       }
-      pose_estimator_.updateWithTime(
-          sample_timestamps[i], raw_gyro_rotation, module_positions);
+      pose_estimator_.updateWithTime(sample_timestamps[i], raw_gyro_rotation, module_positions);
     }
     pose = pose_estimator_.getEstimatedPosition();
 
     // Update Simulated Position
-    DogLog.log(
-        "FieldSimulation/RobotPosition", swerve_simulation_.getSimulatedDriveTrainPose());
+    DogLog.log("FieldSimulation/RobotPosition", swerve_simulation_.getSimulatedDriveTrainPose());
   }
 
   public void writeOutputs(double timestamp) {

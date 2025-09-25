@@ -25,16 +25,13 @@ public class Superstructure extends MWSubsystem {
   // Current system states for the superstructure
   public enum SystemState {}
 
-
-  Superstructure(SuperstructureIO io){
+  Superstructure(SuperstructureIO io) {
     this.io = io;
   }
 
   @Override
-  public void updateLogic(double timestamp) {      
-  }
+  public void updateLogic(double timestamp) {}
 
   @Override
-  public void reset() {
-  }
+  public void reset() {}
 }
