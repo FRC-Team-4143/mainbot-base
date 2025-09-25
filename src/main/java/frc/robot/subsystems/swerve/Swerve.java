@@ -31,7 +31,19 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Swerve extends MWSubsystem<SwerveIO> {
+public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Swerve.SwerveStates> {
+
+  // Current system states for the swerve drive
+  enum SwerveStates {
+    SYS_ID,
+    FIELD_CENTRIC,
+    ROBOT_CENTRIC,
+    CHOREO_PATH,
+    ROTATION_LOCK,
+    TRACTOR_BEAM,
+    IDLE
+  }
+
   private static Swerve instance_ = null;
 
   public static Swerve getInstance() {
@@ -46,32 +58,6 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     }
     return instance_;
   }
-
-  // Desired states for the swerve drive
-  public enum WantedState {
-    SYS_ID,
-    FIELD_CENTRIC,
-    ROBOT_CENTRIC,
-    CHOREO_PATH,
-    ROTATION_LOCK,
-    TRACTOR_BEAM,
-    IDLE
-  }
-
-  // Current system states for the swerve drive
-  public enum SystemState {
-    SYS_ID,
-    FIELD_CENTRIC,
-    ROBOT_CENTRIC,
-    CHOREO_PATH,
-    ROTATION_LOCK,
-    TRACTOR_BEAM,
-    IDLE
-  }
-
-  // State identifiers for the swerve drive
-  private SystemState system_state_ = SystemState.FIELD_CENTRIC;
-  private WantedState wanted_state_ = WantedState.FIELD_CENTRIC;
 
   // State Specific Members
   Trajectory<SwerveSample> desired_choreo_traj_;
@@ -129,6 +115,8 @@ public class Swerve extends MWSubsystem<SwerveIO> {
    */
   public Swerve(SwerveIO io) {
     this.io = io;
+    this.system_state_ = SwerveStates.FIELD_CENTRIC;
+    this.wanted_state_ = SwerveStates.FIELD_CENTRIC;
 
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
@@ -204,12 +192,12 @@ public class Swerve extends MWSubsystem<SwerveIO> {
         double x_component = velocity_output * direction_of_travel.getCos();
         double y_component = velocity_output * direction_of_travel.getSin();
 
-        DogLog.log("Swerve/TractorBeam/X Velocity Component", x_component);
-        DogLog.log("Swerve/TractorBeam/Y Velocity Component", y_component);
-        DogLog.log("Swerve/TractorBeam/Velocity Output", velocity_output);
-        DogLog.log("Swerve/TractorBeam/Linear Distance", linear_distance);
-        DogLog.log("Swerve/TractorBeam/Direction of Travel", direction_of_travel);
-        DogLog.log("Swerve/TractorBeam/Desired Point", desired_tractor_beam_pose_);
+        DogLog.log(getSubsystemKey() + "TractorBeam/X Velocity Component", x_component);
+        DogLog.log(getSubsystemKey() + "TractorBeam/Y Velocity Component", y_component);
+        DogLog.log(getSubsystemKey() + "TractorBeam/Velocity Output", velocity_output);
+        DogLog.log(getSubsystemKey() + "TractorBeam/Linear Distance", linear_distance);
+        DogLog.log(getSubsystemKey() + "TractorBeam/Direction of Travel", direction_of_travel);
+        DogLog.log(getSubsystemKey() + "TractorBeam/Desired Point", desired_tractor_beam_pose_);
 
         if (Double.isNaN(max_ang_vel_for_tractor_beam_)) {
           io.current_request =
@@ -230,13 +218,15 @@ public class Swerve extends MWSubsystem<SwerveIO> {
       case CHOREO_PATH:
         if (choreo_sample_to_apply_.isPresent()) {
           SwerveSample sample = choreo_sample_to_apply_.get();
-          DogLog.log("Swerve/Choreo/Timer Value", choreo_timer_.get());
-          DogLog.log("Swerve/Choreo/Traj Name", desired_choreo_traj_.name());
-          DogLog.log("Swerve/Choreo/Total time", desired_choreo_traj_.getTotalTime());
-          DogLog.log("Swerve/Choreo/sample/Desired Pose", sample.getPose());
-          DogLog.log("Swerve/Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
-          DogLog.log("Swerve/Choreo/sample/Module Forces X", sample.moduleForcesX());
-          DogLog.log("Swerve/Choreo/sample/Module Forces Y", sample.moduleForcesY());
+          DogLog.log(getSubsystemKey() + "/Choreo/Timer Value", choreo_timer_.get());
+          DogLog.log(getSubsystemKey() + "/Choreo/Traj Name", desired_choreo_traj_.name());
+          DogLog.log(getSubsystemKey() + "/Choreo/Total time", desired_choreo_traj_.getTotalTime());
+          DogLog.log(getSubsystemKey() + "/Choreo/sample/Desired Pose", sample.getPose());
+          DogLog.log(
+              getSubsystemKey() + "/Choreo/sample/Desired Chassis Speeds",
+              sample.getChassisSpeeds());
+          DogLog.log(getSubsystemKey() + "/Choreo/sample/Module Forces X", sample.moduleForcesX());
+          DogLog.log(getSubsystemKey() + "/Choreo/sample/Module Forces Y", sample.moduleForcesY());
           Pose2d pose = getPose();
           ChassisSpeeds target_speeds = sample.getChassisSpeeds();
           target_speeds.vxMetersPerSecond += choreo_x_controller_.calculate(pose.getX(), sample.x);
@@ -264,11 +254,11 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     io.current_request_parameters.timestamp = Timer.getFPGATimestamp();
     io.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
 
-    DogLog.log("Swerve/ModuleStates", getModuleStates());
-    DogLog.log("Swerve/ChassisSpeeds", getChassisSpeeds());
-    DogLog.log("Swerve/Rotation", getRotation());
-    DogLog.log("Swerve/Pose", getPose());
-    DogLog.log("Swerve/Raw Gyro", getGyroRotation());
+    DogLog.log(getSubsystemKey() + "/ModuleStates", getModuleStates());
+    DogLog.log(getSubsystemKey() + "/ChassisSpeeds", getChassisSpeeds());
+    DogLog.log(getSubsystemKey() + "/Rotation", getRotation());
+    DogLog.log(getSubsystemKey() + "/Pose", getPose());
+    DogLog.log(getSubsystemKey() + "/Raw Gyro", getGyroRotation());
   }
 
   @Override
@@ -279,41 +269,32 @@ public class Swerve extends MWSubsystem<SwerveIO> {
   // ------------------------------------------------
 
   /**
-   * Sets the desired state for the Swerve subsystem.
-   *
-   * @param state the desired chassis state
-   */
-  public void setWantedState(WantedState state) {
-    wanted_state_ = state;
-  }
-
-  /**
    * Gets the current system state of the Swerve subsystem.
    *
    * @return the current system state
    */
-  private SystemState handleStateTransition() {
+  private SwerveStates handleStateTransition() {
     return switch (wanted_state_) {
-      case SYS_ID -> SystemState.SYS_ID;
-      case FIELD_CENTRIC -> SystemState.FIELD_CENTRIC;
-      case ROBOT_CENTRIC -> SystemState.ROBOT_CENTRIC;
+      case SYS_ID -> SwerveStates.SYS_ID;
+      case FIELD_CENTRIC -> SwerveStates.FIELD_CENTRIC;
+      case ROBOT_CENTRIC -> SwerveStates.ROBOT_CENTRIC;
       case CHOREO_PATH -> {
-        if (system_state_ != SystemState.CHOREO_PATH) {
+        if (system_state_ != SwerveStates.CHOREO_PATH) {
           choreo_timer_.restart();
           choreo_sample_to_apply_ =
               desired_choreo_traj_.sampleAt(
                   choreo_timer_.get(), SwerveConstants.FLIP_TRAJECTORY_ON_RED);
-          yield SystemState.CHOREO_PATH;
+          yield SwerveStates.CHOREO_PATH;
         } else {
           choreo_sample_to_apply_ =
               desired_choreo_traj_.sampleAt(
                   choreo_timer_.get(), SwerveConstants.FLIP_TRAJECTORY_ON_RED);
-          yield SystemState.CHOREO_PATH;
+          yield SwerveStates.CHOREO_PATH;
         }
       }
-      case ROTATION_LOCK -> SystemState.ROTATION_LOCK;
-      case TRACTOR_BEAM -> SystemState.TRACTOR_BEAM;
-      default -> SystemState.IDLE;
+      case ROTATION_LOCK -> SwerveStates.ROTATION_LOCK;
+      case TRACTOR_BEAM -> SwerveStates.TRACTOR_BEAM;
+      default -> SwerveStates.IDLE;
     };
   }
 
@@ -328,7 +309,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
    */
   public void setDesiredChoreoTrajectory(Trajectory<SwerveSample> trajectory) {
     desired_choreo_traj_ = trajectory;
-    wanted_state_ = WantedState.CHOREO_PATH;
+    wanted_state_ = SwerveStates.CHOREO_PATH;
   }
 
   /**
@@ -340,7 +321,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     desired_tractor_beam_pose_ = pose;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     max_ang_vel_for_tractor_beam_ = Double.NaN;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
+    wanted_state_ = SwerveStates.TRACTOR_BEAM;
   }
 
   /**
@@ -353,7 +334,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     max_lin_vel_for_tractor_beam_ = max_lin_vel;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
+    wanted_state_ = SwerveStates.TRACTOR_BEAM;
   }
 
   /**
@@ -366,7 +347,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     max_lin_vel_for_tractor_beam_ = max_ang_vel;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
+    wanted_state_ = SwerveStates.TRACTOR_BEAM;
   }
 
   /**
@@ -381,7 +362,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
     max_lin_vel_for_tractor_beam_ = max_lin_vel;
     max_ang_vel_for_tractor_beam_ = max_ang_vel;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
+    wanted_state_ = SwerveStates.TRACTOR_BEAM;
   }
 
   /**
@@ -391,16 +372,16 @@ public class Swerve extends MWSubsystem<SwerveIO> {
    */
   public void setDesiredRotationLock(Rotation2d rotation) {
     desired_rotation_lock_rot_ = rotation;
-    wanted_state_ = WantedState.ROTATION_LOCK;
+    wanted_state_ = SwerveStates.ROTATION_LOCK;
   }
 
   public Command toggleFieldCentric() {
     return Commands.runOnce(
         () -> {
-          if (system_state_ == SystemState.FIELD_CENTRIC) {
-            setWantedState(WantedState.ROBOT_CENTRIC);
+          if (system_state_ == SwerveStates.FIELD_CENTRIC) {
+            setWantedState(SwerveStates.ROBOT_CENTRIC);
           } else {
-            setWantedState(WantedState.FIELD_CENTRIC);
+            setWantedState(SwerveStates.FIELD_CENTRIC);
           }
         });
   }
@@ -493,7 +474,7 @@ public class Swerve extends MWSubsystem<SwerveIO> {
    * @return true if the robot is at the choreo setpoint, false otherwise
    */
   public boolean isAtChoreoSetpoint() {
-    if (system_state_ != SystemState.CHOREO_PATH) {
+    if (system_state_ != SwerveStates.CHOREO_PATH) {
       return false;
     }
     return MathUtil.isNear(
