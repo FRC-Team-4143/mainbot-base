@@ -5,74 +5,43 @@ import java.util.Optional;
 
 public class SuperstructureTargets {
 
-  public enum TargetType {
+  public enum Target {
     // TODO: Update all the height to account for 0 being the new default position
-    SAFETY(0.90041, Rotation2d.fromDegrees(-45), "SAFETY"),
-    CLIMB(0.90041, Rotation2d.fromDegrees(121.201), "CLIMB"),
-    CORAL_INTAKE(0.75, Rotation2d.fromDegrees(-117), "CORAL_INTAKE"),
-    L4(2.109, Rotation2d.fromDegrees(-19), Rotation2d.fromDegrees(-65), "L4", true),
-    L4_SAFETY(2.109, Rotation2d.fromDegrees(-19.599), "L4_SAFETY"),
-    L3_FAR(1.423500, Rotation2d.fromDegrees(-4.515), "L3_FAR"),
-    L2_FAR(1.0235, Rotation2d.fromDegrees(-4.515), "L2_FAR"),
-    L3(1.323265, Rotation2d.fromDegrees(-5.05468), Rotation2d.fromDegrees(-65), "L3", false),
-    L2(0.94895, Rotation2d.fromDegrees(-3.6035), Rotation2d.fromDegrees(-65), "L2", false),
-    L1(0.824, Rotation2d.fromDegrees(-23.703), Rotation2d.fromDegrees(0), "L1"),
-    L1_FLICK(0.919, Rotation2d.fromDegrees(0), "L1_FLICK"),
-    ALGAE_STOW(0.90769, Rotation2d.fromDegrees(-12.9199), "ALGAE_STOW"),
-    ALGAE_LOW(0.90848, Rotation2d.fromDegrees(-12.9199), "ALGAE_LOW"),
-    ALGAE_HIGH(1.35857, Rotation2d.fromDegrees(-12.9199), "ALGAE_HIGH"),
-    ALGAE_PROCESSOR(0.7829, Rotation2d.fromDegrees(-40.1660), "ALGAE_PROCESSOR"),
-    BARGE(2.08, Rotation2d.fromDegrees(23.3789), "BARGE"),
-    STATION(0.90041, Rotation2d.fromDegrees(135), "STATION");
+    SAFETY(0.90041, Rotation2d.fromDegrees(-45)),
+    CLIMB(0.90041, Rotation2d.fromDegrees(121.201)),
+    CORAL_INTAKE(0.75, Rotation2d.fromDegrees(-117)),
+    L4(2.109, Rotation2d.fromDegrees(-19)),
+    L4_STAGING(Optional.empty(), Rotation2d.fromDegrees(-65)),
+    L4_SAFETY(2.109, Rotation2d.fromDegrees(-19.599)),
+    L3(1.323265, Rotation2d.fromDegrees(-5.05468)),
+    L3_STAGING(Optional.empty(), Rotation2d.fromDegrees(-65)),
+    L3_FAR(1.423500, Rotation2d.fromDegrees(-4.515)),
+    L2(0.94895, Rotation2d.fromDegrees(-3.6035)),
+    L2_STAGING(Optional.empty(),Rotation2d.fromDegrees(-65)),
+    L2_FAR(1.0235, Rotation2d.fromDegrees(-4.515)),
+    L1(0.824, Rotation2d.fromDegrees(-23.703)),
+    L1_STAGING(Optional.empty(), Rotation2d.fromDegrees(0)),
+    L1_FLICK(0.919, Rotation2d.fromDegrees(0)),
+    ALGAE_STOW(0.90769, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_LOW(0.90848, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_HIGH(1.35857, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_PROCESSOR(0.7829, Rotation2d.fromDegrees(-40.1660)),
+    BARGE(2.08, Rotation2d.fromDegrees(23.3789)),
+    STATION(0.90041, Rotation2d.fromDegrees(135));
 
-    public double elevator_height_ = 0;
+    public Optional<Double> elevator_height_ = Optional.empty();
     private double elevator_offset_ = 0;
-    public Optional<Rotation2d> staging_arm_angle_ = Optional.empty();
     public Rotation2d arm_angle_ = Rotation2d.kZero;
     private Rotation2d arm_offset_ = Rotation2d.kZero;
-    private String name_ = "";
-    private boolean collision_ = false;
 
-    TargetType(double elevator_height, Rotation2d arm_angle, String name) {
+    Target(Optional<Double> elevator_height, Rotation2d arm_angle) {
       elevator_height_ = elevator_height;
       arm_angle_ = arm_angle;
-      name_ = name;
     }
 
-    TargetType(double elevator_height, Rotation2d arm_angle, String name, boolean c) {
-      elevator_height_ = elevator_height;
+    Target(double elevator_height, Rotation2d arm_angle) {
+      elevator_height_ = Optional.of(elevator_height);
       arm_angle_ = arm_angle;
-      name_ = name;
-      collision_ = c;
-    }
-
-    TargetType(
-        double elevator_height, Rotation2d arm_angle, Rotation2d staging_arm_angle, String name) {
-      elevator_height_ = elevator_height;
-      arm_angle_ = arm_angle;
-      staging_arm_angle_ = Optional.of(staging_arm_angle);
-      name_ = name;
-    }
-
-    TargetType(
-        double elevator_height,
-        Rotation2d arm_angle,
-        Rotation2d staging_arm_angle,
-        String name,
-        boolean c) {
-      elevator_height_ = elevator_height;
-      arm_angle_ = arm_angle;
-      staging_arm_angle_ = Optional.of(staging_arm_angle);
-      name_ = name;
-      collision_ = c;
-    }
-
-    public String toString() {
-      return this.name_;
-    }
-
-    public boolean getCollision() {
-      return collision_;
     }
 
     // Height Methods
@@ -82,7 +51,11 @@ public class SuperstructureTargets {
      * @return
      */
     public double getHeight() {
-      return elevator_height_ + elevator_offset_;
+      if(elevator_height_.isEmpty()) {
+        throw new IllegalStateException("This target does not have a defined elevator height");
+      } else {
+        return elevator_height_.get() + elevator_offset_;
+      }
     }
 
     /**
@@ -119,15 +92,6 @@ public class SuperstructureTargets {
     }
 
     /**
-     * Returns an optional angle for staging while traveling
-     *
-     * @return
-     */
-    public Optional<Rotation2d> getStagingAngle() {
-      return staging_arm_angle_;
-    }
-
-    /**
      * Adjusts the angle offset by the supplied increment
      *
      * @param offset
@@ -154,13 +118,6 @@ public class SuperstructureTargets {
     public void resetOffsets() {
       resetAngleOffset();
       resetHeightOffset();
-    }
-
-    /**
-     * @return the name of the target
-     */
-    public String getName() {
-      return name_;
     }
   }
 }

@@ -28,6 +28,10 @@ public class Superstructure
     return instance_;
   }
 
+
+  // Current system states for the superstructure
+  public enum SystemState {}
+
   Superstructure(SuperstructureIO io) {
     this.io = io;
   }
