@@ -3,7 +3,15 @@ package frc.robot.subsystems.intake;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.robot.Constants;
 
-public class Intake extends MWSubsystem {
+public class Intake extends MWSubsystem<IntakeIO, frc.robot.subsystems.intake.Intake.IntakeState> {
+
+  public enum IntakeState {
+    DEPLOYING,
+    PURGING,
+    CLIMB_STAGING,
+    PICKING_UP,
+    IDLING
+  }
 
   private static Intake instance_ = null;
 
@@ -18,26 +26,11 @@ public class Intake extends MWSubsystem {
     return instance_;
   }
 
-  public enum WantedState {
-    IDLE,
-    PICKUP,
-    PURGE,
-    CLIMB_STAGE
-  }
-
-  public enum SystemState {
-    DEPLOYING,
-    PURGING,
-    CLIMB_STAGING,
-    PICKING_UP,
-    IDLING
-  }
-
-  private WantedState wantedState = WantedState.IDLE;
-  private SystemState systemState = SystemState.IDLING;
-
   public Intake(IntakeIO io) {
     this.io = io;
+
+    this.system_state_ = IntakeState.IDLING;
+    this.wanted_state_ = IntakeState.IDLING;
   }
 
   @Override
