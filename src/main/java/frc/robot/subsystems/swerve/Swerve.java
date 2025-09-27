@@ -145,9 +145,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
 
   @Override
   public void updateLogic(double timestamp) {
-    // Update the system state based on the wanted state
-    system_state_ = handleStateTransition();
-
     // Update the request to apply based on the system state
     switch (system_state_) {
       case FIELD_CENTRIC:
@@ -200,8 +197,9 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
    *
    * @return the current system state
    */
-  private SwerveStates handleStateTransition() {
-    return switch (wanted_state_) {
+  @Override
+  protected void handleStateTransition(SwerveStates wanted_state) {
+    system_state_ = switch (wanted_state_) {
       case FIELD_CENTRIC -> SwerveStates.FIELD_CENTRIC;
       case ROBOT_CENTRIC -> SwerveStates.ROBOT_CENTRIC;
       case CHOREO_PATH -> {
