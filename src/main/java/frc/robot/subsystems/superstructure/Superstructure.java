@@ -4,14 +4,15 @@ import frc.mw_lib.subsystem.MWSubsystem;
 import frc.robot.Constants;
 
 public class Superstructure
-    extends MWSubsystem<SuperstructureIO, frc.robot.subsystems.superstructure.Superstructure.SuperstructureState> {
+    extends MWSubsystem<
+        SuperstructureIO, frc.robot.subsystems.superstructure.Superstructure.SuperstructureState> {
 
   // Current system states for the superstructure
   public enum SuperstructureState {
     AT_TARGET,
-    MOVING_TO_TARGET,
-    MOVING_ELEVATOR,
-    MOVING_ARM,
+    UNSAFE_MOVE,
+    SAFE_MOVE,
+    RESCUE,
   }
 
   private static Superstructure instance_ = null;
@@ -28,7 +29,6 @@ public class Superstructure
     return instance_;
   }
 
-
   // Current system states for the superstructure
   public enum SystemState {}
 
@@ -37,10 +37,17 @@ public class Superstructure
   }
 
   @Override
-  public void updateLogic(double timestamp) {
+  public void handleStateTransition(SuperstructureState wanted) {
+    system_state_ =
+        switch (wanted) {
+          case AT_TARGET -> SuperstructureState.AT_TARGET;
+          default -> SuperstructureState.UNSAFE_MOVE;
+        };
   }
 
   @Override
-  public void reset() {
-  }
+  public void updateLogic(double timestamp) {}
+
+  @Override
+  public void reset() {}
 }

@@ -17,7 +17,7 @@ public class SuperstructureTargets {
     L3_STAGING(Optional.empty(), Rotation2d.fromDegrees(-65)),
     L3_FAR(1.423500, Rotation2d.fromDegrees(-4.515)),
     L2(0.94895, Rotation2d.fromDegrees(-3.6035)),
-    L2_STAGING(Optional.empty(),Rotation2d.fromDegrees(-65)),
+    L2_STAGING(Optional.empty(), Rotation2d.fromDegrees(-65)),
     L2_FAR(1.0235, Rotation2d.fromDegrees(-4.515)),
     L1(0.824, Rotation2d.fromDegrees(-23.703)),
     L1_STAGING(Optional.empty(), Rotation2d.fromDegrees(0)),
@@ -51,7 +51,7 @@ public class SuperstructureTargets {
      * @return
      */
     public double getHeight() {
-      if(elevator_height_.isEmpty()) {
+      if (elevator_height_.isEmpty()) {
         throw new IllegalStateException("This target does not have a defined elevator height");
       } else {
         return elevator_height_.get() + elevator_offset_;
