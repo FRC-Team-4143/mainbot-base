@@ -12,7 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.swerve.module.ModuleType;
+import frc.mw_lib.swerve_lib.module.ModuleType;
 
 public class SwerveConstants {
   // CAN bus name and CAN ID for the pigeon2

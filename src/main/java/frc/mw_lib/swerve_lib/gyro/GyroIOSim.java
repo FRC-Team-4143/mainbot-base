@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve.gyro;
+package frc.mw_lib.swerve_lib.gyro;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 

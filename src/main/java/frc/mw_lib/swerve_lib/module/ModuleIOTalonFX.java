@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve.module;
+package frc.mw_lib.swerve_lib.module;
 
 import static frc.mw_lib.util.PhoenixUtil.tryUntilOk;
 

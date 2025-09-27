@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve.module;
+package frc.mw_lib.swerve_lib.module;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.util.ConstantsLoader;

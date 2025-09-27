@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve.module;
+package frc.mw_lib.swerve_lib.module;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 

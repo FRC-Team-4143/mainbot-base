@@ -6,8 +6,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.mw_lib.subsystem.SubsystemIO;
-import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
-import frc.robot.subsystems.swerve.module.Module;
+import frc.mw_lib.swerve_lib.ChassisRequest;
+import frc.mw_lib.swerve_lib.ChassisRequest.ChassisRequestParameters;
+import frc.mw_lib.swerve_lib.module.Module;
 
 public class SwerveIO implements SubsystemIO {
   public SwerveModuleState[] module_states =

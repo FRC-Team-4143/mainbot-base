@@ -24,10 +24,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.subsystems.swerve.gyro.Gyro;
-import frc.robot.subsystems.swerve.gyro.GyroIOSim;
-import frc.robot.subsystems.swerve.module.Module;
-import frc.robot.subsystems.swerve.module.ModuleIOTalonFXSim;
+import frc.mw_lib.swerve_lib.gyro.Gyro;
+import frc.mw_lib.swerve_lib.gyro.GyroIOSim;
+import frc.mw_lib.swerve_lib.module.Module;
+import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXSim;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;

@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve.module;
+package frc.mw_lib.swerve_lib.module;
 
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,7 +36,6 @@ public class Module {
 
   private final ModuleIO io;
   private final ModuleIO.ModuleIOInputs inputs = new ModuleIO.ModuleIOInputs();
-  private final int index;
   private final SwerveModuleConstants constants;
 
   private final Alert driveDisconnectedAlert;
@@ -46,7 +45,6 @@ public class Module {
 
   public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
     this.io = io;
-    this.index = index;
     this.constants = constants;
     driveDisconnectedAlert =
         new Alert(

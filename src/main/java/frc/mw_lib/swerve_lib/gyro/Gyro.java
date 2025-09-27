@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve.gyro;
+package frc.mw_lib.swerve_lib.gyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;

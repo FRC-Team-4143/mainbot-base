@@ -20,11 +20,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.swerve_lib.ChassisRequest;
+import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
+import frc.mw_lib.swerve_lib.module.Module.DriveControlMode;
+import frc.mw_lib.swerve_lib.module.Module.SteerControlMode;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.subsystems.swerve.ChassisRequest.XPositiveReference;
-import frc.robot.subsystems.swerve.module.Module.DriveControlMode;
-import frc.robot.subsystems.swerve.module.Module.SteerControlMode;
+
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

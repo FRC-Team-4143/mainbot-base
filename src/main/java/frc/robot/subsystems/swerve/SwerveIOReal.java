@@ -8,10 +8,10 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.subsystems.swerve.gyro.Gyro;
-import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2;
-import frc.robot.subsystems.swerve.module.Module;
-import frc.robot.subsystems.swerve.module.ModuleIOTalonFXReal;
+import frc.mw_lib.swerve_lib.gyro.Gyro;
+import frc.mw_lib.swerve_lib.gyro.GyroIOPigeon2;
+import frc.mw_lib.swerve_lib.module.Module;
+import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXReal;
 
 public class SwerveIOReal extends SwerveIO {
 
