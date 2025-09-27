@@ -1,11 +1,14 @@
 package frc.robot.subsystems.superstructure;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.robot.Constants;
 
 public class Superstructure
-    extends MWSubsystem<
-        SuperstructureIO, frc.robot.subsystems.superstructure.Superstructure.SuperstructureState> {
+    extends MWSubsystem<SuperstructureIO, frc.robot.subsystems.superstructure.Superstructure.SuperstructureState> {
 
   // Current system states for the superstructure
   public enum SuperstructureState {
@@ -29,25 +32,63 @@ public class Superstructure
     return instance_;
   }
 
-  // Current system states for the superstructure
-  public enum SystemState {}
+  private List<SuperstructureTargets> targets_;
 
   Superstructure(SuperstructureIO io) {
+    super(SuperstructureState.SAFE_MOVE);
     this.io = io;
+
+    this.targets_ = new ArrayList<>();
   }
 
   @Override
   public void handleStateTransition(SuperstructureState wanted) {
-    system_state_ =
-        switch (wanted) {
-          case AT_TARGET -> SuperstructureState.AT_TARGET;
-          default -> SuperstructureState.UNSAFE_MOVE;
-        };
+    switch (wanted) {
+      case AT_TARGET:
+        if (targets_.size() > 0) {
+
+        } else if (targets_.size() > 0) {
+
+        } else {
+          // No transititon
+        }
+        break;
+      case UNSAFE_MOVE:
+
+        break;
+      case SAFE_MOVE:
+
+        break;
+      case RESCUE:
+
+        break;
+      default:
+        DataLogManager.log("Unhandled state in Superstructure transition " + wanted.name());
+    }
+    ;
   }
 
   @Override
-  public void updateLogic(double timestamp) {}
+  public void updateLogic(double timestamp) {
+    switch(system_state_){
+      case AT_TARGET:
+        
+        break;
+      case UNSAFE_MOVE:
+
+        break;
+      case SAFE_MOVE:
+
+        break;
+      case RESCUE:
+
+        break;
+      default:
+        DataLogManager.log("Unhandled state in Superstructure logic " + system_state_.name());
+    }
+  }
 
   @Override
-  public void reset() {}
+  public void reset() {
+  }
 }

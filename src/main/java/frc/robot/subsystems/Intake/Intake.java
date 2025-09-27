@@ -27,10 +27,10 @@ public class Intake extends MWSubsystem<IntakeIO, frc.robot.subsystems.intake.In
   }
 
   public Intake(IntakeIO io) {
+    super(IntakeState.IDLING);
     this.io = io;
 
     this.system_state_ = IntakeState.IDLING;
-    this.wanted_state_ = IntakeState.IDLING;
   }
 
   @Override

@@ -105,9 +105,8 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
    * @param io The swerve I/O container to use
    */
   public Swerve(SwerveIO io) {
+    super(SwerveStates.IDLE);
     this.io = io;
-    this.system_state_ = SwerveStates.FIELD_CENTRIC;
-    this.wanted_state_ = SwerveStates.FIELD_CENTRIC;
 
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
@@ -196,7 +195,7 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
   @Override
   protected void handleStateTransition(SwerveStates wanted_state) {
     system_state_ =
-        switch (wanted_state_) {
+        switch (wanted_state) {
           case FIELD_CENTRIC -> SwerveStates.FIELD_CENTRIC;
           case ROBOT_CENTRIC -> SwerveStates.ROBOT_CENTRIC;
           case CHOREO_PATH -> {
