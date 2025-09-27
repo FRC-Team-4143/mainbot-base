@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.robot.Constants;
 import frc.robot.OI;
@@ -35,7 +33,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
 
   // Current system states for the swerve drive
   enum SwerveStates {
-    SYS_ID,
     FIELD_CENTRIC,
     ROBOT_CENTRIC,
     CHOREO_PATH,
@@ -101,9 +98,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
   private ChassisRequest.FieldCentricFacingAngle rotation_lock_request_;
   private ChassisRequest.ApplyFieldSpeeds field_speeds_request_;
 
-  // SysId Routine
-  private final SysIdRoutine sysId;
-
   /**
    * Creates a new Swerve subsystem with the specified gyro and module IOs.
    *
@@ -146,14 +140,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
         new ChassisRequest.ApplyFieldSpeeds()
             .withDriveRequestType(DriveControlMode.CLOSED_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP);
-
-    // Configure SysId
-    sysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null, null, null, (state) -> DogLog.log("SysIdState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> runCharacterization(voltage.in(Volts)), null, (Subsystem) this));
   }
 
   @Override
@@ -163,8 +149,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
 
     // Update the request to apply based on the system state
     switch (system_state_) {
-      case SYS_ID:
-        break;
       case FIELD_CENTRIC:
         io.current_request =
             field_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
@@ -275,7 +259,6 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
    */
   private SwerveStates handleStateTransition() {
     return switch (wanted_state_) {
-      case SYS_ID -> SwerveStates.SYS_ID;
       case FIELD_CENTRIC -> SwerveStates.FIELD_CENTRIC;
       case ROBOT_CENTRIC -> SwerveStates.ROBOT_CENTRIC;
       case CHOREO_PATH -> {
@@ -578,48 +561,5 @@ public class Swerve extends MWSubsystem<SwerveIO, frc.robot.subsystems.swerve.Sw
   /** Returns the raw gyro rotation */
   public Rotation2d getGyroRotation() {
     return io.raw_gyro_rotation;
-  }
-
-  // ------------------------------------------------
-  // Characterization Methods
-  // ------------------------------------------------
-
-  /** Runs the drive in a straight line with the specified drive output. */
-  public void runCharacterization(double output) {
-    for (int i = 0; i < 4; i++) {
-      swerve_io_.getModules()[i].runCharacterization(output);
-    }
-  }
-
-  /** Returns a command to run a quasistatic test in the specified direction. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return Commands.run(() -> runCharacterization(0.0))
-        .withTimeout(1.0)
-        .andThen(sysId.quasistatic(direction));
-  }
-
-  /** Returns a command to run a dynamic test in the specified direction. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return Commands.run(() -> runCharacterization(0.0))
-        .withTimeout(1.0)
-        .andThen(sysId.dynamic(direction));
-  }
-
-  /** Returns the position of each module in radians. */
-  public double[] getWheelRadiusCharacterizationPositions() {
-    double[] values = new double[4];
-    for (int i = 0; i < 4; i++) {
-      values[i] = swerve_io_.getModules()[i].getWheelRadiusCharacterizationPosition();
-    }
-    return values;
-  }
-
-  /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
-  public double getFFCharacterizationVelocity() {
-    double output = 0.0;
-    for (int i = 0; i < 4; i++) {
-      output += swerve_io_.getModules()[i].getFFCharacterizationVelocity() / 4.0;
-    }
-    return output;
   }
 }

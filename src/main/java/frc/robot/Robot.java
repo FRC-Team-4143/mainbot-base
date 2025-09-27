@@ -21,6 +21,7 @@ import org.ironmaple.simulation.SimulatedArena;
 public class Robot extends TimedRobot {
 
   private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
+  private RobotContainer robot_container_ = RobotContainer.getInstance();
 
   public Robot() {
     // Record git metadata
