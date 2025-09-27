@@ -23,6 +23,5 @@ public class RobotContainer extends SubsystemManager {
 
     // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
     reset();
-    completeRegistration();
   }
 }

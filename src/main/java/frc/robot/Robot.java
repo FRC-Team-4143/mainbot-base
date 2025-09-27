@@ -43,6 +43,8 @@ public class Robot extends TimedRobot {
     // Call the scheduler so that commands work for buttons
     CommandScheduler.getInstance().run();
 
+    robot_container_.doControlLoop();
+
     // updates data from chassis proxy server
     ProxyServer.updateData();
   }
