@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.function.BooleanSupplier;
 
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+
 public final class Constants {
 
   public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
@@ -21,4 +23,5 @@ public final class Constants {
   }
 
   public static final double CONTROLLER_DEADBAND = 0.05;
+  public static SwerveDriveSimulation SWERVE_SIMULATOR;
 }

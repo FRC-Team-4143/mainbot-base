@@ -28,6 +28,8 @@ import frc.mw_lib.swerve_lib.gyro.Gyro;
 import frc.mw_lib.swerve_lib.gyro.GyroIOSim;
 import frc.mw_lib.swerve_lib.module.Module;
 import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXSim;
+import frc.robot.Constants;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -128,7 +130,6 @@ public class SwerveIOSim extends SwerveIO {
             SwerveConstants.BL_MODULE_TRANSLATION,
             SwerveConstants.BR_MODULE_TRANSLATION,
           });
-  private final SwerveDriveSimulation swerve_simulation_;
 
   @SuppressWarnings("unchecked")
   private final DriveTrainSimulationConfig maple_sim_config_ =
@@ -152,28 +153,28 @@ public class SwerveIOSim extends SwerveIO {
 
   SwerveIOSim() {
     // Configure MapleSim
-    swerve_simulation_ = new SwerveDriveSimulation(maple_sim_config_, SIM_START_POSE);
+    Constants.SWERVE_SIMULATOR = new SwerveDriveSimulation(maple_sim_config_, SIM_START_POSE);
     // Configure Gyro
-    gyro_ = new Gyro(new GyroIOSim(swerve_simulation_.getGyroSimulation()));
+    gyro_ = new Gyro(new GyroIOSim(Constants.SWERVE_SIMULATOR.getGyroSimulation()));
     // Configure Modules
     modules_[0] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_FL_MODULE_CONSTANTS, swerve_simulation_.getModules()[0]),
+            new ModuleIOTalonFXSim(SIM_FL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[0]),
             0,
             SIM_FL_MODULE_CONSTANTS);
     modules_[1] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_FR_MODULE_CONSTANTS, swerve_simulation_.getModules()[1]),
+            new ModuleIOTalonFXSim(SIM_FR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[1]),
             1,
             SIM_FR_MODULE_CONSTANTS);
     modules_[2] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_BL_MODULE_CONSTANTS, swerve_simulation_.getModules()[2]),
+            new ModuleIOTalonFXSim(SIM_BL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[2]),
             2,
             SIM_BL_MODULE_CONSTANTS);
     modules_[3] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_BR_MODULE_CONSTANTS, swerve_simulation_.getModules()[3]),
+            new ModuleIOTalonFXSim(SIM_BR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[3]),
             3,
             SIM_BR_MODULE_CONSTANTS);
     // Configure Pose Estimator
@@ -189,7 +190,7 @@ public class SwerveIOSim extends SwerveIO {
             },
             SIM_START_POSE);
     // Setup MapleSim Drive Train Simulation
-    SimulatedArena.getInstance().addDriveTrainSimulation(swerve_simulation_);
+    SimulatedArena.getInstance().addDriveTrainSimulation(Constants.SWERVE_SIMULATOR);
   }
 
   @Override
@@ -240,7 +241,7 @@ public class SwerveIOSim extends SwerveIO {
     pose = pose_estimator_.getEstimatedPosition();
 
     // Update Simulated Position
-    DogLog.log("FieldSimulation/RobotPosition", swerve_simulation_.getSimulatedDriveTrainPose());
+    DogLog.log("FieldSimulation/RobotPosition", Constants.SWERVE_SIMULATOR.getSimulatedDriveTrainPose());
   }
 
   public void writeOutputs(double timestamp) {
@@ -250,7 +251,7 @@ public class SwerveIOSim extends SwerveIO {
   }
 
   public void resetPose(Pose2d pose) {
-    swerve_simulation_.setSimulationWorldPose(pose);
+    Constants.SWERVE_SIMULATOR.setSimulationWorldPose(pose);
     pose_estimator_.resetPosition(pose.getRotation(), new SwerveModulePosition[4], pose);
   }
 
