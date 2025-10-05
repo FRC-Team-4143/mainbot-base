@@ -21,7 +21,6 @@ public class SuperstructureConstants extends MWConstants{
     RESCUE,
   }
 
-
   public static final ElevatorConfig ELEVATOR_CONFIG = new ElevatorConfig();
 
   public static final NeutralModeValue NEUTRAL_MODE =
