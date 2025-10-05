@@ -55,11 +55,11 @@ public class Superstructure
     targets_.add(SuperstructureTarget.Targets.CORAL_INTAKE.target);
 
     TunablePid.create(
-        getSubsystemKey() + "/elevator",
+        getSubsystemKey() + "elevator",
         io::updateElevatorGains,
         CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
     TunablePid.create(
-        getSubsystemKey() + "/arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
+        getSubsystemKey() + "arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
   }
 
   @Override

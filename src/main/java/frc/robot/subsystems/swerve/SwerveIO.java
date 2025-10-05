@@ -55,14 +55,14 @@ public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
   /** Logs data to DogLog.  */
   @Override
   public void logData(){
-    DogLog.log(getSubsystemKey() + "/ModuleStates", module_states);
-    DogLog.log(getSubsystemKey() + "/ModulePositions", module_positions);
-    DogLog.log(getSubsystemKey() + "/ModuleDeltas", module_deltas);
-    DogLog.log(getSubsystemKey() + "/LastModulePositions", last_module_positions);
-    DogLog.log(getSubsystemKey() + "/ChassisSpeeds", chassis_speeds);
-    DogLog.log(getSubsystemKey() + "/RawGyroRotation", raw_gyro_rotation);
-    DogLog.log(getSubsystemKey() + "/Pose", pose);
-    DogLog.log(getSubsystemKey() + "/CurrentRequestType", current_request.getClass().getSimpleName());
+    DogLog.log(getSubsystemKey() + "ModuleStates", module_states);
+    DogLog.log(getSubsystemKey() + "ModulePositions", module_positions);
+    DogLog.log(getSubsystemKey() + "ModuleDeltas", module_deltas);
+    DogLog.log(getSubsystemKey() + "LastModulePositions", last_module_positions);
+    DogLog.log(getSubsystemKey() + "ChassisSpeeds", chassis_speeds);
+    DogLog.log(getSubsystemKey() + "RawGyroRotation", raw_gyro_rotation);
+    DogLog.log(getSubsystemKey() + "Pose", pose);
+    DogLog.log(getSubsystemKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
   }
 
   void resetPose(Pose2d pose) {}

@@ -33,7 +33,7 @@ public class IntakeConstants extends MWConstants {
   // Pivot Motor Constants
   public final int PIVOT_ID = getIntConstant("pivot", "id");
   public final double PIVOT_MECH_RATIO = getDoubleConstant("pivot", "mech_ratio");
-  public final Slot0Configs PIVOT_GAINS = new Slot0Configs().withKP(getDoubleConstant("pivot", "kP"));
+  public final Slot0Configs PIVOT_GAINS = new Slot0Configs().withKP(getDoubleConstant("pivot", "kp"));
 
   public final Rotation2d PIVOT_OFFSET = Rotation2d.fromDegrees(35);
   public final Rotation2d PIVOT_DEPLOYED_ANGLE = Rotation2d.fromDegrees(-35);

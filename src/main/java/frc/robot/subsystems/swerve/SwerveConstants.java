@@ -76,12 +76,12 @@ public class SwerveConstants extends MWConstants {
       .withKV(0.117).withKA(0);
 
   // Control Constants for the swerve modules
-  public final double SLIP_CURRENT_AMPS = 50;
-  public final double SPEED_AT_12V_MPS = 5.0;
-  public final double COUPLE_RATIO = 3.5;
-  public final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.8);
-  public final double MAX_TRANSLATION_RATE = 5.0;
-  public final double MAX_ANGULAR_RATE = 10.0;
+  public final double SLIP_CURRENT_AMPS = getDoubleConstant("com", "slip_current");
+  public final double SPEED_AT_12V_MPS = getDoubleConstant("com", "speed_at_12v");
+  public final double COUPLE_RATIO = getDoubleConstant("com", "couple_ratio");
+  public final double WHEEL_RADIUS_METERS = Units.inchesToMeters(getDoubleConstant("com", "wheel_radius_inches"));
+  public final double MAX_TRANSLATION_RATE = getDoubleConstant("com", "max_translation_rate");
+  public final double MAX_ANGULAR_RATE = getDoubleConstant("com", "max_angular_rate");
 
   private final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> CONSTANT_CREATOR = new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
       // .withDriveMotorGearRatio(kDriveGearRatio) Unique to Module Type
@@ -117,7 +117,7 @@ public class SwerveConstants extends MWConstants {
           0,
           FL_MODULE_TRANSLATION.getX(),
           FL_MODULE_TRANSLATION.getY(),
-          false,
+          getBoolConstant("fl", "invert_drive"),
           FL_MODULE_TYPE.steerInverted,
           false)
       .withDriveMotorGearRatio(FL_MODULE_TYPE.driveRatio)
@@ -135,7 +135,7 @@ public class SwerveConstants extends MWConstants {
           0,
           FR_MODULE_TRANSLATION.getX(),
           FR_MODULE_TRANSLATION.getY(),
-          false,
+          getBoolConstant("fr", "invert_drive"),
           FR_MODULE_TYPE.steerInverted,
           false)
       .withDriveMotorGearRatio(FR_MODULE_TYPE.driveRatio)
@@ -153,7 +153,7 @@ public class SwerveConstants extends MWConstants {
           0,
           BL_MODULE_TRANSLATION.getX(),
           BL_MODULE_TRANSLATION.getY(),
-          false,
+          getBoolConstant("bl", "invert_drive"),
           BL_MODULE_TYPE.steerInverted,
           false)
       .withDriveMotorGearRatio(BL_MODULE_TYPE.driveRatio)
@@ -171,7 +171,7 @@ public class SwerveConstants extends MWConstants {
           0,
           BR_MODULE_TRANSLATION.getX(),
           BR_MODULE_TRANSLATION.getY(),
-          false,
+          getBoolConstant("br", "invert_drive"),
           BR_MODULE_TYPE.steerInverted,
           false)
       .withDriveMotorGearRatio(BR_MODULE_TYPE.driveRatio)

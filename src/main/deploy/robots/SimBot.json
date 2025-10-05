@@ -1,67 +1,67 @@
 {
     "disabled_subsystems": [],
-    "drive": {
+    "swerve": {
         "com": {
-            "CENTER_OFFSET_X": 18,
-            "SLIP_CURRENT": 50,
-            "SPEED_AT_12V": 5.0,
-            "COUPLE_RATIO": 3.5,
-            "WHEEL_RADIUS_INCH": 1.8,
-            "MAX_DRIVE_SPEED": 5.0,
-            "MAX_DRIVE_ANGULAR_RATE": 10,
-            "STEER_MOTOR_REVERSED": true,
-            "DRIVE_GAINS_P": 0.5,
-            "DRIVE_GAINS_I": 0,
-            "DRIVE_GAINS_D": 0,
-            "DRIVE_GAINS_S": 0.18,
-            "DRIVE_GAINS_V": 0.117,
-            "DRIVE_GAINS_A": 0,
-            "STEER_GAINS_P": 80,
-            "STEER_GAINS_I": 0,
-            "STEER_GAINS_D": 0,
-            "STEER_GAINS_S": 0,
-            "STEER_GAINS_V": 0,
-            "STEER_GAINS_A": 0
+            "center_offset_x": 18,
+            "slip_current": 50,
+            "speed_at_12v": 5.0,
+            "couple_ratio": 3.5,
+            "wheel_radius_inches": 1.8,
+            "max_translation_rate": 5.0,
+            "max_angular_rate": 10,
+            "steer_motor_reversed": true,
+            "drive_gains_p": 0.5,
+            "drive_gains_i": 0,
+            "drive_gains_d": 0,
+            "drive_gains_s": 0.18,
+            "drive_gains_v": 0.117,
+            "drive_gains_a": 0,
+            "steer_gains_p": 80,
+            "steer_gains_i": 0,
+            "steer_gains_d": 0,
+            "steer_gains_s": 0,
+            "steer_gains_v": 0,
+            "steer_gains_a": 0
         },
         "fl": {
-            "DRIVE_ID": 1,
-            "STEER_ID": 2,
-            "ENCODER_ID": 0,
-            "X_POSITION": 7.5,
-            "Y_POSITION": 7.5,
-            "INVERT_DRIVE": false,
-            "MODULE_TYPE": "MK4N",
-            "MODULE_GEARING": "L2+"
+            "drive_id": 1,
+            "steer_id": 2,
+            "encoder_id": 0,
+            "x_position": 7.5,
+            "y_position": 7.5,
+            "invert_drive": false,
+            "module_type": "MK4N",
+            "module_gearing": "L2+"
         },
         "fr": {
-            "DRIVE_ID": 3,
-            "STEER_ID": 4,
-            "ENCODER_ID": 1,
-            "X_POSITION": 7.5,
-            "Y_POSITION": -7.5,
-            "INVERT_DRIVE": false,
-            "MODULE_TYPE": "MK4I",
-            "MODULE_GEARING": "L2+"
+            "drive_id": 3,
+            "steer_id": 4,
+            "encoder_id": 1,
+            "x_position": 7.5,
+            "y_position": -7.5,
+            "invert_drive": false,
+            "module_type": "MK4I",
+            "module_gearing": "L2+"
         },
         "bl": {
-            "DRIVE_ID": 5,
-            "STEER_ID": 6,
-            "ENCODER_ID": 2,
-            "X_POSITION": -7.5,
-            "Y_POSITION": 7.5,
-            "INVERT_DRIVE": false,
-            "MODULE_TYPE": "MK4N",
-            "MODULE_GEARING": "L2+"
+            "drive_id": 5,
+            "steer_id": 6,
+            "encoder_id": 2,
+            "x_position": -7.5,
+            "y_position": 7.5,
+            "invert_drive": false,
+            "module_type": "MK4N",
+            "module_gearing": "L2+"
         },
         "br": {
-            "DRIVE_ID": 7,
-            "STEER_ID": 8,
-            "ENCODER_ID": 3,
-            "X_POSITION": -7.5,
-            "Y_POSITION": -7.5,
-            "INVERT_DRIVE": false,
-            "MODULE_TYPE": "MK4I",
-            "MODULE_GEARING": "L2+"
+            "drive_id": 7,
+            "steer_id": 8,
+            "encoder_id": 3,
+            "x_position": -7.5,
+            "y_position": -7.5,
+            "invert_drive": false,
+            "module_type": "MK4I",
+            "module_gearing": "L2+"
         }
     },
     "superstructure": {
@@ -117,7 +117,7 @@
         "pivot": {
             "id": 14,
             "mech_ratio": 1.0,
-            "kP": 10.0
+            "kp": 10.0
         }
     }
 }

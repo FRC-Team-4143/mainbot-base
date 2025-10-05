@@ -42,17 +42,17 @@ public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
   /** Logs data to DogLog.  */
   @Override
   public void logData() {
-    DogLog.log(getSubsystemKey() + "/Pivot/CurrentAngle", pivot_current_angle);
-    DogLog.log(getSubsystemKey() + "/Pivot/AppliedVoltage", pivot_applied_voltage);
-    DogLog.log(getSubsystemKey() + "/Pivot/Current", pivot_current);
-    DogLog.log(getSubsystemKey() + "/Pivot/Temp", pivot_temp);
-    DogLog.log(getSubsystemKey() + "/Pivot/TargetAngle", pivot_target_angle);
+    DogLog.log(getSubsystemKey() + "Pivot/Position/Current", pivot_current_angle);
+    DogLog.log(getSubsystemKey() + "Pivot/Position/Target", pivot_target_angle);
+    DogLog.log(getSubsystemKey() + "Pivot/AppliedVoltage", pivot_applied_voltage);
+    DogLog.log(getSubsystemKey() + "Pivot/Current", pivot_current);
+    DogLog.log(getSubsystemKey() + "Pivot/Temp", pivot_temp);
 
-    DogLog.log(getSubsystemKey() + "/Roller/AppliedVoltage", roller_applied_voltage);
-    DogLog.log(getSubsystemKey() + "/Roller/Current", roller_current);
-    DogLog.log(getSubsystemKey() + "/Roller/Temp", roller_temp);
-    DogLog.log(getSubsystemKey() + "/Roller/TargetOutput", roller_target_output);
+    DogLog.log(getSubsystemKey() + "Roller/AppliedVoltage", roller_applied_voltage);
+    DogLog.log(getSubsystemKey() + "Roller/Current", roller_current);
+    DogLog.log(getSubsystemKey() + "Roller/Temp", roller_temp);
+    DogLog.log(getSubsystemKey() + "Roller/TargetOutput", roller_target_output);
 
-    DogLog.log(getSubsystemKey() + "/TOFDistance", tof_dist);
+    DogLog.log(getSubsystemKey() + "TOFDistance", tof_dist);
   }
 }

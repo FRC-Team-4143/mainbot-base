@@ -5,7 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.SuperstructureTarget.Targets;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.Optional;
 
@@ -15,7 +18,8 @@ public abstract class OI {
   private static CommandXboxController driver_controller_ = new CommandXboxController(0);
 
   public static void configureBindings() {
-    driver_controller_.leftStick().onTrue(Swerve.getInstance().toggleFieldCentric());
+    driver_controller_.rightStick().onTrue(Swerve.getInstance().toggleFieldCentric());
+    driver_controller_.a().whileTrue(Commands.startEnd(() -> Superstructure.getInstance().requestMove(Targets.L3), () -> Superstructure.getInstance().requestMove(Targets.CORAL_INTAKE)));
   }
 
   /**
