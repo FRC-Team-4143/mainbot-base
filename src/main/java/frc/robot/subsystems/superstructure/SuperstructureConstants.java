@@ -60,54 +60,51 @@ public class SuperstructureConstants extends MWConstants {
     // Configure leader motor settings
     ELEVATOR_LEADER_CONFIG = new TalonFXConfiguration();
     ELEVATOR_LEADER_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    ELEVATOR_LEADER_CONFIG.CurrentLimits.StatorCurrentLimit =
-        getDoubleConstant("elevator", "stator_limit");
+    ELEVATOR_LEADER_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("elevator", "stator_limit");
     ELEVATOR_LEADER_CONFIG.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    ELEVATOR_LEADER_CONFIG.Slot0 =
-        new Slot0Configs()
-            .withKP(LOADER.getDoubleValue("elevator", "kp"))
-            .withKI(LOADER.getDoubleValue("elevator", "ki"))
-            .withKD(LOADER.getDoubleValue("elevator", "ki"))
-            .withKS(LOADER.getDoubleValue("elevator", "ks"))
-            .withKV(LOADER.getDoubleValue("elevator", "kv"))
-            .withKA(LOADER.getDoubleValue("elevator", "ka"))
-            .withKG(LOADER.getDoubleValue("elevator", "kg"))
-            .withGravityType(GravityTypeValue.Elevator_Static);
-    ELEVATOR_LEADER_CONFIG.MotionMagic =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(300.0)
-            .withMotionMagicAcceleration(400.0)
-            .withMotionMagicJerk(1000.0);
+    ELEVATOR_LEADER_CONFIG.Slot0 = new Slot0Configs()
+        .withKP(getDoubleConstant("elevator", "kp"))
+        .withKI(getDoubleConstant("elevator", "ki"))
+        .withKD(getDoubleConstant("elevator", "ki"))
+        .withKS(getDoubleConstant("elevator", "ks"))
+        .withKV(getDoubleConstant("elevator", "kv"))
+        .withKA(getDoubleConstant("elevator", "ka"))
+        .withKG(getDoubleConstant("elevator", "kg"))
+        .withGravityType(GravityTypeValue.Elevator_Static);
+    ELEVATOR_LEADER_CONFIG.MotionMagic = new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(300.0)
+        .withMotionMagicAcceleration(400.0)
+        .withMotionMagicJerk(1000.0);
 
     // Configure follower motor settings
     ELEVATOR_FOLLOWER_CONFIG = new TalonFXConfiguration();
     ELEVATOR_FOLLOWER_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    ELEVATOR_FOLLOWER_CONFIG.CurrentLimits.StatorCurrentLimit =
-        getDoubleConstant("elevator", "stator_limit");
+    ELEVATOR_FOLLOWER_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("elevator", "stator_limit");
     ELEVATOR_FOLLOWER_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     ARM_MOTOR_CONFIG = new TalonFXConfiguration();
     ARM_MOTOR_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     ARM_MOTOR_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("arm", "stator_limit");
     ARM_MOTOR_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    ARM_MOTOR_CONFIG.Slot0 =
-        new Slot0Configs()
-            .withKP(LOADER.getDoubleValue("arm", "kp"))
-            .withKI(LOADER.getDoubleValue("arm", "ki"))
-            .withKD(LOADER.getDoubleValue("arm", "kd"))
-            .withKS(LOADER.getDoubleValue("arm", "ks"))
-            .withKV(LOADER.getDoubleValue("arm", "kv"))
-            .withKA(LOADER.getDoubleValue("arm", "ka"))
-            .withKG(LOADER.getDoubleValue("arm", "kg"))
-            .withGravityType(GravityTypeValue.Arm_Cosine);
-    ARM_MOTOR_CONFIG.MotionMagic =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(300.0)
-            .withMotionMagicAcceleration(400.0)
-            .withMotionMagicJerk(1000.0);
+    ARM_MOTOR_CONFIG.Slot0 = new Slot0Configs()
+        .withKP(getDoubleConstant("arm", "kp"))
+        .withKI(getDoubleConstant("arm", "ki"))
+        .withKD(getDoubleConstant("arm", "kd"))
+        .withKS(getDoubleConstant("arm", "ks"))
+        .withKV(getDoubleConstant("arm", "kv"))
+        .withKA(getDoubleConstant("arm", "ka"))
+        .withKG(getDoubleConstant("arm", "kg"))
+        .withGravityType(GravityTypeValue.Arm_Cosine);
+    ARM_MOTOR_CONFIG.MotionMagic = new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(300.0)
+        .withMotionMagicAcceleration(400.0)
+        .withMotionMagicJerk(1000.0);
 
     ARM_ENCODER_CONFIG = new CANcoderConfiguration();
-    ARM_ENCODER_CONFIG.MagnetSensor.SensorDirection = getBoolConstant("arm", "encoder_inverted") ? SensorDirectionValue.CounterClockwise_Positive : SensorDirectionValue.Clockwise_Positive;
-    ARM_ENCODER_CONFIG.MagnetSensor.AbsoluteSensorDiscontinuityPoint = getDoubleConstant("arm", "encoder_discontinuity");
+    ARM_ENCODER_CONFIG.MagnetSensor.SensorDirection = getBoolConstant("arm", "encoder_inverted")
+        ? SensorDirectionValue.CounterClockwise_Positive
+        : SensorDirectionValue.Clockwise_Positive;
+    ARM_ENCODER_CONFIG.MagnetSensor.AbsoluteSensorDiscontinuityPoint = getDoubleConstant("arm",
+        "encoder_discontinuity");
   }
 }

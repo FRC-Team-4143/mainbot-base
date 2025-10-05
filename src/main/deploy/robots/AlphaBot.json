@@ -1,4 +1,5 @@
 {
+    "disabled_subsystems": [],
     "drive": {
         "com": {
             "CENTER_OFFSET_X": 18,
