@@ -123,7 +123,7 @@ public class Superstructure
     DogLog.log(getSubsystemKey() + "State", system_state_);
 
     // Log the current elevator target
-    int next_target_idx = targets_.size() > 0 ? 1 : 0;
+    int next_target_idx = targets_.size() > 1 ? 1 : 0;
     DogLog.log(getSubsystemKey() + "Target/Name", targets_.get(next_target_idx).getName());
 
     // Log the upcoming targets in the queue
