@@ -1,5 +1,6 @@
 package frc.robot.subsystems.superstructure;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.mw_lib.util.NumUtil;
@@ -60,15 +61,35 @@ public class Superstructure
 
   @Override
   public void handleStateTransition(SuperstructureStates wanted) {
+    // We only allow an external request for Rescue. This is treated as forcible
+    // override. We also bump the wanted state back to a safe move
+    if (wanted == SuperstructureStates.RESCUE) {
+      setWantedState(SuperstructureStates.MOVING);
+
+      // If we were moving outside the RESCUE height and arm angle, then we need to
+      // rescue. Practically this means we do it for L4 only really
+      if (io.current_elevator_position > CONSTANTS.ELEV_RESCUE_HEIGHT
+          && io.current_arm_position > CONSTANTS.ARM_RESCUE_ANGLE) {
+        double elevator_ht = NumUtil.clamp(io.current_elevator_position + 0.20, CONSTANTS.ELEVATOR_MIN_HEIGHT,
+            CONSTANTS.ELEVATOR_MAX_HEIGHT);
+        double arm_angle = io.current_arm_position;
+        SuperstructureTarget rescue_target = new SuperstructureTarget("RESCUE", elevator_ht,
+            Rotation2d.fromRadians(arm_angle));
+
+        // inject a rescue target
+        targets_.add(0, rescue_target);
+      }
+    }
+
     // determine if we can update the number of targets. Only care if we are in a
     // moving state. Also make sure we are looking at the correct height target
     if (system_state_ == SuperstructureStates.MOVING) {
       SuperstructureTarget next_tgt = targets_.get(1);
 
-      // if the elevator and arm are at their final targets
+      // if the elevator and arm are at their next targets
       if (elevatorAtTargetInternal(next_tgt)
           && armAtTargetInternal(next_tgt)) {
-        targets_.remove(1);
+        targets_.remove(0);
       }
     }
 
@@ -78,16 +99,6 @@ public class Superstructure
       system_state_ = SuperstructureStates.MOVING;
     } else {
       system_state_ = SuperstructureStates.AT_TARGET;
-    }
-
-    // We only allow an external request for Rescue. This is treated as forcible
-    // override. We also bump the wanted state back to a safe move
-    if (wanted == SuperstructureStates.RESCUE) {
-      system_state_ = SuperstructureStates.RESCUE;
-      setWantedState(SuperstructureStates.MOVING);
-
-      // Create a fake target base off our current one
-
     }
   }
 
@@ -132,9 +143,9 @@ public class Superstructure
   }
 
   protected List<SuperstructureTarget> getSafeMove(
-    SuperstructureTarget begin, SuperstructureTarget.Targets dest) {
+      SuperstructureTarget begin, SuperstructureTarget.Targets dest) {
     List<SuperstructureTarget> safe_targets = new ArrayList<>();
-    
+
     // Anything from L4 needs staging
     if (begin.equals(SuperstructureTarget.Targets.L4.target)) {
       safe_targets.add(SuperstructureTarget.Targets.L4_STAGING.target);
@@ -146,7 +157,7 @@ public class Superstructure
     }
 
     // anything to L1 has a special motion profile
-    if(begin.equals(SuperstructureTarget.Targets.CORAL_INTAKE.target) && dest == SuperstructureTarget.Targets.L1){
+    if (begin.equals(SuperstructureTarget.Targets.CORAL_INTAKE.target) && dest == SuperstructureTarget.Targets.L1) {
       safe_targets.add(SuperstructureTarget.Targets.L1_STAGING.target);
     }
 
