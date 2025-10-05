@@ -50,6 +50,13 @@ public class SuperstructureIOReal extends SuperstructureIO {
     // Update additional inputs
     current_elevator_position = current_leader_position * CONSTANTS.ROTATIONS_TO_TRANSLATION;
     current_elevator_velocity = current_leader_velocity * CONSTANTS.ROTATIONS_TO_TRANSLATION;
+
+    // Update arm motor inputs
+    current_arm_position = Units.rotationsToRadians(arm_motor_.getPosition().getValueAsDouble());
+    current_arm_velocity = Units.rotationsToRadians(arm_motor_.getVelocity().getValueAsDouble());
+    arm_applied_voltage = arm_motor_.getMotorVoltage().getValueAsDouble();
+    arm_current = arm_motor_.getTorqueCurrent().getValueAsDouble();
+    arm_temp = arm_motor_.getDeviceTemp().getValue().in(Fahrenheit);
   }
 
   /** Writes the desired outputs to the motors. */
@@ -81,5 +88,15 @@ public class SuperstructureIOReal extends SuperstructureIO {
    */
   public void updateElevatorGains(Slot0Configs gains) {
     leader_motor_.getConfigurator().apply(gains);
+    follower_motor_.getConfigurator().apply(gains);
+  }
+
+  /**
+   * Updates the gains for the arm.
+   *
+   * @param gains The new gains to apply.
+   */
+  public void updateArmGains(Slot0Configs gains) {
+    arm_motor_.getConfigurator().apply(gains);
   }
 }

@@ -3,6 +3,7 @@ package frc.robot.subsystems.superstructure;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.mw_lib.util.NumUtil;
+import frc.mw_lib.util.TunablePid;
 import frc.robot.Constants;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import java.util.List;
  */
 public class Superstructure
     extends MWSubsystem<SuperstructureIO, SuperstructureStates, SuperstructureConstants> {
-
   private static Superstructure instance_ = null;
 
   public static Superstructure getInstance() {
@@ -43,6 +43,13 @@ public class Superstructure
 
     targets_ = new ArrayList<>();
     targets_.add(SuperstructureTargets.SAFETY);
+
+    TunablePid.create(
+        getSubsystemKey() + "/elevator",
+        io::updateElevatorGains,
+        CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
+    TunablePid.create(
+        getSubsystemKey() + "/arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
   }
 
   @Override

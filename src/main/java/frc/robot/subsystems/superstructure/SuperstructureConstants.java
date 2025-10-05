@@ -33,9 +33,20 @@ public class SuperstructureConstants extends MWConstants {
   public final double ROTATIONS_TO_TRANSLATION = getDoubleConstant("elevator", "motion_ratio");
   public final double ARM_RATIO = getDoubleConstant("arm", "motion_ratio");
 
-  // ARM and elevator target tolerances in SI units
+  // Arm and elevator target tolerances in SI units
   public final double ARM_TOLERANCE = getDoubleConstant("arm", "tolerance"); // rad
   public final double ELEV_TOLERANCE = getDoubleConstant("elevator", "tolerance"); // m
+
+  // Meachanism limits
+  public final double ELEVATOR_MIN_HEIGHT = getDoubleConstant("elevator", "min_height"); // m
+  public final double ELEVATOR_MAX_HEIGHT = getDoubleConstant("elevator", "max_height"); // m
+  public final double ARM_MIN_ANGLE = getDoubleConstant("arm", "min_angle"); // rad
+  public final double ARM_MAX_ANGLE = getDoubleConstant("arm", "max_angle"); // rad
+
+  // Simulation constants
+  public final double CARRIAGE_MASS = 0.0; // kg
+  public final double ARM_MOI = 0.0; // kg m^2
+  public final double ARM_LENGTH = 0.0; // meters
 
   public SuperstructureConstants() {
 
