@@ -13,8 +13,7 @@ public class SuperstructureConstants extends MWConstants {
   // Current system states for the superstructure
   public enum SuperstructureStates {
     AT_TARGET,
-    UNSAFE_MOVE,
-    SAFE_MOVE,
+    MOVING,
     RESCUE,
   }
 
