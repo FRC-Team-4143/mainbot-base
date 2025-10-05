@@ -7,14 +7,20 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
-import frc.mw_lib.util.ConstantsLoader;
+import frc.mw_lib.subsystem.MWConstants;
 import frc.robot.subsystems.superstructure.SuperstructureIO.ArmConfig;
 import frc.robot.subsystems.superstructure.SuperstructureIO.ElevatorConfig;
 
-public class SuperstructureConstants {
+public class SuperstructureConstants extends MWConstants{
 
-  // ConstantsLoader instance for loading configuration values
-  private static final ConstantsLoader LOADER = ConstantsLoader.getInstance();
+  // Current system states for the superstructure
+  public enum SuperstructureStates {
+    AT_TARGET,
+    UNSAFE_MOVE,
+    SAFE_MOVE,
+    RESCUE,
+  }
+
 
   public static final ElevatorConfig ELEVATOR_CONFIG = new ElevatorConfig();
 
