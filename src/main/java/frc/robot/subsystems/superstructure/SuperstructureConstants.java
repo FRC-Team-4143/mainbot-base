@@ -1,5 +1,7 @@
 package frc.robot.subsystems.superstructure;
 
+import org.w3c.dom.traversal.TreeWalker;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,11 +10,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MWConstants;
-import frc.robot.subsystems.superstructure.SuperstructureIO.ArmConfig;
-import frc.robot.subsystems.superstructure.SuperstructureIO.ElevatorConfig;
 
-public class SuperstructureConstants extends MWConstants{
-
+public class SuperstructureConstants extends MWConstants {
+  // State enum for the subsystem
   // Current system states for the superstructure
   public enum SuperstructureStates {
     AT_TARGET,
@@ -21,48 +21,52 @@ public class SuperstructureConstants extends MWConstants{
     RESCUE,
   }
 
-  public static final ElevatorConfig ELEVATOR_CONFIG = new ElevatorConfig();
+  // Configurations for Elevator I/O
+  public final int ELEVATOR_LEADER_ID = getIntConstant("elevator", "leader_id");
+  public final TalonFXConfiguration ELEVATOR_LEADER_CONFIG;
+  public final int ELEVATOR_FOLLOWER_ID = getIntConstant("elevator", "follower_id");
+  public final TalonFXConfiguration ELEVATOR_FOLLOWER_CONFIG;
 
-  public static final NeutralModeValue NEUTRAL_MODE =
-      NeutralModeValue.Brake; // Default neutral mode for the elevator motors
-  public static final double STATOR_CURRENT_LIMIT = 80.0; // Stator current limit in Amps
-  // Units.inchesToMeters(Sprocket Circumference * Math.PI) / gearbox ratio * rigging
-  public static final double ROTATIONS_TO_TRANSLATION =
-      Units.inchesToMeters(1.751 * Math.PI)
-          / LOADER.getDoubleValue("elevator", "ELEVATOR_GEAR_RATIO")
-          * 2; // Conversion factor from motor rotations to meters for the elevator
+  // Configurations for Arm I/O
+  public final int ARM_MOTOR_ID = getIntConstant("arm", "motor_id");
+  public final TalonFXConfiguration ARM_MOTOR_CONFIG;
+  public final int ARM_ENCODER_ID = getIntConstant("arm", "encoder_id");
 
-  static {
-    ELEVATOR_CONFIG.leader_id_ = 21; // ID for the leader motor
-    ELEVATOR_CONFIG.follower_id_ = 22; // ID for the follower motor
+  // Motion Ratios
+  public final double ROTATIONS_TO_TRANSLATION = getDoubleConstant("elevator", "motion_ratio");
+  public final double ARM_RATIO = getDoubleConstant("arm", "motion_ratio");
+
+  // ARM and elevator target tolerances in SI units
+  public final double ARM_TOLERANCE = getDoubleConstant("arm", "tolerance"); //rad
+  public final double ELEV_TOLERANCE = getDoubleConstant("elevator", "tolerance"); //m
+  
+  public SuperstructureConstants() {
 
     // Configure leader motor settings
-    ELEVATOR_CONFIG.leader_config_ = new TalonFXConfiguration();
-    ELEVATOR_CONFIG.leader_config_.MotorOutput.NeutralMode = NEUTRAL_MODE;
-    ELEVATOR_CONFIG.leader_config_.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-    ELEVATOR_CONFIG.leader_config_.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    ELEVATOR_CONFIG.leader_config_.Slot0 =
-        new Slot0Configs()
-            .withKP(LOADER.getDoubleValue("elevator", "CONTROLLER_P"))
-            .withKI(LOADER.getDoubleValue("elevator", "CONTROLLER_I"))
-            .withKD(LOADER.getDoubleValue("elevator", "CONTROLLER_D"))
-            .withKS(LOADER.getDoubleValue("elevator", "CONTROLLER_S"))
-            .withKV(LOADER.getDoubleValue("elevator", "CONTROLLER_V"))
-            .withKA(LOADER.getDoubleValue("elevator", "CONTROLLER_A"))
-            .withKG(LOADER.getDoubleValue("elevator", "CONTROLLER_G"))
-            .withGravityType(GravityTypeValue.Elevator_Static);
-    ELEVATOR_CONFIG.leader_config_.MotionMagic =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(300.0)
-            .withMotionMagicAcceleration(400.0)
-            .withMotionMagicJerk(1000.0);
+    ELEVATOR_LEADER_CONFIG = new TalonFXConfiguration();
+    ELEVATOR_LEADER_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    ELEVATOR_LEADER_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("elevator", "stator_limit");
+    ELEVATOR_LEADER_CONFIG.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    ELEVATOR_LEADER_CONFIG.Slot0 = new Slot0Configs()
+        .withKP(LOADER.getDoubleValue("elevator", "kp"))
+        .withKI(LOADER.getDoubleValue("elevator", "ki"))
+        .withKD(LOADER.getDoubleValue("elevator", "ki"))
+        .withKS(LOADER.getDoubleValue("elevator", "ks"))
+        .withKV(LOADER.getDoubleValue("elevator", "kv"))
+        .withKA(LOADER.getDoubleValue("elevator", "ka"))
+        .withKG(LOADER.getDoubleValue("elevator", "kg"))
+        .withGravityType(GravityTypeValue.Elevator_Static);
+    ELEVATOR_LEADER_CONFIG.MotionMagic = new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(300.0)
+        .withMotionMagicAcceleration(400.0)
+        .withMotionMagicJerk(1000.0);
 
     // Configure follower motor settings
-    ELEVATOR_CONFIG.follower_config_ = new TalonFXConfiguration();
-    ELEVATOR_CONFIG.follower_config_.MotorOutput.NeutralMode = NEUTRAL_MODE;
-    ELEVATOR_CONFIG.follower_config_.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-    ELEVATOR_CONFIG.follower_config_.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-  }
+    ELEVATOR_FOLLOWER_CONFIG = new TalonFXConfiguration();
+    ELEVATOR_FOLLOWER_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    ELEVATOR_FOLLOWER_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("elevator", "stator_limit");
+    ELEVATOR_FOLLOWER_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-  public static final ArmConfig ARM_CONFIG = new ArmConfig();
+    ARM_MOTOR_CONFIG = new TalonFXConfiguration();
+  }
 }

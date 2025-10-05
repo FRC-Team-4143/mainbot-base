@@ -4,21 +4,10 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import frc.mw_lib.subsystem.SubsystemIO;
 
-public class SuperstructureIO implements SubsystemIO {
+public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstants> {
 
-  public static class ElevatorConfig {
-    public int leader_id_ = 0; // ID for the leader motor
-    public int follower_id_ = 0; // ID for the follower motor
-    public TalonFXConfiguration leader_config_ =
-        new TalonFXConfiguration(); // Configuration for the leader motor
-    public TalonFXConfiguration follower_config_ =
-        new TalonFXConfiguration(); // Configuration for the follower motor
-  }
-
-  public static class ArmConfig {
-    public int motor_id_ = 0; // ID for the arm motor
-    public TalonFXConfiguration motor_config_ =
-        new TalonFXConfiguration(); // Configuration for the arm motor
+  SuperstructureIO(SuperstructureConstants constants){
+    super(constants);
   }
 
   // Leader Elevator Motor

@@ -15,7 +15,9 @@ public class IntakeIOSim extends IntakeIO {
   private final double LENGTH_EXTENDED = 0.281353; // meters
 
 
-  public IntakeIOSim() {
+  public IntakeIOSim(IntakeConstants constants) {
+    super(constants);
+    
     INTAKE_SIMULATOR = IntakeSimulation.OverTheBumperIntake("Coral", Constants.SWERVE_SIMULATOR, Meters.of(INTAKE_WIDTH), Meters.of(LENGTH_EXTENDED), IntakeSide.BACK, 1);
   }
 

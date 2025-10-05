@@ -4,8 +4,24 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.mw_lib.subsystem.MWConstants;
 
-public class IntakeConstants {
+public class IntakeConstants extends MWConstants {
+
+    public enum IntakeStates {
+        DEPLOY,
+        PURGE,
+        CLIMB_STAGE,
+        PICK_UP,
+        IDLE
+    }
+
+    public IntakeConstants(){
+        
+    }
+
+    
+
     public static final int TIME_OF_FLIGHT_ID = 4;
     public static final int INTAKE_ID = 41;
     public static final int PIVOT_ID = 40;

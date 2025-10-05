@@ -22,7 +22,8 @@ public class SwerveIOReal extends SwerveIO {
   private final SwerveDriveKinematics kinematics_ =
       new SwerveDriveKinematics(getModuleTranslations());
 
-  SwerveIOReal() {
+  SwerveIOReal(SwerveConstants constants) {
+    super(constants);
     // Configure Gyro
     gyro_ = new Gyro(new GyroIOPigeon2());
     // Configure Modules

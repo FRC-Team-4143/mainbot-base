@@ -17,18 +17,20 @@ public class SuperstructureIOReal extends SuperstructureIO {
   private final MotionMagicVoltage elevator_control_request_ = new MotionMagicVoltage(0.0);
   private final MotionMagicVoltage arm_control_request_ = new MotionMagicVoltage(0.0);
 
-  public SuperstructureIOReal() {
+  public SuperstructureIOReal(SuperstructureConstants constants) {
+    super(constants);
+
     // Initialize the TalonFX motors
-    leader_motor_ = new TalonFX(SuperstructureConstants.ELEVATOR_CONFIG.leader_id_);
-    follower_motor_ = new TalonFX(SuperstructureConstants.ELEVATOR_CONFIG.follower_id_);
-    arm_motor_ = new TalonFX(SuperstructureConstants.ARM_CONFIG.motor_id_);
+    leader_motor_ = new TalonFX(CONSTANTS.ELEVATOR_LEADER_ID);
+    follower_motor_ = new TalonFX(CONSTANTS.ELEVATOR_FOLLOWER_ID);
+    arm_motor_ = new TalonFX(CONSTANTS.ARM_MOTOR_ID);
 
     // Apply the configurations to the motors
-    leader_motor_.getConfigurator().apply(SuperstructureConstants.ELEVATOR_CONFIG.leader_config_);
+    leader_motor_.getConfigurator().apply(CONSTANTS.ELEVATOR_LEADER_CONFIG);
     follower_motor_
         .getConfigurator()
-        .apply(SuperstructureConstants.ELEVATOR_CONFIG.follower_config_);
-    arm_motor_.getConfigurator().apply(SuperstructureConstants.ARM_CONFIG.motor_config_);
+        .apply(CONSTANTS.ELEVATOR_FOLLOWER_CONFIG);
+    arm_motor_.getConfigurator().apply(CONSTANTS.ARM_MOTOR_CONFIG);
   }
 
   /** Updates the set of loggable inputs. */
@@ -48,17 +50,15 @@ public class SuperstructureIOReal extends SuperstructureIO {
     follower_temp = follower_motor_.getDeviceTemp().getValue().in(Fahrenheit);
 
     // Update additional inputs
-    current_elevator_position =
-        current_leader_position * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
-    current_elevator_velocity =
-        current_leader_velocity * SuperstructureConstants.ROTATIONS_TO_TRANSLATION;
+    current_elevator_position = current_leader_position * CONSTANTS.ROTATIONS_TO_TRANSLATION;
+    current_elevator_velocity = current_leader_velocity * CONSTANTS.ROTATIONS_TO_TRANSLATION;
   }
 
   /** Writes the desired outputs to the motors. */
   public void writeOutputs(double timestamp) {
     // Set the control request for the leader motor
     elevator_control_request_.withPosition(
-        target_elevator_position / SuperstructureConstants.ROTATIONS_TO_TRANSLATION);
+        target_elevator_position / CONSTANTS.ROTATIONS_TO_TRANSLATION);
     leader_motor_.setControl(elevator_control_request_);
 
     // Set the follower motor to follow the leader motor

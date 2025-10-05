@@ -4,7 +4,9 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 
 public class SuperstructureIOSim extends SuperstructureIO {
 
-  public SuperstructureIOSim() {}
+  public SuperstructureIOSim(SuperstructureConstants constants) {
+    super(constants);
+  }
 
   /** Updates the set of loggable inputs. */
   public void readInputs(double timestamp) {}

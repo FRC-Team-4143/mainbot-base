@@ -151,7 +151,8 @@ public class SwerveIOSim extends SwerveIO {
               KilogramSquareMeters.of(SIM_FL_MODULE_CONSTANTS.SteerInertia),
               SwerveConstants.WHEEL_COF));
 
-  SwerveIOSim() {
+  SwerveIOSim(SwerveConstants constants) {
+    super(constants);
     // Configure MapleSim
     Constants.SWERVE_SIMULATOR = new SwerveDriveSimulation(maple_sim_config_, SIM_START_POSE);
     // Configure Gyro

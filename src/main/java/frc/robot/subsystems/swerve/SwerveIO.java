@@ -10,7 +10,12 @@ import frc.mw_lib.swerve_lib.ChassisRequest;
 import frc.mw_lib.swerve_lib.ChassisRequest.ChassisRequestParameters;
 import frc.mw_lib.swerve_lib.module.Module;
 
-public class SwerveIO implements SubsystemIO {
+public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
+
+  public SwerveIO(SwerveConstants constants){
+    super(constants);
+  }
+
   public SwerveModuleState[] module_states =
       new SwerveModuleState[] {
         new SwerveModuleState(),
