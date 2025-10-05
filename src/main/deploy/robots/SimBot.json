@@ -1,0 +1,123 @@
+{
+    "disabled_subsystems": [],
+    "drive": {
+        "com": {
+            "CENTER_OFFSET_X": 18,
+            "SLIP_CURRENT": 50,
+            "SPEED_AT_12V": 5.0,
+            "COUPLE_RATIO": 3.5,
+            "WHEEL_RADIUS_INCH": 1.8,
+            "MAX_DRIVE_SPEED": 5.0,
+            "MAX_DRIVE_ANGULAR_RATE": 10,
+            "STEER_MOTOR_REVERSED": true,
+            "DRIVE_GAINS_P": 0.5,
+            "DRIVE_GAINS_I": 0,
+            "DRIVE_GAINS_D": 0,
+            "DRIVE_GAINS_S": 0.18,
+            "DRIVE_GAINS_V": 0.117,
+            "DRIVE_GAINS_A": 0,
+            "STEER_GAINS_P": 80,
+            "STEER_GAINS_I": 0,
+            "STEER_GAINS_D": 0,
+            "STEER_GAINS_S": 0,
+            "STEER_GAINS_V": 0,
+            "STEER_GAINS_A": 0
+        },
+        "fl": {
+            "DRIVE_ID": 1,
+            "STEER_ID": 2,
+            "ENCODER_ID": 0,
+            "X_POSITION": 7.5,
+            "Y_POSITION": 7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4N",
+            "MODULE_GEARING": "L2+"
+        },
+        "fr": {
+            "DRIVE_ID": 3,
+            "STEER_ID": 4,
+            "ENCODER_ID": 1,
+            "X_POSITION": 7.5,
+            "Y_POSITION": -7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4I",
+            "MODULE_GEARING": "L2+"
+        },
+        "bl": {
+            "DRIVE_ID": 5,
+            "STEER_ID": 6,
+            "ENCODER_ID": 2,
+            "X_POSITION": -7.5,
+            "Y_POSITION": 7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4N",
+            "MODULE_GEARING": "L2+"
+        },
+        "br": {
+            "DRIVE_ID": 7,
+            "STEER_ID": 8,
+            "ENCODER_ID": 3,
+            "X_POSITION": -7.5,
+            "Y_POSITION": -7.5,
+            "INVERT_DRIVE": false,
+            "MODULE_TYPE": "MK4I",
+            "MODULE_GEARING": "L2+"
+        }
+    },
+    "superstructure": {
+        "elevator": {
+            "leader_id": 10,
+            "follower_id": 11,
+            "motion_ratio": 0.01,
+            "tolerance": 0.02,
+            "rescue_height": 0.1,
+            "min_height": 0.0,
+            "max_height": 1.5,
+            "stator_limit": 40.0,
+            "kp": 10.0,
+            "ki": 0.0,
+            "kd": 0.0,
+            "ks": 0.1,
+            "kv": 0.12,
+            "ka": 0.01,
+            "kg": 0.15
+        },
+        "arm": {
+            "motor_id": 12,
+            "encoder_id": 4,
+            "motion_ratio": 0.05,
+            "tolerance": 0.05,
+            "rescue_angle": 1.57,
+            "min_angle": -1.57,
+            "max_angle": 1.57,
+            "stator_limit": 40.0,
+            "kp": 8.0,
+            "ki": 0.0,
+            "kd": 0.0,
+            "ks": 0.2,
+            "kv": 0.1,
+            "ka": 0.02,
+            "kg": 0.3,
+            "encoder_inverted": false,
+            "encoder_discontinuity": 0.5
+        }
+    },
+    "intake": {
+        "offset_y": 0.0,
+        "stator_current_limit": 40.0,
+        "tof": {
+            "id": 0,
+            "coral_distance": 100.0
+        },
+        "intake": {
+            "id": 13,
+            "in_speed": 0.8,
+            "out_speed": -0.8
+        },
+        "pivot": {
+            "id": 14,
+            "mech_ratio": 1.0,
+            "kP": 10.0
+        }
+    }
+}
