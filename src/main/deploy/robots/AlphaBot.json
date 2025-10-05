@@ -88,7 +88,15 @@
             "tolerance": 0.05,
             "rescue_angle": 1.57,
             "min_angle": -1.57,
-            "max_angle": 1.57
+            "max_angle": 1.57,
+            "stator_limit": 40.0,
+            "kp": 8.0,
+            "ki": 0.0,
+            "kd": 0.0,
+            "ks": 0.2,
+            "kv": 0.1,
+            "ka": 0.02,
+            "kg": 0.3
         }
     },
     "intake": {

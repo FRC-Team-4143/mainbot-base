@@ -83,5 +83,23 @@ public class SuperstructureConstants extends MWConstants {
     ELEVATOR_FOLLOWER_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     ARM_MOTOR_CONFIG = new TalonFXConfiguration();
+    ARM_MOTOR_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    ARM_MOTOR_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("arm", "stator_limit");
+    ARM_MOTOR_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    ARM_MOTOR_CONFIG.Slot0 =
+        new Slot0Configs()
+            .withKP(LOADER.getDoubleValue("arm", "kp"))
+            .withKI(LOADER.getDoubleValue("arm", "ki"))
+            .withKD(LOADER.getDoubleValue("arm", "kd"))
+            .withKS(LOADER.getDoubleValue("arm", "ks"))
+            .withKV(LOADER.getDoubleValue("arm", "kv"))
+            .withKA(LOADER.getDoubleValue("arm", "ka"))
+            .withKG(LOADER.getDoubleValue("arm", "kg"))
+            .withGravityType(GravityTypeValue.Arm_Cosine);
+    ARM_MOTOR_CONFIG.MotionMagic =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(300.0)
+            .withMotionMagicAcceleration(400.0)
+            .withMotionMagicJerk(1000.0);
   }
 }
