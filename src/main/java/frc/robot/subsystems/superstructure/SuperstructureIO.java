@@ -72,6 +72,9 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
   /** Target Position in radians */
   public double target_arm_position = 0.0;
 
+  /** Arm Encoder position in Rotation */
+  public double arm_encoder_position = 0.0;
+
   /** Logs data to DogLog. */
   @Override
   public void logData(){
@@ -92,6 +95,7 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
     DogLog.log(getSubsystemKey() + "/Arm/AppliedVoltage", arm_applied_voltage);
     DogLog.log(getSubsystemKey() + "/Arm/Current", arm_current);
     DogLog.log(getSubsystemKey() + "/Arm/Temperature", arm_temp);
+    DogLog.log(getSubsystemKey() + "/Arm/EncoderPosition", arm_encoder_position);
   }
 
   /** Zeroes the elevator and arm position. */

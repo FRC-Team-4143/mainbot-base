@@ -96,7 +96,9 @@
             "ks": 0.2,
             "kv": 0.1,
             "ka": 0.02,
-            "kg": 0.3
+            "kg": 0.3,
+            "encoder_inverted": false,
+            "encoder_discontinuity": 0.5
         }
     },
     "intake": {
