@@ -30,157 +30,57 @@ import frc.mw_lib.swerve_lib.module.Module;
 import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXSim;
 import frc.robot.Constants;
 import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class SwerveIOSim extends SwerveIO {
 
   private final Pose2d SIM_START_POSE = new Pose2d(3, 3, Rotation2d.kZero);
 
-  private static final SwerveModuleConstantsFactory<
-          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      SIM_MODULE_CONSTANTS_FACTORY =
-          new SwerveModuleConstantsFactory<
-                  TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-              .withDriveMotorGearRatio(SwerveConstants.FL_MODULE_CONSTANTS.DriveMotorGearRatio)
-              .withSteerMotorGearRatio(16.0) // Maximum gear ratio sim can support
-              .withCouplingGearRatio(SwerveConstants.COUPLE_RATIO)
-              .withWheelRadius(SwerveConstants.WHEEL_RADIUS_METERS)
-              .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
-              .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
-              .withSlipCurrent(SwerveConstants.SLIP_CURRENT_AMPS)
-              .withSpeedAt12Volts(SwerveConstants.SPEED_AT_12V_MPS)
-              .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
-              .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
-              .withDriveMotorInitialConfigs(new TalonFXConfiguration())
-              .withSteerMotorInitialConfigs(new TalonFXConfiguration())
-              .withEncoderInitialConfigs(new CANcoderConfiguration())
-              .withSteerInertia(KilogramSquareMeters.of(0.05)) // Adjust steer inertia
-              .withDriveInertia(SwerveConstants.DRIVE_INERTIA)
-              .withDriveFrictionVoltage(Volts.of(0.1)) // Adjust friction voltages
-              .withSteerFrictionVoltage(Volts.of(0.05)) // Adjust friction voltages
-              .withDriveMotorGains(SwerveConstants.FL_MODULE_CONSTANTS.DriveMotorGains)
-              .withSteerMotorGains( // Adjust steer motor PID gains for simulation
-                  new Slot0Configs()
-                      .withKP(70)
-                      .withKI(0)
-                      .withKD(4.5)
-                      .withKS(0)
-                      .withKV(1.91)
-                      .withKA(0)
-                      .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign));
-
-  private static final SwerveModuleConstants SIM_FL_MODULE_CONSTANTS =
-      SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
-          2,
-          1,
-          0,
-          0,
-          SwerveConstants.FL_MODULE_CONSTANTS.LocationX,
-          SwerveConstants.FL_MODULE_CONSTANTS.LocationY,
-          false,
-          false,
-          false);
-  private static final SwerveModuleConstants SIM_FR_MODULE_CONSTANTS =
-      SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
-          4,
-          3,
-          1,
-          0,
-          SwerveConstants.FR_MODULE_CONSTANTS.LocationX,
-          SwerveConstants.FR_MODULE_CONSTANTS.LocationY,
-          false,
-          false,
-          false);
-  private static final SwerveModuleConstants SIM_BL_MODULE_CONSTANTS =
-      SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
-          6,
-          5,
-          2,
-          0,
-          SwerveConstants.BL_MODULE_CONSTANTS.LocationX,
-          SwerveConstants.BL_MODULE_CONSTANTS.LocationY,
-          false,
-          false,
-          false);
-  private static final SwerveModuleConstants SIM_BR_MODULE_CONSTANTS =
-      SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
-          8,
-          7,
-          3,
-          0,
-          SwerveConstants.BR_MODULE_CONSTANTS.LocationX,
-          SwerveConstants.BR_MODULE_CONSTANTS.LocationY,
-          false,
-          false,
-          false);
-
   private final Module[] modules_ = new Module[4]; // FL, FR, BL, BR
   private final Gyro gyro_;
 
   private final SwerveDrivePoseEstimator pose_estimator_;
-  private final SwerveDriveKinematics kinematics_ =
-      new SwerveDriveKinematics(
-          new Translation2d[] {
-            SwerveConstants.FL_MODULE_TRANSLATION,
-            SwerveConstants.FR_MODULE_TRANSLATION,
-            SwerveConstants.BL_MODULE_TRANSLATION,
-            SwerveConstants.BR_MODULE_TRANSLATION,
-          });
-
-  @SuppressWarnings("unchecked")
-  private final DriveTrainSimulationConfig maple_sim_config_ =
-      new DriveTrainSimulationConfig(
-          Kilograms.of(SwerveConstants.ROBOT_MASS_KG),
-          Meters.of(SwerveConstants.BUMPER_LENGTH_METERS),
-          Meters.of(SwerveConstants.BUMPER_WIDTH_METERS),
-          Meters.of(SIM_FL_MODULE_CONSTANTS.LocationX - SIM_BL_MODULE_CONSTANTS.LocationX),
-          Meters.of(SIM_FL_MODULE_CONSTANTS.LocationY - SIM_FR_MODULE_CONSTANTS.LocationY),
-          COTS.ofPigeon2(),
-          new SwerveModuleSimulationConfig(
-              DCMotor.getKrakenX60(1),
-              DCMotor.getFalcon500(1),
-              SIM_FL_MODULE_CONSTANTS.DriveMotorGearRatio,
-              SIM_FL_MODULE_CONSTANTS.SteerMotorGearRatio,
-              Volts.of(SIM_FL_MODULE_CONSTANTS.DriveFrictionVoltage),
-              Volts.of(SIM_FL_MODULE_CONSTANTS.SteerFrictionVoltage),
-              Meters.of(SIM_FL_MODULE_CONSTANTS.WheelRadius),
-              KilogramSquareMeters.of(SIM_FL_MODULE_CONSTANTS.SteerInertia),
-              SwerveConstants.WHEEL_COF));
+  private final SwerveDriveKinematics kinematics_;
+      
 
   SwerveIOSim(SwerveConstants constants) {
     super(constants);
     // Configure MapleSim
-    Constants.SWERVE_SIMULATOR = new SwerveDriveSimulation(maple_sim_config_, SIM_START_POSE);
+    Constants.SWERVE_SIMULATOR = new SwerveDriveSimulation(CONSTANTS.MAPLE_SIM_DRIVETRAIN_CONFIG, SIM_START_POSE);
     // Configure Gyro
     gyro_ = new Gyro(new GyroIOSim(Constants.SWERVE_SIMULATOR.getGyroSimulation()));
+    kinematics_ = new SwerveDriveKinematics(
+      new Translation2d[] {
+      CONSTANTS.FL_MODULE_TRANSLATION,
+      CONSTANTS.FR_MODULE_TRANSLATION,
+      CONSTANTS.BL_MODULE_TRANSLATION,
+      CONSTANTS.BR_MODULE_TRANSLATION,
+      });
     // Configure Modules
     modules_[0] =
         new Module(
             new ModuleIOTalonFXSim(
-                SIM_FL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[0]),
+                CONSTANTS.SIM_FL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME, Constants.SWERVE_SIMULATOR.getModules()[0]),
             0,
-            SIM_FL_MODULE_CONSTANTS);
+            CONSTANTS.SIM_FL_MODULE_CONSTANTS);
     modules_[1] =
         new Module(
             new ModuleIOTalonFXSim(
-                SIM_FR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[1]),
+                CONSTANTS.SIM_FR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME, Constants.SWERVE_SIMULATOR.getModules()[1]),
             1,
-            SIM_FR_MODULE_CONSTANTS);
+            CONSTANTS.SIM_FR_MODULE_CONSTANTS);
     modules_[2] =
         new Module(
             new ModuleIOTalonFXSim(
-                SIM_BL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[2]),
+                CONSTANTS.SIM_BL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME, Constants.SWERVE_SIMULATOR.getModules()[2]),
             2,
-            SIM_BL_MODULE_CONSTANTS);
+            CONSTANTS.SIM_BL_MODULE_CONSTANTS);
     modules_[3] =
         new Module(
             new ModuleIOTalonFXSim(
-                SIM_BR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[3]),
+                CONSTANTS.SIM_BR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME, Constants.SWERVE_SIMULATOR.getModules()[3]),
             3,
-            SIM_BR_MODULE_CONSTANTS);
+            CONSTANTS.SIM_BR_MODULE_CONSTANTS);
     // Configure Pose Estimator
     pose_estimator_ =
         new SwerveDrivePoseEstimator(

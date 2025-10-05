@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -50,6 +51,19 @@ public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
 
   public ChassisRequest current_request = new ChassisRequest.Idle();
   public ChassisRequestParameters current_request_parameters = new ChassisRequestParameters();
+
+  /** Logs data to DogLog.  */
+  @Override
+  public void logData(){
+    DogLog.log(getSubsystemKey() + "/ModuleStates", module_states);
+    DogLog.log(getSubsystemKey() + "/ModulePositions", module_positions);
+    DogLog.log(getSubsystemKey() + "/ModuleDeltas", module_deltas);
+    DogLog.log(getSubsystemKey() + "/LastModulePositions", last_module_positions);
+    DogLog.log(getSubsystemKey() + "/ChassisSpeeds", chassis_speeds);
+    DogLog.log(getSubsystemKey() + "/RawGyroRotation", raw_gyro_rotation);
+    DogLog.log(getSubsystemKey() + "/Pose", pose);
+    DogLog.log(getSubsystemKey() + "/CurrentRequestType", current_request.getClass().getSimpleName());
+  }
 
   void resetPose(Pose2d pose) {}
 

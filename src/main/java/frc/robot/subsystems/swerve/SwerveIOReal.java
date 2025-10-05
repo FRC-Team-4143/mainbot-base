@@ -25,28 +25,28 @@ public class SwerveIOReal extends SwerveIO {
   SwerveIOReal(SwerveConstants constants) {
     super(constants);
     // Configure Gyro
-    gyro_ = new Gyro(new GyroIOPigeon2());
+    gyro_ = new Gyro(new GyroIOPigeon2(CONSTANTS.PIGEON2_ID, CONSTANTS.PIGEON2_CANBUS_NAME));
     // Configure Modules
     modules_[0] =
         new Module(
-            new ModuleIOTalonFXReal(SwerveConstants.FL_MODULE_CONSTANTS),
+            new ModuleIOTalonFXReal(CONSTANTS.FL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
             0,
-            SwerveConstants.FL_MODULE_CONSTANTS);
+            CONSTANTS.FL_MODULE_CONSTANTS);
     modules_[1] =
         new Module(
-            new ModuleIOTalonFXReal(SwerveConstants.FR_MODULE_CONSTANTS),
+            new ModuleIOTalonFXReal(CONSTANTS.FR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
             1,
-            SwerveConstants.FR_MODULE_CONSTANTS);
+            CONSTANTS.FR_MODULE_CONSTANTS);
     modules_[2] =
         new Module(
-            new ModuleIOTalonFXReal(SwerveConstants.BL_MODULE_CONSTANTS),
+            new ModuleIOTalonFXReal(CONSTANTS.BL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
             2,
-            SwerveConstants.BL_MODULE_CONSTANTS);
+            CONSTANTS.BL_MODULE_CONSTANTS);
     modules_[3] =
         new Module(
-            new ModuleIOTalonFXReal(SwerveConstants.BR_MODULE_CONSTANTS),
+            new ModuleIOTalonFXReal(CONSTANTS.BR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
             3,
-            SwerveConstants.BR_MODULE_CONSTANTS);
+            CONSTANTS.BR_MODULE_CONSTANTS);
 
     // Configure Pose Estimator
     pose_estimator_ =

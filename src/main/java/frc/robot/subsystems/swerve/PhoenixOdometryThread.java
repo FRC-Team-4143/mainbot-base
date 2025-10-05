@@ -44,7 +44,8 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-  private static boolean isCANFD = new CANBus(SwerveConstants.MODULE_CANBUS_NAME).isNetworkFD();
+  private static final boolean IS_CANFD = true;
+  private static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0; 
   private static PhoenixOdometryThread instance = null;
 
   public static PhoenixOdometryThread getInstance() {
@@ -117,13 +118,13 @@ public class PhoenixOdometryThread extends Thread {
       // Wait for updates from all signals
       signalsLock.lock();
       try {
-        if (isCANFD && phoenixSignals.length > 0) {
-          BaseStatusSignal.waitForAll(2.0 / SwerveConstants.ODOMETRY_FREQUENCY, phoenixSignals);
+        if (IS_CANFD && phoenixSignals.length > 0) {
+          BaseStatusSignal.waitForAll(2.0 / ODOMETRY_FREQUENCY, phoenixSignals);
         } else {
           // "waitForAll" does not support blocking on multiple signals with a bus
           // that is not CAN FD, regardless of Pro licensing. No reasoning for this
           // behavior is provided by the documentation.
-          Thread.sleep((long) (1000.0 / SwerveConstants.ODOMETRY_FREQUENCY));
+          Thread.sleep((long) (1000.0 / ODOMETRY_FREQUENCY));
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {

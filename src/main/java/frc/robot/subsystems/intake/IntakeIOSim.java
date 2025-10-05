@@ -36,9 +36,9 @@ public class IntakeIOSim extends IntakeIO {
 
   @Override
   public void writeOutputs(double timestamp) {
-    if (roller_output > 0) {
+    if (roller_target_output > 0) {
       INTAKE_SIMULATOR.startIntake();
-    } else if (roller_output < 0) {
+    } else if (roller_target_output < 0) {
       INTAKE_SIMULATOR.obtainGamePieceFromIntake();
     } else {
       INTAKE_SIMULATOR.stopIntake();

@@ -1,16 +1,27 @@
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix6.CANBus;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
+
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MWConstants;
 import frc.mw_lib.swerve_lib.module.ModuleType;
@@ -27,30 +38,26 @@ public class SwerveConstants extends MWConstants {
   }
 
   // CAN bus name and CAN ID for the pigeon2
-  public static final int PIGEON2_ID = 0;
-  public static final String PIGEON2_CANBUS_NAME = "CANivore";
+  public final int PIGEON2_ID = 0;
+  public final String PIGEON2_CANBUS_NAME = "CANivore";
 
   // CAN bus names for each of the swerve modules
-  public static final String MODULE_CANBUS_NAME = "CANivore";
+  public final String MODULE_CANBUS_NAME = "CANivore";
 
-  // Determine the CAN bus update frequency for odometry
-  public static final double ODOMETRY_FREQUENCY =
-      new CANBus(MODULE_CANBUS_NAME).isNetworkFD() ? 250.0 : 100.0;
+  public final double DRIVE_INERTIA = 0.025; // kg*m^2, inertia of the drive motor
+  public final double STEER_INERTIA = 0.004; // kg*m^2, inertia of the steer motor
+  public final double DRIVE_FRICTION_VOLTAGE = 0.2;
+  public final double STEER_FRICTION_VOLTAGE = 0.2;
 
-  public static final double DRIVE_INERTIA = 0.025; // kg*m^2, inertia of the drive motor
-  public static final double STEER_INERTIA = 0.004; // kg*m^2, inertia of the steer motor
-  public static final double DRIVE_FRICTION_VOLTAGE = 0.2;
-  public static final double STEER_FRICTION_VOLTAGE = 0.2;
-
-  public static final double ROBOT_MASS_KG =
+  public final double ROBOT_MASS_KG =
       Units.lbsToKilograms(140.0); // Mass of the robot in pounds
-  public static final double BUMPER_WIDTH_METERS =
+  public final double BUMPER_WIDTH_METERS =
       Units.inchesToMeters(34.75); // Width of the bumpers in meters (y
   // axis : left -> right)
-  public static final double BUMPER_LENGTH_METERS =
+  public final double BUMPER_LENGTH_METERS =
       Units.inchesToMeters(34.75); // Length of the bumpers in meters (x
   // axis : front -> back)
-  public static final double WHEEL_COF =
+  public final double WHEEL_COF =
       1.916; // Coefficient of friction for the wheels VEX Grip V2
 
   // Forward Reference rotation constants
@@ -66,21 +73,21 @@ public class SwerveConstants extends MWConstants {
   }
 
   // The steer motor uses MotionMagicVoltage control
-  private static final Slot0Configs STEER_GAINS =
+  private final Slot0Configs STEER_GAINS =
       new Slot0Configs().withKP(80).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   // When using closed-loop control, the drive motor uses VelocityVoltage
-  private static final Slot0Configs DRIVE_GAINS =
+  private final Slot0Configs DRIVE_GAINS =
       new Slot0Configs().withKP(0.5).withKI(0).withKD(0).withKS(0.18).withKV(0.117).withKA(0);
 
   // Control Constants for the swerve modules
-  public static final double SLIP_CURRENT_AMPS = 50;
-  public static final double SPEED_AT_12V_MPS = 5.0;
-  public static final double COUPLE_RATIO = 3.5;
-  public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.8);
-  public static final double MAX_TRANSLATION_RATE = 5.0;
-  public static final double MAX_ANGULAR_RATE = 10.0;
+  public final double SLIP_CURRENT_AMPS = 50;
+  public final double SPEED_AT_12V_MPS = 5.0;
+  public final double COUPLE_RATIO = 3.5;
+  public final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.8);
+  public final double MAX_TRANSLATION_RATE = 5.0;
+  public final double MAX_ANGULAR_RATE = 10.0;
 
-  private static final SwerveModuleConstantsFactory<
+  private final SwerveModuleConstantsFactory<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       CONSTANT_CREATOR =
           new SwerveModuleConstantsFactory<
@@ -107,10 +114,10 @@ public class SwerveConstants extends MWConstants {
               .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE);
 
   // Front Left Module Constants
-  private static final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
-  public static final Translation2d FL_MODULE_TRANSLATION =
+  private final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
+  public final Translation2d FL_MODULE_TRANSLATION =
       new Translation2d(Units.inchesToMeters(11.4), Units.inchesToMeters(11.4));
-  public static final SwerveModuleConstants<
+  public final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FL_MODULE_CONSTANTS =
           CONSTANT_CREATOR
@@ -128,10 +135,10 @@ public class SwerveConstants extends MWConstants {
               .withSteerMotorGearRatio(FL_MODULE_TYPE.steerRatio);
 
   // Front Right Module Constants
-  private static final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
-  public static final Translation2d FR_MODULE_TRANSLATION =
+  private final ModuleType FR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
+  public final Translation2d FR_MODULE_TRANSLATION =
       new Translation2d(Units.inchesToMeters(11.4), Units.inchesToMeters(-11.4));
-  public static final SwerveModuleConstants<
+  public final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       FR_MODULE_CONSTANTS =
           CONSTANT_CREATOR
@@ -149,10 +156,10 @@ public class SwerveConstants extends MWConstants {
               .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio);
 
   // Back Left Module Constants
-  private static final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
-  public static final Translation2d BL_MODULE_TRANSLATION =
+  private final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
+  public final Translation2d BL_MODULE_TRANSLATION =
       new Translation2d(Units.inchesToMeters(-11.4), Units.inchesToMeters(11.4));
-  public static final SwerveModuleConstants<
+  public final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BL_MODULE_CONSTANTS =
           CONSTANT_CREATOR
@@ -170,10 +177,10 @@ public class SwerveConstants extends MWConstants {
               .withSteerMotorGearRatio(BL_MODULE_TYPE.steerRatio);
 
   // Back Right Module Constants
-  private static final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
-  public static final Translation2d BR_MODULE_TRANSLATION =
+  private final ModuleType BR_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
+  public final Translation2d BR_MODULE_TRANSLATION =
       new Translation2d(Units.inchesToMeters(-11.4), Units.inchesToMeters(-11.4));
-  public static final SwerveModuleConstants<
+  public final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       BR_MODULE_CONSTANTS =
           CONSTANT_CREATOR
@@ -191,22 +198,126 @@ public class SwerveConstants extends MWConstants {
               .withSteerMotorGearRatio(BR_MODULE_TYPE.steerRatio);
 
   // Choreo Constants
-  public static final boolean FLIP_TRAJECTORY_ON_RED = true;
-  public static final double CHOREO_TRANSLATION_ERROR_MARGIN = Units.inchesToMeters(1.0);
-  public static final double CHOREO_X_CONTROLLER_KP = 0.0;
-  public static final double CHOREO_X_CONTROLLER_KI = 0.0;
-  public static final double CHOREO_X_CONTROLLER_KD = 0.0;
-  public static final double CHOREO_Y_CONTROLLER_KP = 0.0;
-  public static final double CHOREO_Y_CONTROLLER_KI = 0.0;
-  public static final double CHOREO_Y_CONTROLLER_KD = 0.0;
-  public static final double CHOREO_THETA_CONTROLLER_KP = 0.0;
-  public static final double CHOREO_THETA_CONTROLLER_KI = 0.0;
-  public static final double CHOREO_THETA_CONTROLLER_KD = 0.0;
+  public final boolean FLIP_TRAJECTORY_ON_RED = true;
+  public final double CHOREO_TRANSLATION_ERROR_MARGIN = Units.inchesToMeters(1.0);
+  public final double CHOREO_X_CONTROLLER_KP = 0.0;
+  public final double CHOREO_X_CONTROLLER_KI = 0.0;
+  public final double CHOREO_X_CONTROLLER_KD = 0.0;
+  public final double CHOREO_Y_CONTROLLER_KP = 0.0;
+  public final double CHOREO_Y_CONTROLLER_KI = 0.0;
+  public final double CHOREO_Y_CONTROLLER_KD = 0.0;
+  public final double CHOREO_THETA_CONTROLLER_KP = 0.0;
+  public final double CHOREO_THETA_CONTROLLER_KI = 0.0;
+  public final double CHOREO_THETA_CONTROLLER_KD = 0.0;
 
   // Tractor Beam Constants
-  public static final double TRACTOR_BEAM_TRANSLATION_ERROR_MARGIN = Units.inchesToMeters(0.5);
-  public static final double TRACTOR_BEAM_STATIC_FRICTION_CONSTANT = 0.1;
-  public static final double TRACTOR_BEAM_CONTROLLER_KP = 0.0;
-  public static final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
-  public static final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
+  public final double TRACTOR_BEAM_TRANSLATION_ERROR_MARGIN = Units.inchesToMeters(0.5);
+  public final double TRACTOR_BEAM_STATIC_FRICTION_CONSTANT = 0.1;
+  public final double TRACTOR_BEAM_CONTROLLER_KP = 0.0;
+  public final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
+  public final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
+
+
+  // Simulation Constants
+private final SwerveModuleConstantsFactory<
+        TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
+    SIM_MODULE_CONSTANTS_FACTORY =
+        new SwerveModuleConstantsFactory<
+                TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
+            .withDriveMotorGearRatio(FL_MODULE_CONSTANTS.DriveMotorGearRatio)
+            .withSteerMotorGearRatio(16.0) // Maximum gear ratio sim can support
+            .withCouplingGearRatio(COUPLE_RATIO)
+            .withWheelRadius(WHEEL_RADIUS_METERS)
+            .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+            .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+            .withSlipCurrent(SLIP_CURRENT_AMPS)
+            .withSpeedAt12Volts(SPEED_AT_12V_MPS)
+            .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
+            .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
+            .withDriveMotorInitialConfigs(new TalonFXConfiguration())
+            .withSteerMotorInitialConfigs(new TalonFXConfiguration())
+            .withEncoderInitialConfigs(new CANcoderConfiguration())
+            .withSteerInertia(KilogramSquareMeters.of(0.05)) // Adjust steer inertia
+            .withDriveInertia(DRIVE_INERTIA)
+            .withDriveFrictionVoltage(Volts.of(0.1)) // Adjust friction voltages
+            .withSteerFrictionVoltage(Volts.of(0.05)) // Adjust friction voltages
+            .withDriveMotorGains(FL_MODULE_CONSTANTS.DriveMotorGains)
+            .withSteerMotorGains( // Adjust steer motor PID gains for simulation
+                new Slot0Configs()
+                    .withKP(70)
+                    .withKI(0.5)
+                    .withKD(4.5)
+                    .withKS(0)
+                    .withKV(1.91)
+                    .withKA(0)
+                    .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign));
+
+public final SwerveModuleConstants<
+          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> SIM_FL_MODULE_CONSTANTS =
+    SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
+        2,
+        1,
+        0,
+        0,
+        FL_MODULE_CONSTANTS.LocationX,
+        FL_MODULE_CONSTANTS.LocationY,
+        false,
+        false,
+        false);
+public final SwerveModuleConstants<
+          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> SIM_FR_MODULE_CONSTANTS =
+    SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
+        4,
+        3,
+        1,
+        0,
+        FR_MODULE_CONSTANTS.LocationX,
+        FR_MODULE_CONSTANTS.LocationY,
+        false,
+        false,
+        false);
+public final SwerveModuleConstants<
+          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> SIM_BL_MODULE_CONSTANTS =
+    SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
+        6,
+        5,
+        2,
+        0,
+        BL_MODULE_CONSTANTS.LocationX,
+        BL_MODULE_CONSTANTS.LocationY,
+        false,
+        false,
+        false);
+public final SwerveModuleConstants<
+          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> SIM_BR_MODULE_CONSTANTS =
+    SIM_MODULE_CONSTANTS_FACTORY.createModuleConstants(
+        8,
+        7,
+        3,
+        0,
+        BR_MODULE_CONSTANTS.LocationX,
+        BR_MODULE_CONSTANTS.LocationY,
+        false,
+        false,
+        false);
+
+@SuppressWarnings("unchecked")
+public final DriveTrainSimulationConfig MAPLE_SIM_DRIVETRAIN_CONFIG =
+    new DriveTrainSimulationConfig(
+        Kilograms.of(ROBOT_MASS_KG),
+        Meters.of(BUMPER_LENGTH_METERS),
+        Meters.of(BUMPER_WIDTH_METERS),
+        Meters.of(SIM_FL_MODULE_CONSTANTS.LocationX - SIM_BL_MODULE_CONSTANTS.LocationX),
+        Meters.of(SIM_FL_MODULE_CONSTANTS.LocationY - SIM_FR_MODULE_CONSTANTS.LocationY),
+        COTS.ofPigeon2(),
+        new SwerveModuleSimulationConfig(
+            DCMotor.getKrakenX60(1),
+            DCMotor.getFalcon500(1),
+            SIM_FL_MODULE_CONSTANTS.DriveMotorGearRatio,
+            SIM_FL_MODULE_CONSTANTS.SteerMotorGearRatio,
+            Volts.of(SIM_FL_MODULE_CONSTANTS.DriveFrictionVoltage),
+            Volts.of(SIM_FL_MODULE_CONSTANTS.SteerFrictionVoltage),
+            Meters.of(SIM_FL_MODULE_CONSTANTS.WheelRadius),
+            KilogramSquareMeters.of(SIM_FL_MODULE_CONSTANTS.SteerInertia),
+            WHEEL_COF));
 }

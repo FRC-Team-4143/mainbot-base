@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Fahrenheit;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -37,13 +39,21 @@ public class IntakeIOReal extends IntakeIO {
 
   @Override
   public void readInputs(double timestamp) {
-    current_pivot_angle = Rotation2d.fromRotations(pivot_motor_.getPosition().getValueAsDouble());
+    pivot_current_angle = Rotation2d.fromRotations(pivot_motor_.getPosition().getValueAsDouble());
+    pivot_applied_voltage = pivot_motor_.getMotorVoltage().getValueAsDouble();
+    pivot_current = pivot_motor_.getTorqueCurrent().getValueAsDouble();
+    pivot_temp = pivot_motor_.getDeviceTemp().getValue().in(Fahrenheit);
+
+    roller_applied_voltage = roller_motor_.getMotorVoltage().getValueAsDouble();
+    roller_current = roller_motor_.getTorqueCurrent().getValueAsDouble();
+    roller_temp = roller_motor_.getDeviceTemp().getValue().in(Fahrenheit);
+
     tof_dist = tof_.getRange();
   }
 
   @Override
   public void writeOutputs(double timestamp) {
-    roller_motor_.set(roller_output);
-    pivot_motor_.setControl(pivotRequest.withPosition(target_pivot_angle.getRotations()));
+    roller_motor_.set(roller_target_output);
+    pivot_motor_.setControl(pivotRequest.withPosition(pivot_target_angle.getRotations()));
   }
 }

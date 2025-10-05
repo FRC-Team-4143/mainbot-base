@@ -34,25 +34,25 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
   public void updateLogic(double timestamp) {
     switch (system_state_) {
       case DEPLOY:
-        io.target_pivot_angle = Rotation2d.fromDegrees(0.0);
-        io.roller_output = 0.5;
+        io.pivot_target_angle = Rotation2d.fromDegrees(0.0);
+        io.roller_target_output = 0.5;
         break;
       case PURGE:
-        io.target_pivot_angle = Rotation2d.fromDegrees(0.0);
-        io.roller_output = 0.5;
+        io.pivot_target_angle = Rotation2d.fromDegrees(0.0);
+        io.roller_target_output = 0.5;
         break;
       case CLIMB_STAGE:
-        io.target_pivot_angle = Rotation2d.fromDegrees(0.0);
-        io.roller_output = 0.5;
+        io.pivot_target_angle = Rotation2d.fromDegrees(0.0);
+        io.roller_target_output = 0.5;
         break;
       case PICK_UP:
-        io.target_pivot_angle = Rotation2d.fromDegrees(0.0);
-        io.roller_output = 0.5;
+        io.pivot_target_angle = Rotation2d.fromDegrees(0.0);
+        io.roller_target_output = 0.5;
         break;
       case IDLE:
       default:
-        io.target_pivot_angle = Rotation2d.fromDegrees(0.0);
-        io.roller_output = 0.5;
+        io.pivot_target_angle = Rotation2d.fromDegrees(0.0);
+        io.roller_target_output = 0.5;
         break;
     }
   }

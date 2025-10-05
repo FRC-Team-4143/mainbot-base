@@ -1,6 +1,8 @@
 package frc.robot.subsystems.superstructure;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+
+import dev.doglog.DogLog;
 import frc.mw_lib.subsystem.SubsystemIO;
 
 public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstants> {
@@ -69,6 +71,28 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
 
   /** Target Position in radians */
   public double target_arm_position = 0.0;
+
+  /** Logs data to DogLog. */
+  @Override
+  public void logData(){
+    DogLog.log(getSubsystemKey() + "/Elevator/Leader/Position", current_leader_position);
+    DogLog.log(getSubsystemKey() + "/Elevator/Leader/Velocity", current_leader_velocity);
+    DogLog.log(getSubsystemKey() + "/Elevator/Leader/AppliedVoltage", leader_applied_voltage);
+    DogLog.log(getSubsystemKey() + "/Elevator/Leader/Current", leader_current);
+    DogLog.log(getSubsystemKey() + "/Elevator/Leader/Temperature", leader_temp);
+    DogLog.log(getSubsystemKey() + "/Elevator/Follower/Position", current_follower_position);
+    DogLog.log(getSubsystemKey() + "/Elevator/Follower/Velocity", current_follower_velocity);
+    DogLog.log(getSubsystemKey() + "/Elevator/Follower/AppliedVoltage", follower_applied_voltage);
+    DogLog.log(getSubsystemKey() + "/Elevator/Follower/Current", follower_current);
+    DogLog.log(getSubsystemKey() + "/Elevator/Follower/Temperature", follower_temp);
+    DogLog.log(getSubsystemKey() + "/Elevator/Position", current_elevator_position);
+    DogLog.log(getSubsystemKey() + "/Elevator/Velocity", current_elevator_velocity);
+    DogLog.log(getSubsystemKey() + "/Arm/Position", current_arm_position);
+    DogLog.log(getSubsystemKey() + "/Arm/Velocity", current_arm_velocity);
+    DogLog.log(getSubsystemKey() + "/Arm/AppliedVoltage", arm_applied_voltage);
+    DogLog.log(getSubsystemKey() + "/Arm/Current", arm_current);
+    DogLog.log(getSubsystemKey() + "/Arm/Temperature", arm_temp);
+  }
 
   /** Zeroes the elevator and arm position. */
   public void tarePosition() {}
