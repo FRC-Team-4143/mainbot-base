@@ -49,7 +49,9 @@ public class Superstructure
     }
 
     targets_ = new ArrayList<>();
+    // initial state is assumed to be the intake clear position
     targets_.add(SuperstructureTarget.Targets.INTAKE_CLEAR.target);
+    // we want to send the robot to the coral intake position after though
     targets_.add(SuperstructureTarget.Targets.CORAL_INTAKE.target);
 
     TunablePid.create(
