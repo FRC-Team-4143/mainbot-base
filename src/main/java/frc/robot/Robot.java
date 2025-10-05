@@ -21,14 +21,11 @@ import org.ironmaple.simulation.SimulatedArena;
 public class Robot extends TimedRobot {
 
   private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
-  private RobotContainer robot_container_ = RobotContainer.getInstance();
+  private RobotContainer robot_container_;
 
   public Robot() {
-    // Record git metadata
-    GitLogger.logGitData();
-
-    // Setup Logging
-    setupDataReceiversAndLogging();
+    // Load the subsystems
+    robot_container_ = RobotContainer.getInstance();
 
     // Configure External Interfaces
     OI.configureBindings();
@@ -36,21 +33,24 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotInit() {}
-
-  @Override
-  public void robotPeriodic() {
-    // Call the scheduler so that commands work for buttons
-    CommandScheduler.getInstance().run();
-
-    robot_container_.doControlLoop();
-
-    // updates data from chassis proxy server
-    ProxyServer.updateData();
+  public void robotInit() {
   }
 
   @Override
-  public void disabledInit() {}
+  public void robotPeriodic() {
+    // updates data from chassis proxy server
+    ProxyServer.updateData();
+
+    // Call the scheduler so that commands work for buttons
+    CommandScheduler.getInstance().run();
+
+    // run the main robot loop for each subsystem
+    robot_container_.doControlLoop();
+  }
+
+  @Override
+  public void disabledInit() {
+  }
 
   @Override
   public void disabledPeriodic() {
@@ -69,13 +69,16 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -84,7 +87,8 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
   public void testInit() {
@@ -92,7 +96,8 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
   public void simulationInit() {
@@ -106,20 +111,5 @@ public class Robot extends TimedRobot {
         "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
     DogLog.log(
         "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-  }
-
-  /** Set up data receivers and logging destinations */
-  private void setupDataReceiversAndLogging() {
-    switch (Constants.CURRENT_MODE) {
-      case REAL:
-        DogLog.setOptions(new DogLogOptions().withCaptureNt(true).withCaptureDs(true));
-        DogLog.setPdh(new PowerDistribution());
-        break;
-
-      case SIM:
-        DogLog.setOptions(new DogLogOptions().withNtPublish(true).withCaptureDs(true));
-        break;
-    }
-    DogLog.setEnabled(true);
   }
 }
