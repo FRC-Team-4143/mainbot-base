@@ -50,6 +50,7 @@ public class Superstructure
 
     targets_ = new ArrayList<>();
     targets_.add(SuperstructureTarget.Targets.INTAKE_CLEAR.target);
+    targets_.add(SuperstructureTarget.Targets.CORAL_INTAKE.target);
 
     TunablePid.create(
         getSubsystemKey() + "/elevator",
