@@ -64,9 +64,34 @@
         }
     },
     "superstructure": {
-
+        "elevator": {
+            "leader_id": 10,
+            "follower_id": 11,
+            "motion_ratio": 0.01,
+            "tolerance": 0.02,
+            "rescue_height": 0.1,
+            "min_height": 0.0,
+            "max_height": 1.5,
+            "stator_limit": 40.0,
+            "kp": 10.0,
+            "ki": 0.0,
+            "kd": 0.0,
+            "ks": 0.1,
+            "kv": 0.12,
+            "ka": 0.01,
+            "kg": 0.15
+        },
+        "arm": {
+            "motor_id": 12,
+            "encoder_id": 4,
+            "motion_ratio": 0.05,
+            "tolerance": 0.05,
+            "rescue_angle": 1.57,
+            "min_angle": -1.57,
+            "max_angle": 1.57
+        }
     },
     "intake": {
-        
+
     }
 }
