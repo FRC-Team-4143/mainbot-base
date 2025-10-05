@@ -47,9 +47,9 @@ public class SuperstructureConstants extends MWConstants {
   public final double ARM_MAX_ANGLE = getDoubleConstant("arm", "max_angle"); // rad
 
   // Simulation constants
-  public final double CARRIAGE_MASS = 0.0; // kg
-  public final double ARM_MOI = 0.0; // kg m^2
-  public final double ARM_LENGTH = 0.0; // meters
+  public final double CARRIAGE_MASS = 5.0; // kg
+  public final double ARM_MOI = 0.5; // kg m^2
+  public final double ARM_LENGTH = 0.3; // meters
 
   public SuperstructureConstants() {
 
