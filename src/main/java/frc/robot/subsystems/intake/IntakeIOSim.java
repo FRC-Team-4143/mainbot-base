@@ -30,7 +30,7 @@ public class IntakeIOSim extends IntakeIO {
   public void readInputs(double timestamp) {
     tof_dist =
         (INTAKE_SIMULATOR.getGamePiecesAmount() > 0)
-            ? IntakeConstants.TOF_CORAL_DISTANCE
+            ? CONSTANTS.TOF_CORAL_DISTANCE
             : 1000.0; // Simulated Time of Flight sensor distance
   }
 

@@ -100,6 +100,21 @@
         }
     },
     "intake": {
-
+        "offset_y": 0.0,
+        "stator_current_limit": 40.0,
+        "tof": {
+            "id": 0,
+            "coral_distance": 100.0
+        },
+        "intake": {
+            "id": 13,
+            "in_speed": 0.8,
+            "out_speed": -0.8
+        },
+        "pivot": {
+            "id": 14,
+            "mech_ratio": 1.0,
+            "kP": 10.0
+        }
     }
 }
