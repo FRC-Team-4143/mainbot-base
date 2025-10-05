@@ -118,6 +118,20 @@ public class Superstructure
       default:
         DataLogManager.log("Unhandled state in Superstructure logic " + system_state_.name());
     }
+
+    // Log the subsystem state
+    DogLog.log(getSubsystemKey() + "State", system_state_);
+
+    // Log the current elevator target
+    int next_target_idx = targets_.size() > 0 ? 1 : 0;
+    DogLog.log(getSubsystemKey() + "Target/Name", targets_.get(next_target_idx).getName());
+
+    // Log the upcoming targets in the queue
+    String[] upcoming_targets = new String[targets_.size()];
+    for(int i = 0; i < targets_.size(); i++){
+      upcoming_targets[i] = targets_.get(i).getName();
+    }
+    DogLog.log(getSubsystemKey()+"Target/Upcoming", upcoming_targets);
   }
 
   protected boolean armAtTargetInternal(SuperstructureTarget target) {
@@ -185,20 +199,4 @@ public class Superstructure
   public void reset() {
   }
 
-  @Override
-  public void logData() {
-    // Log the subsystem state
-    DogLog.log(getSubsystemKey() + "State", system_state_);
-
-    // Log the current elevator target
-    int next_target_idx = targets_.size() > 0 ? 1 : 0;
-    DogLog.log(getSubsystemKey() + "Target/Name", targets_.get(next_target_idx).getName());
-
-    // Log the upcoming targets in the queue
-    String[] upcoming_targets = new String[targets_.size()];
-    for(int i = 0; i < targets_.size(); i++){
-      upcoming_targets[i] = targets_.get(i).getName();
-    }
-    DogLog.log(getSubsystemKey()+"Target/Upcoming", upcoming_targets);
-  }
 }

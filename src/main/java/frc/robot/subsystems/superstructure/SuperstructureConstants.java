@@ -36,6 +36,10 @@ public class SuperstructureConstants extends MWConstants {
   public final double ARM_TOLERANCE = getDoubleConstant("arm", "tolerance"); // rad
   public final double ELEV_TOLERANCE = getDoubleConstant("elevator", "tolerance"); // m
 
+  // Arm and elevator constants for safety engagement
+  public final double ARM_RESCUE_ANGLE = getDoubleConstant("arm", "rescue_angle"); // rad
+  public final double ELEV_RESCUE_HEIGHT = getDoubleConstant("elevator", "rescue_height"); // m
+
   // Meachanism limits
   public final double ELEVATOR_MIN_HEIGHT = getDoubleConstant("elevator", "min_height"); // m
   public final double ELEVATOR_MAX_HEIGHT = getDoubleConstant("elevator", "max_height"); // m
