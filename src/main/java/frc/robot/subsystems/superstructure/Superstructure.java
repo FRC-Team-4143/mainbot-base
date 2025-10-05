@@ -1,27 +1,23 @@
 package frc.robot.subsystems.superstructure;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.mw_lib.util.NumUtil;
 import frc.robot.Constants;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Semantic Design for this system.
- * 
- * A Safe move is a move that has no interim target.
- * 
- * An unsafe move may have more than one target to reach its destination
- * 
- * Rescue is a special mode that is invoked if the elevator is above its IDLE
- * position and the arm is outside a given threshold. It will automatically take
- * over when the system is re-enabled
+ *
+ * <p>A Safe move is a move that has no interim target.
+ *
+ * <p>An unsafe move may have more than one target to reach its destination
+ *
+ * <p>Rescue is a special mode that is invoked if the elevator is above its IDLE position and the
+ * arm is outside a given threshold. It will automatically take over when the system is re-enabled
  */
-
 public class Superstructure
     extends MWSubsystem<SuperstructureIO, SuperstructureStates, SuperstructureConstants> {
 
@@ -99,18 +95,21 @@ public class Superstructure
   }
 
   public boolean armAtTarget(SuperstructureTargets target) {
-    return NumUtil.epislonEquals(target.getAngle().getRadians(), io.current_arm_position, CONSTANTS.ARM_TOLERANCE);
+    return NumUtil.epislonEquals(
+        target.getAngle().getRadians(), io.current_arm_position, CONSTANTS.ARM_TOLERANCE);
   }
 
   public boolean elevatorAtTarget(SuperstructureTargets target) {
-    return NumUtil.epislonEquals(target.getHeight(), io.current_elevator_position, CONSTANTS.ELEV_TOLERANCE);
+    return NumUtil.epislonEquals(
+        target.getHeight(), io.current_elevator_position, CONSTANTS.ELEV_TOLERANCE);
   }
 
   public boolean systemAtTarget(SuperstructureTargets target) {
     return armAtTarget(target) && elevatorAtTarget(target);
   }
 
-  public ArrayList<SuperstructureTargets> isSafeMove(SuperstructureTargets begin, SuperstructureTargets dest) {
+  public ArrayList<SuperstructureTargets> isSafeMove(
+      SuperstructureTargets begin, SuperstructureTargets dest) {
     // TODO (CJT) Implement this
     return new ArrayList<>();
   }
@@ -121,6 +120,5 @@ public class Superstructure
   }
 
   @Override
-  public void reset() {
-  }
+  public void reset() {}
 }

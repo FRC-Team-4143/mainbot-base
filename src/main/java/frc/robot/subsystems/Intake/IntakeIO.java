@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.mw_lib.subsystem.SubsystemIO;
 
 public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
-  public IntakeIO(IntakeConstants constants){
+  public IntakeIO(IntakeConstants constants) {
     super(constants);
   }
 

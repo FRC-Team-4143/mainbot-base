@@ -29,7 +29,6 @@ import frc.mw_lib.swerve_lib.gyro.GyroIOSim;
 import frc.mw_lib.swerve_lib.module.Module;
 import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXSim;
 import frc.robot.Constants;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -160,22 +159,26 @@ public class SwerveIOSim extends SwerveIO {
     // Configure Modules
     modules_[0] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_FL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[0]),
+            new ModuleIOTalonFXSim(
+                SIM_FL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[0]),
             0,
             SIM_FL_MODULE_CONSTANTS);
     modules_[1] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_FR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[1]),
+            new ModuleIOTalonFXSim(
+                SIM_FR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[1]),
             1,
             SIM_FR_MODULE_CONSTANTS);
     modules_[2] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_BL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[2]),
+            new ModuleIOTalonFXSim(
+                SIM_BL_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[2]),
             2,
             SIM_BL_MODULE_CONSTANTS);
     modules_[3] =
         new Module(
-            new ModuleIOTalonFXSim(SIM_BR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[3]),
+            new ModuleIOTalonFXSim(
+                SIM_BR_MODULE_CONSTANTS, Constants.SWERVE_SIMULATOR.getModules()[3]),
             3,
             SIM_BR_MODULE_CONSTANTS);
     // Configure Pose Estimator
@@ -242,7 +245,8 @@ public class SwerveIOSim extends SwerveIO {
     pose = pose_estimator_.getEstimatedPosition();
 
     // Update Simulated Position
-    DogLog.log("FieldSimulation/RobotPosition", Constants.SWERVE_SIMULATOR.getSimulatedDriveTrainPose());
+    DogLog.log(
+        "FieldSimulation/RobotPosition", Constants.SWERVE_SIMULATOR.getSimulatedDriveTrainPose());
   }
 
   public void writeOutputs(double timestamp) {

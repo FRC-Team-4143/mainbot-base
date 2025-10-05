@@ -1,12 +1,11 @@
 package frc.robot.subsystems.superstructure;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import frc.mw_lib.subsystem.SubsystemIO;
 
 public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstants> {
 
-  SuperstructureIO(SuperstructureConstants constants){
+  SuperstructureIO(SuperstructureConstants constants) {
     super(constants);
   }
 

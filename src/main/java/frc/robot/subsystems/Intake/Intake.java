@@ -16,9 +16,7 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
     return instance_;
   }
 
-  /**
-   * Constructor for the Intake subsystem.
-   */
+  /** Constructor for the Intake subsystem. */
   public Intake() {
     super(IntakeStates.IDLE, new IntakeConstants());
 
@@ -60,6 +58,5 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
   }
 
   @Override
-  public void reset() {
-  }
+  public void reset() {}
 }

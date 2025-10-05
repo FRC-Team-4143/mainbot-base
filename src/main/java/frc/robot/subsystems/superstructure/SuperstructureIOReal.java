@@ -27,9 +27,7 @@ public class SuperstructureIOReal extends SuperstructureIO {
 
     // Apply the configurations to the motors
     leader_motor_.getConfigurator().apply(CONSTANTS.ELEVATOR_LEADER_CONFIG);
-    follower_motor_
-        .getConfigurator()
-        .apply(CONSTANTS.ELEVATOR_FOLLOWER_CONFIG);
+    follower_motor_.getConfigurator().apply(CONSTANTS.ELEVATOR_FOLLOWER_CONFIG);
     arm_motor_.getConfigurator().apply(CONSTANTS.ARM_MOTOR_CONFIG);
   }
 

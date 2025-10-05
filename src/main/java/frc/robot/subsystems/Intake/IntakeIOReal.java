@@ -15,17 +15,24 @@ public class IntakeIOReal extends IntakeIO {
 
   public IntakeIOReal(IntakeConstants constants) {
     super(constants);
-    
+
     pivot_motor_ = new TalonFX(IntakeConstants.PIVOT_ID);
     roller_motor_ = new TalonFX(IntakeConstants.INTAKE_ID);
     tof_ = new TimeOfFlight(IntakeConstants.TIME_OF_FLIGHT_ID);
     pivotRequest = new PositionVoltage(0);
 
     pivot_motor_.getConfigurator().apply(IntakeConstants.PICKUP_GAINS);
-    pivot_motor_.getConfigurator().apply(new CurrentLimitsConfigs()
-    .withStatorCurrentLimit(IntakeConstants.STATOR_CURRENT_LIMIT)
-    .withStatorCurrentLimitEnable(true));
-    pivot_motor_.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(IntakeConstants.SENSOR_TO_MECHANISM_RATIO));
+    pivot_motor_
+        .getConfigurator()
+        .apply(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(IntakeConstants.STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true));
+    pivot_motor_
+        .getConfigurator()
+        .apply(
+            new FeedbackConfigs()
+                .withSensorToMechanismRatio(IntakeConstants.SENSOR_TO_MECHANISM_RATIO));
   }
 
   @Override

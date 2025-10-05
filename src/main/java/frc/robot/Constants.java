@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.function.BooleanSupplier;
-
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
 public final class Constants {

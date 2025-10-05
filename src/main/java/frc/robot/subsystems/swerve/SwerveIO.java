@@ -12,7 +12,7 @@ import frc.mw_lib.swerve_lib.module.Module;
 
 public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
 
-  public SwerveIO(SwerveConstants constants){
+  public SwerveIO(SwerveConstants constants) {
     super(constants);
   }
 
