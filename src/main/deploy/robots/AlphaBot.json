@@ -62,5 +62,11 @@
             "MODULE_TYPE": "MK4I",
             "MODULE_GEARING": "L2+"
         }
+    },
+    "superstructure": {
+
+    },
+    "intake": {
+        
     }
 }
