@@ -1,11 +1,14 @@
 package frc.robot.subsystems.superstructure;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import frc.mw_lib.subsystem.MWConstants;
 
 public class SuperstructureConstants extends MWConstants {
@@ -27,6 +30,7 @@ public class SuperstructureConstants extends MWConstants {
   public final int ARM_MOTOR_ID = getIntConstant("arm", "motor_id");
   public final TalonFXConfiguration ARM_MOTOR_CONFIG;
   public final int ARM_ENCODER_ID = getIntConstant("arm", "encoder_id");
+  public final CANcoderConfiguration ARM_ENCODER_CONFIG;
 
   // Motion Ratios
   public final double ROTATIONS_TO_TRANSLATION = getDoubleConstant("elevator", "motion_ratio");
@@ -101,5 +105,9 @@ public class SuperstructureConstants extends MWConstants {
             .withMotionMagicCruiseVelocity(300.0)
             .withMotionMagicAcceleration(400.0)
             .withMotionMagicJerk(1000.0);
+
+    ARM_ENCODER_CONFIG = new CANcoderConfiguration();
+    ARM_ENCODER_CONFIG.MagnetSensor.SensorDirection = getBoolConstant("arm", "encoder_inverted") ? SensorDirectionValue.CounterClockwise_Positive : SensorDirectionValue.Clockwise_Positive;
+    ARM_ENCODER_CONFIG.MagnetSensor.AbsoluteSensorDiscontinuityPoint = getDoubleConstant("arm", "encoder_discontinuity");
   }
 }

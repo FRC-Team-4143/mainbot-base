@@ -82,6 +82,7 @@ public class SuperstructureIOSim extends SuperstructureIO {
     arm_applied_voltage = arm_motor_.getMotorVoltage().getValueAsDouble();
     arm_current = arm_motor_.getTorqueCurrent().getValueAsDouble();
     arm_temp = arm_motor_.getDeviceTemp().getValue().in(Fahrenheit);
+    arm_encoder_position = arm_motor_.getPosition().getValueAsDouble();
   }
 
   /** Writes the desired outputs to the motors. */
