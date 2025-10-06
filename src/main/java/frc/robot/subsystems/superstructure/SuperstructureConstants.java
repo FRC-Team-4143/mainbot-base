@@ -18,6 +18,7 @@ public class SuperstructureConstants extends MWConstants {
     AT_TARGET,
     MOVING,
     RESCUE,
+    TUNING,
   }
 
   // Configurations for Elevator I/O
@@ -86,6 +87,7 @@ public class SuperstructureConstants extends MWConstants {
     ARM_MOTOR_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     ARM_MOTOR_CONFIG.CurrentLimits.StatorCurrentLimit = getDoubleConstant("arm", "stator_limit");
     ARM_MOTOR_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    ARM_MOTOR_CONFIG.Feedback.SensorToMechanismRatio = ARM_RATIO;
     ARM_MOTOR_CONFIG.Slot0 = new Slot0Configs()
         .withKP(getDoubleConstant("arm", "kp"))
         .withKI(getDoubleConstant("arm", "ki"))

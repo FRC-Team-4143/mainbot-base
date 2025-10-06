@@ -1,7 +1,14 @@
 package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.mw_lib.subsystem.MWSubsystem;
 import frc.mw_lib.util.NumUtil;
 import frc.mw_lib.util.TunablePid;
@@ -39,6 +46,14 @@ public class Superstructure
   }
 
   private List<SuperstructureTarget> targets_;
+  private final Mechanism2d current_mech2d_;
+  private final MechanismLigament2d current_elevator_mech_;
+  private final MechanismLigament2d current_arm_mech_;
+  private final Mechanism2d target_mech2d_;
+  private final MechanismLigament2d target_elevator_mech_;
+  private final MechanismLigament2d target_arm_mech_;
+  private final DoubleSubscriber elevator_setpoint_sub_;
+  private final DoubleSubscriber arm_setpoint_sub_;
 
   Superstructure() {
     super(SuperstructureStates.AT_TARGET, new SuperstructureConstants());
@@ -54,12 +69,35 @@ public class Superstructure
     // we want to send the robot to the coral intake position after though
     targets_.add(SuperstructureTarget.Targets.CORAL_INTAKE.target);
 
+    // Create tunable objects for the elevator and arm
     TunablePid.create(
-        getSubsystemKey() + "elevator",
+        getSubsystemKey() + "Elevator",
         io::updateElevatorGains,
         CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
     TunablePid.create(
-        getSubsystemKey() + "arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
+        getSubsystemKey() + "Arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
+    elevator_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", io.current_elevator_position);
+    arm_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Arm/Setpoint", io.current_arm_position);
+
+    // Setup the current mechanism 2d
+    current_mech2d_ = new Mechanism2d(3, 3);
+    MechanismRoot2d root = current_mech2d_.getRoot("Superstructure Mech2d Current", 1.5, 0);
+    current_elevator_mech_ = root.append(new MechanismLigament2d("Elevator", CONSTANTS.ELEVATOR_MIN_HEIGHT, 90));
+    current_elevator_mech_.setColor(new Color8Bit(Color.kOrange));
+    current_elevator_mech_.setLineWeight(12);
+    current_arm_mech_ = current_elevator_mech_.append(new MechanismLigament2d("Arm", CONSTANTS.ARM_LENGTH, 0));
+    current_arm_mech_.setColor(new Color8Bit(Color.kYellow));
+    current_arm_mech_.setLineWeight(12);
+
+    // Setup the target mechanism 2d
+    target_mech2d_ = new Mechanism2d(3, 3);
+    MechanismRoot2d target_root = target_mech2d_.getRoot("Superstructure Mech2d Target", 1.5, 0);
+    target_elevator_mech_ = target_root.append(new MechanismLigament2d("Elevator", CONSTANTS.ELEVATOR_MIN_HEIGHT, 90));
+    target_elevator_mech_.setColor(new Color8Bit(Color.kBlue));
+    target_elevator_mech_.setLineWeight(6);
+    target_arm_mech_ = target_elevator_mech_.append(new MechanismLigament2d("Arm", CONSTANTS.ARM_LENGTH, 0));
+    target_arm_mech_.setColor(new Color8Bit(Color.kLightBlue));
+    target_arm_mech_.setLineWeight(6);
   }
 
   @Override
@@ -91,7 +129,7 @@ public class Superstructure
 
       // if the elevator and arm are at their next targets
       if (elevatorAtTargetInternal(next_tgt)
-          && armAtTargetInternal(next_tgt)) {
+          /* && armAtTargetInternal(next_tgt) */) {
         targets_.remove(0);
       }
     }
@@ -102,6 +140,12 @@ public class Superstructure
       system_state_ = SuperstructureStates.MOVING;
     } else {
       system_state_ = SuperstructureStates.AT_TARGET;
+    }
+
+    // If we are being told to tune, then set up the tunable subscribers
+    // and set default values to the current positions
+    if (wanted == SuperstructureStates.TUNING) {
+      system_state_ = SuperstructureStates.TUNING;
     }
   }
 
@@ -117,6 +161,10 @@ public class Superstructure
         io.target_elevator_position = targets_.get(1).getHeight();
         break;
       case RESCUE:
+        break;
+      case TUNING:
+        io.target_arm_position = arm_setpoint_sub_.get();
+        io.target_elevator_position = elevator_setpoint_sub_.get();
         break;
       default:
         DataLogManager.log("Unhandled state in Superstructure logic " + system_state_.name());
@@ -135,6 +183,16 @@ public class Superstructure
       upcoming_targets[i] = targets_.get(i).getName();
     }
     DogLog.log(getSubsystemKey()+"Target/Upcoming", upcoming_targets);
+
+    // Update mechanism 2d
+    current_elevator_mech_.setLength(io.current_elevator_position);
+    current_arm_mech_.setAngle(Math.toDegrees(io.current_arm_position) - 90);
+    SmartDashboard.putData("Superstructure/Mech2d/Current", current_mech2d_);
+
+    // Update target mechanism 2d
+    target_elevator_mech_.setLength(io.target_elevator_position);
+    target_arm_mech_.setAngle(Math.toDegrees(io.target_arm_position) - 90);
+    SmartDashboard.putData("Superstructure/Mech2d/Target", target_mech2d_);
   }
 
   protected boolean armAtTargetInternal(SuperstructureTarget target) {

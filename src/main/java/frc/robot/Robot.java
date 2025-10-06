@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.logging.GitLogger;
 import frc.mw_lib.proxy_server.ProxyServer;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
@@ -93,10 +95,16 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    Superstructure.getInstance().setWantedState(SuperstructureStates.TUNING);
   }
 
   @Override
   public void testPeriodic() {
+  }
+
+  @Override
+  public void testExit() {
+    Superstructure.getInstance().setWantedState(SuperstructureStates.AT_TARGET);
   }
 
   @Override

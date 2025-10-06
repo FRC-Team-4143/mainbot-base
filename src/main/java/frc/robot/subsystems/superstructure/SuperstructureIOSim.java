@@ -1,15 +1,20 @@
 package frc.robot.subsystems.superstructure;
 
 import static edu.wpi.first.units.Units.Fahrenheit;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+
+import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class SuperstructureIOSim extends SuperstructureIO {
@@ -21,6 +26,10 @@ public class SuperstructureIOSim extends SuperstructureIO {
 
   private final MotionMagicVoltage elevator_control_request_ = new MotionMagicVoltage(0.0);
   private final MotionMagicVoltage arm_control_request_ = new MotionMagicVoltage(0.0);
+
+  // Simulation States
+  private TalonFXSimState elevator_sim_state_;
+  private TalonFXSimState arm_sim_state_;
 
   public SuperstructureIOSim(SuperstructureConstants constants) {
     super(constants);
@@ -39,7 +48,7 @@ public class SuperstructureIOSim extends SuperstructureIO {
     arm_sim_ =
         new SingleJointedArmSim(
             DCMotor.getKrakenX60(1),
-            CONSTANTS.ARM_RATIO,
+            1.0 / CONSTANTS.ARM_RATIO,  // Gear ratio is inverse of sensor-to-mechanism ratio
             CONSTANTS.ARM_MOI,
             CONSTANTS.ARM_LENGTH,
             CONSTANTS.ARM_MIN_ANGLE,
@@ -54,10 +63,38 @@ public class SuperstructureIOSim extends SuperstructureIO {
     // Apply the configurations to the motors
     elevator_motor_.getConfigurator().apply(CONSTANTS.ELEVATOR_LEADER_CONFIG);
     arm_motor_.getConfigurator().apply(CONSTANTS.ARM_MOTOR_CONFIG);
+
+    // Initialize the simulation states for the motors
+    elevator_sim_state_ = elevator_motor_.getSimState();
+    arm_sim_state_ = arm_motor_.getSimState();
   }
 
   /** Updates the set of loggable inputs. */
   public void readInputs(double timestamp) {
+    // Simulate the current draw of the system and the loaded battery voltage
+    RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(elevator_sim_.getCurrentDrawAmps() + arm_sim_.getCurrentDrawAmps()));
+
+    // Update the simulations
+    elevator_sim_state_.setSupplyVoltage(RobotController.getBatteryVoltage());
+    arm_sim_state_.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    elevator_sim_.setInput(elevator_sim_state_.getMotorVoltage());
+    elevator_sim_.update(0.02);
+    arm_sim_.setInput(arm_sim_state_.getMotorVoltage());
+    arm_sim_.update(0.02);
+
+    // Update simulation states with physics simulation results BEFORE next control cycle
+    // This ensures the PID controller gets proper feedback from the physics simulation
+    elevator_sim_state_.setRawRotorPosition(
+        elevator_sim_.getPositionMeters() / CONSTANTS.ROTATIONS_TO_TRANSLATION);
+    elevator_sim_state_.setRotorVelocity(
+        elevator_sim_.getVelocityMetersPerSecond() / CONSTANTS.ROTATIONS_TO_TRANSLATION);
+
+    // Apply the correct conversion for TalonFX simulation with SensorToMechanismRatio
+    // The simulation state expects a value that, when processed by the ratio, gives the desired reading
+    arm_sim_state_.setRawRotorPosition(-Units.radiansToRotations(arm_sim_.getAngleRads() * CONSTANTS.ARM_RATIO));
+    arm_sim_state_.setRotorVelocity(-Units.radiansToRotations(arm_sim_.getVelocityRadPerSec() * CONSTANTS.ARM_RATIO));
+
     // Update leader motor inputs
     current_leader_position = elevator_motor_.getPosition().getValueAsDouble();
     current_leader_velocity = elevator_motor_.getVelocity().getValueAsDouble();
@@ -95,25 +132,6 @@ public class SuperstructureIOSim extends SuperstructureIO {
     // Set the arm motor control request
     arm_motor_.setControl(
         arm_control_request_.withPosition(Units.radiansToRotations(target_arm_position)));
-
-    // Update the simulation
-    var elevator_sim_state = elevator_motor_.getSimState();
-    var arm_sim_state = arm_motor_.getSimState();
-
-    elevator_sim_state.setSupplyVoltage(RobotController.getBatteryVoltage());
-    arm_sim_state.setSupplyVoltage(RobotController.getBatteryVoltage());
-
-    elevator_sim_.setInputVoltage(elevator_sim_state.getMotorVoltageMeasure().in(Volts));
-    elevator_sim_.update(0.02);
-    arm_sim_.setInputVoltage(arm_sim_state.getMotorVoltageMeasure().in(Volts));
-    arm_sim_.update(0.02);
-
-    elevator_sim_state.setRawRotorPosition(
-        elevator_sim_.getPositionMeters() / CONSTANTS.ROTATIONS_TO_TRANSLATION);
-    elevator_sim_state.setRotorVelocity(
-        elevator_sim_.getVelocityMetersPerSecond() / CONSTANTS.ROTATIONS_TO_TRANSLATION);
-    arm_sim_state.setRawRotorPosition(Units.radiansToRotations(arm_sim_.getAngleRads()));
-    arm_sim_state.setRotorVelocity(Units.radiansToRotations(arm_sim_.getVelocityRadPerSec()));
   }
 
   /** Zeroes the elevator position. */
@@ -128,6 +146,7 @@ public class SuperstructureIOSim extends SuperstructureIO {
    * @param gains The new gains to apply.
    */
   public void updateElevatorGains(Slot0Configs gains) {
+    DataLogManager.log("Updating Elevator Gains: " + gains.toString());
     elevator_motor_.getConfigurator().apply(gains);
   }
 
@@ -137,6 +156,7 @@ public class SuperstructureIOSim extends SuperstructureIO {
    * @param gains The new gains to apply.
    */
   public void updateArmGains(Slot0Configs gains) {
+    DataLogManager.log("Updating Arm Gains: " + gains.toString());
     arm_motor_.getConfigurator().apply(gains);
   }
 }
