@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 public class SuperstructureIOReal extends SuperstructureIO {
 
@@ -104,6 +105,7 @@ public class SuperstructureIOReal extends SuperstructureIO {
    * @param gains The new gains to apply.
    */
   public void updateElevatorGains(Slot0Configs gains) {
+    DataLogManager.log("Updating Elevator Gains: " + gains.toString());
     leader_motor_.getConfigurator().apply(gains);
     follower_motor_.getConfigurator().apply(gains);
   }
@@ -114,6 +116,7 @@ public class SuperstructureIOReal extends SuperstructureIO {
    * @param gains The new gains to apply.
    */
   public void updateArmGains(Slot0Configs gains) {
+    DataLogManager.log("Updating Arm Gains: " + gains.toString());
     arm_motor_.getConfigurator().apply(gains);
   }
 }
