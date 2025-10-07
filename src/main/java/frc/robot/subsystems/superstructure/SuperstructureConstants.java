@@ -8,7 +8,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.mw_lib.subsystem.MWConstants;
 
 public class SuperstructureConstants extends MWConstants {
@@ -53,8 +53,9 @@ public class SuperstructureConstants extends MWConstants {
 
   // Simulation constants
   public final double CARRIAGE_MASS = 5.0; // kg
-  public final double ARM_MOI = 0.5; // kg m^2
   public final double ARM_LENGTH = 0.3; // meters
+  public final double ARM_MASS = 2.0; // kg
+  public final double ARM_MOI = SingleJointedArmSim.estimateMOI(ARM_LENGTH, ARM_MASS); // kg m^2
 
   public SuperstructureConstants() {
 
