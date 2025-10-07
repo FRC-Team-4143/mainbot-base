@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants.IntakeStates;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureTarget.Targets;
 import frc.robot.subsystems.swerve.Swerve;
@@ -23,6 +25,7 @@ public abstract class OI {
 
     driver_controller_.rightStick().onTrue(Swerve.getInstance().toggleFieldCentric());
     driver_controller_.a().whileTrue(Commands.startEnd(() -> Superstructure.getInstance().requestMove(Targets.L3), () -> Superstructure.getInstance().requestMove(Targets.CORAL_INTAKE)));
+    driver_controller_.b().whileTrue(Commands.startEnd(() -> Intake.getInstance().setWantedState(IntakeStates.PICK_UP), () -> Intake.getInstance().setWantedState(IntakeStates.IDLE)));
   }
 
   /**

@@ -99,24 +99,19 @@ public class SuperstructureIOReal extends SuperstructureIO {
     arm_encoder_.setPosition(0.0);
   }
 
-  /**
-   * Updates the gains for the elevator.
-   *
-   * @param gains The new gains to apply.
-   */
   public void updateElevatorGains(Slot0Configs gains) {
     DataLogManager.log("Updating Elevator Gains: " + gains.toString());
     leader_motor_.getConfigurator().apply(gains);
-    follower_motor_.getConfigurator().apply(gains);
+    Slot0Configs current_gains = new Slot0Configs();
+    leader_motor_.getConfigurator().refresh(current_gains);
+    DataLogManager.log("Updated Elevator Gains: " + current_gains.toString());
   }
 
-  /**
-   * Updates the gains for the arm.
-   *
-   * @param gains The new gains to apply.
-   */
   public void updateArmGains(Slot0Configs gains) {
     DataLogManager.log("Updating Arm Gains: " + gains.toString());
     arm_motor_.getConfigurator().apply(gains);
+    Slot0Configs current_gains = new Slot0Configs();
+    arm_motor_.getConfigurator().refresh(current_gains);
+    DataLogManager.log("Updated Arm Gains: " + current_gains.toString());
   }
 }

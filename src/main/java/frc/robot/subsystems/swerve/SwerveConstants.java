@@ -28,7 +28,7 @@ import frc.mw_lib.swerve_lib.module.ModuleType;
 
 public class SwerveConstants extends MWConstants {
   // Current system states for the swerve drive
-  enum SwerveStates {
+  public enum SwerveStates {
     FIELD_CENTRIC,
     ROBOT_CENTRIC,
     CHOREO_PATH,
@@ -69,11 +69,22 @@ public class SwerveConstants extends MWConstants {
   }
 
   // The steer motor uses MotionMagicVoltage control
-  private final Slot0Configs STEER_GAINS = new Slot0Configs().withKP(80).withKI(0).withKD(0).withKS(0).withKV(0)
-      .withKA(0);
+  private final Slot0Configs STEER_GAINS = new Slot0Configs()
+    .withKP(getDoubleConstant("com", "steer_gains_p"))
+    .withKI(getDoubleConstant("com", "steer_gains_i"))
+    .withKD(getDoubleConstant("com", "steer_gains_d"))
+    .withKS(getDoubleConstant("com", "steer_gains_s"))
+    .withKV(getDoubleConstant("com", "steer_gains_v"))
+    .withKA(getDoubleConstant("com", "steer_gains_a"))
+    .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses VelocityVoltage
-  private final Slot0Configs DRIVE_GAINS = new Slot0Configs().withKP(0.5).withKI(0).withKD(0).withKS(0.18)
-      .withKV(0.117).withKA(0);
+  private final Slot0Configs DRIVE_GAINS = new Slot0Configs()
+    .withKP(getDoubleConstant("com", "drive_gains_p"))
+    .withKI(getDoubleConstant("com", "drive_gains_i"))
+    .withKD(getDoubleConstant("com", "drive_gains_d"))
+    .withKS(getDoubleConstant("com", "drive_gains_s"))
+    .withKV(getDoubleConstant("com", "drive_gains_v"))
+    .withKA(getDoubleConstant("com", "drive_gains_a"));
 
   // Control Constants for the swerve modules
   public final double SLIP_CURRENT_AMPS = getDoubleConstant("com", "slip_current");
@@ -216,16 +227,8 @@ public class SwerveConstants extends MWConstants {
       .withDriveInertia(DRIVE_INERTIA)
       .withDriveFrictionVoltage(Volts.of(0.1)) // Adjust friction voltages
       .withSteerFrictionVoltage(Volts.of(0.05)) // Adjust friction voltages
-      .withDriveMotorGains(FL_MODULE_CONSTANTS.DriveMotorGains)
-      .withSteerMotorGains( // Adjust steer motor PID gains for simulation
-          new Slot0Configs()
-              .withKP(70)
-              .withKI(0.5)
-              .withKD(4.5)
-              .withKS(0)
-              .withKV(1.91)
-              .withKA(0)
-              .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign));
+      .withDriveMotorGains(DRIVE_GAINS)
+      .withSteerMotorGains(STEER_GAINS);
 
   public final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> SIM_FL_MODULE_CONSTANTS = SIM_MODULE_CONSTANTS_FACTORY
       .createModuleConstants(

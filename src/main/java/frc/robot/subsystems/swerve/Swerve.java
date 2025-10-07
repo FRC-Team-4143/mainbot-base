@@ -161,6 +161,9 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
         Timer.getFPGATimestamp() - io.current_request_parameters.timestamp;
     io.current_request_parameters.timestamp = Timer.getFPGATimestamp();
     io.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
+
+    // Log the subsystem state
+    DogLog.log(getSubsystemKey() + "State", system_state_);
   }
 
   @Override

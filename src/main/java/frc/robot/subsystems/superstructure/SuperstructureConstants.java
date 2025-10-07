@@ -48,6 +48,7 @@ public class SuperstructureConstants extends MWConstants {
   // Meachanism limits
   public final double ELEVATOR_MIN_HEIGHT = getDoubleConstant("elevator", "min_height"); // m
   public final double ELEVATOR_MAX_HEIGHT = getDoubleConstant("elevator", "max_height"); // m
+  public final double ARM_MIN_HEIGHT = 0.7459; // Determined from adscope model
   public final double ARM_MIN_ANGLE = getDoubleConstant("arm", "min_angle"); // rad
   public final double ARM_MAX_ANGLE = getDoubleConstant("arm", "max_angle"); // rad
 

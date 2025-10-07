@@ -16,11 +16,11 @@
             "drive_gains_s": 0.18,
             "drive_gains_v": 0.117,
             "drive_gains_a": 0,
-            "steer_gains_p": 80,
-            "steer_gains_i": 0,
-            "steer_gains_d": 0,
+            "steer_gains_p": 70,
+            "steer_gains_i": 0.5,
+            "steer_gains_d": 4.5,
             "steer_gains_s": 0,
-            "steer_gains_v": 0,
+            "steer_gains_v": 1.91,
             "steer_gains_a": 0
         },
         "fl": {
@@ -73,14 +73,14 @@
             "rescue_height": 0.1,
             "min_height": 0.0,
             "max_height": 1.5,
-            "stator_limit": 40.0,
+            "stator_limit": 100.0,
             "kp": 0.001,
             "ki": 0.0,
             "kd": 0.0,
             "ks": 0.0,
             "kv": 0.0,
-            "ka": 0.00,
-            "kg": 0.421
+            "ka": 0.0,
+            "kg": 0.43
         },
         "arm": {
             "motor_id": 12,
@@ -90,34 +90,35 @@
             "rescue_angle": 1.57,
             "min_angle": -2.5,
             "max_angle": 2.5,
-            "stator_limit": 40.0,
-            "kp": 8.0,
+            "stator_limit": 100.0,
+            "kp": 40.0,
             "ki": 0.0,
             "kd": 0.0,
-            "ks": 0.2,
-            "kv": 0.1,
-            "ka": 0.02,
-            "kg": 0.3,
+            "ks": 0.024495,
+            "kv": 8.778,
+            "ka": 0.25148,
+            "kg": 0.28,
             "encoder_inverted": true,
             "encoder_discontinuity": 0.5
         }
     },
     "intake": {
-        "offset_y": 0.0,
-        "stator_current_limit": 40.0,
+        "offset_y": 8.0,
+        "stator_current_limit": 80.0,
         "tof": {
-            "id": 0,
-            "coral_distance": 100.0
+            "id": 4,
+            "coral_distance": 6.5
         },
         "intake": {
-            "id": 13,
-            "in_speed": 0.8,
-            "out_speed": -0.8
+            "id": 41,
+            "in_speed": 0.5,
+            "out_speed": -0.5
         },
         "pivot": {
-            "id": 14,
-            "mech_ratio": 1.0,
-            "kp": 10.0
+            "id": 40,
+            "mech_ratio": 85.714,
+            "kp": 10.0,
+            "kd": 8.0
         }
     }
 }

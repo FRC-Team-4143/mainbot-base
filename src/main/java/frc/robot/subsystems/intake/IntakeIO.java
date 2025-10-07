@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.mw_lib.subsystem.SubsystemIO;
@@ -10,7 +12,7 @@ public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
   }
 
   /** Current angle of the pivot */
-  public Rotation2d pivot_current_angle = Rotation2d.kZero;
+  public Rotation2d pivot_current_position = Rotation2d.kZero;
 
   /** Applied voltage to the pivot */
   public double pivot_applied_voltage = 0.0;
@@ -22,7 +24,7 @@ public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
   public double pivot_temp = 0.0;
 
   /** Target angle of the pivot */
-  public Rotation2d pivot_target_angle = pivot_current_angle;
+  public Rotation2d pivot_target_position = pivot_current_position;
 
   /** Applied voltage to the roller */
   public double roller_applied_voltage = 0.0;
@@ -42,8 +44,8 @@ public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
   /** Logs data to DogLog.  */
   @Override
   public void logData() {
-    DogLog.log(getSubsystemKey() + "Pivot/Position/Current", pivot_current_angle);
-    DogLog.log(getSubsystemKey() + "Pivot/Position/Target", pivot_target_angle);
+    DogLog.log(getSubsystemKey() + "Pivot/Position/Current", pivot_current_position);
+    DogLog.log(getSubsystemKey() + "Pivot/Position/Target", pivot_target_position);
     DogLog.log(getSubsystemKey() + "Pivot/AppliedVoltage", pivot_applied_voltage);
     DogLog.log(getSubsystemKey() + "Pivot/Current", pivot_current);
     DogLog.log(getSubsystemKey() + "Pivot/Temp", pivot_temp);
@@ -55,4 +57,11 @@ public abstract class IntakeIO extends SubsystemIO<IntakeConstants> {
 
     DogLog.log(getSubsystemKey() + "TOFDistance", tof_dist);
   }
+
+  /**
+   * Updates the gains for the pivot.
+   *
+   * @param gains The new gains to apply.
+   */
+  public void updatePivotGains(Slot0Configs gains) {}
 }

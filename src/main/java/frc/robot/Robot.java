@@ -5,17 +5,17 @@
 package frc.robot;
 
 import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.mw_lib.logging.GitLogger;
 import frc.mw_lib.proxy_server.ProxyServer;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants.IntakeStates;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
@@ -86,6 +86,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     ProxyServer.syncMatchData();
     CommandScheduler.getInstance().cancelAll();
+    Swerve.getInstance().setWantedState(SwerveStates.FIELD_CENTRIC);
   }
 
   @Override
@@ -96,6 +97,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
     Superstructure.getInstance().setWantedState(SuperstructureStates.TUNING);
+    Intake.getInstance().setWantedState(IntakeStates.TUNING);
   }
 
   @Override
@@ -105,6 +107,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testExit() {
     Superstructure.getInstance().setWantedState(SuperstructureStates.AT_TARGET);
+    Intake.getInstance().setWantedState(IntakeStates.IDLE);
   }
 
   @Override

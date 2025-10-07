@@ -126,7 +126,11 @@ public class SwerveIOSim extends SwerveIO {
       }
       pose_estimator_.updateWithTime(sample_timestamps[i], raw_gyro_rotation, module_positions);
     }
-    pose = pose_estimator_.getEstimatedPosition();
+
+
+    // TODO: Pose Estimator in Sim needs to be fixed
+    // pose = pose_estimator_.getEstimatedPosition();
+    pose = Constants.SWERVE_SIMULATOR.getSimulatedDriveTrainPose();
 
     // Update Simulated Position
     DogLog.log(

@@ -5,23 +5,23 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class SuperstructureTarget {
 
   public enum Targets {
-    INTAKE_CLEAR("INTAKE_CLEAR", 0.90041, Rotation2d.fromDegrees(-45)),
-    CLIMB("CLIMB", 0.90041, Rotation2d.fromDegrees(121.201)),
-    CORAL_INTAKE("CORAL_INTAKE", 0.75, Rotation2d.fromDegrees(-117)),
-    L4("L4", 2.109, Rotation2d.fromDegrees(-19)),
-    L4_STAGING("L4_STAGING", 2.109, Rotation2d.fromDegrees(-65)),
-    L3("L3", 1.323265, Rotation2d.fromDegrees(-5.05468)),
-    L3_FAR("L3_FAR", 1.423500, Rotation2d.fromDegrees(-4.515)),
-    L2("L2", 0.94895, Rotation2d.fromDegrees(-3.6035)),
-    L2_FAR("L2_FAR", 1.0235, Rotation2d.fromDegrees(-4.515)),
-    L1("L1", 0.824, Rotation2d.fromDegrees(-23.703)),
-    L1_STAGING("L1_STAGING", 0.824, Rotation2d.fromDegrees(0)),
-    L1_FLICK("L1_FLICK", 0.919, Rotation2d.fromDegrees(0)),
-    ALGAE_STOW("ALGAE_STOW", 0.90769, Rotation2d.fromDegrees(-12.9199)),
-    ALGAE_LOW("ALGAE_LOW", 0.90848, Rotation2d.fromDegrees(-12.9199)),
-    ALGAE_HIGH("ALGAE_HIGH", 1.35857, Rotation2d.fromDegrees(-12.9199)),
-    ALGAE_PROCESSOR("ALGAE_PROCESSOR", 0.7829, Rotation2d.fromDegrees(-40.1660)),
-    BARGE("BARGE", 2.08, Rotation2d.fromDegrees(23.3789));
+    INTAKE_CLEAR("INTAKE_CLEAR", 0.17651, Rotation2d.fromDegrees(-45)),
+    CLIMB("CLIMB", 0.17651, Rotation2d.fromDegrees(121.201)),
+    CORAL_INTAKE("CORAL_INTAKE", 0.0261, Rotation2d.fromDegrees(-117)),
+    L4("L4", 1.3851, Rotation2d.fromDegrees(-19)),
+    L4_STAGING("L4_STAGING", 1.3851, Rotation2d.fromDegrees(-65)),
+    L3("L3", 0.599365, Rotation2d.fromDegrees(-5.05468)),
+    L3_FAR("L3_FAR", 0.699600, Rotation2d.fromDegrees(-4.515)),
+    L2("L2", 0.22505, Rotation2d.fromDegrees(-3.6035)),
+    L2_FAR("L2_FAR", 0.2996, Rotation2d.fromDegrees(-4.515)),
+    L1("L1", 0.1001, Rotation2d.fromDegrees(-23.703)),
+    L1_STAGING("L1_STAGING", 0.1001, Rotation2d.fromDegrees(0)),
+    L1_FLICK("L1_FLICK", 0.1951, Rotation2d.fromDegrees(0)),
+    ALGAE_STOW("ALGAE_STOW", 0.18379, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_LOW("ALGAE_LOW", 0.18458, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_HIGH("ALGAE_HIGH", 0.63467, Rotation2d.fromDegrees(-12.9199)),
+    ALGAE_PROCESSOR("ALGAE_PROCESSOR", 0.0590, Rotation2d.fromDegrees(-40.1660)),
+    BARGE("BARGE", 1.3561, Rotation2d.fromDegrees(23.3789));
 
     public final SuperstructureTarget target;
 

@@ -1,7 +1,12 @@
 package frc.robot.subsystems.superstructure;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -46,14 +51,20 @@ public class Superstructure
   }
 
   private List<SuperstructureTarget> targets_;
+
+  // Telemetry objects
   private final Mechanism2d current_mech2d_;
   private final MechanismLigament2d current_elevator_mech_;
   private final MechanismLigament2d current_arm_mech_;
   private final Mechanism2d target_mech2d_;
   private final MechanismLigament2d target_elevator_mech_;
   private final MechanismLigament2d target_arm_mech_;
-  private final DoubleSubscriber elevator_setpoint_sub_;
-  private final DoubleSubscriber arm_setpoint_sub_;
+  private final StructArrayPublisher<Pose3d> current_elevator_pub_;
+  private final StructPublisher<Pose3d> current_arm_pub_;
+
+  // Tunable setpoints are tracked locally to avoid DogLog two-arg tunable NPE
+  private double tunable_target_elevator_position_;
+  private double tunable_target_arm_position_;
 
   Superstructure() {
     super(SuperstructureStates.AT_TARGET, new SuperstructureConstants());
@@ -76,8 +87,19 @@ public class Superstructure
         CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
     TunablePid.create(
         getSubsystemKey() + "Arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
-    elevator_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", io.current_elevator_position);
-    arm_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Arm/Setpoint", io.current_arm_position);
+
+  // Use tunables with callbacks to update local setpoints. Avoid the two-arg overload
+  // which can trigger an internal NPE in DogLog's Notifier thread.
+  tunable_target_elevator_position_ = io.current_elevator_position;
+  tunable_target_arm_position_ = io.current_arm_position;
+  DogLog.tunable(
+    getSubsystemKey() + "Elevator/Setpoint",
+    tunable_target_elevator_position_,
+    newVal -> tunable_target_elevator_position_ = newVal);
+  DogLog.tunable(
+    getSubsystemKey() + "Arm/Setpoint",
+    tunable_target_arm_position_,
+    newVal -> tunable_target_arm_position_ = newVal);
 
     // Setup the current mechanism 2d
     current_mech2d_ = new Mechanism2d(3, 3);
@@ -98,6 +120,14 @@ public class Superstructure
     target_arm_mech_ = target_elevator_mech_.append(new MechanismLigament2d("Arm", CONSTANTS.ARM_LENGTH, 0));
     target_arm_mech_.setColor(new Color8Bit(Color.kLightBlue));
     target_arm_mech_.setLineWeight(6);
+
+    // Setup the pose3d publishers
+    current_elevator_pub_ =
+        NetworkTableInstance.getDefault()
+            .getStructArrayTopic(getSubsystemKey() + "Elevator/Components", Pose3d.struct)
+            .publish();
+    current_arm_pub_ =
+        NetworkTableInstance.getDefault().getStructTopic(getSubsystemKey() + "Arm/Component", Pose3d.struct).publish();
   }
 
   @Override
@@ -163,8 +193,8 @@ public class Superstructure
       case RESCUE:
         break;
       case TUNING:
-        io.target_arm_position = arm_setpoint_sub_.get();
-        io.target_elevator_position = elevator_setpoint_sub_.get();
+        io.target_arm_position = Units.degreesToRadians(tunable_target_arm_position_);
+        io.target_elevator_position = tunable_target_elevator_position_;
         break;
       default:
         DataLogManager.log("Unhandled state in Superstructure logic " + system_state_.name());
@@ -184,15 +214,8 @@ public class Superstructure
     }
     DogLog.log(getSubsystemKey()+"Target/Upcoming", upcoming_targets);
 
-    // Update mechanism 2d
-    current_elevator_mech_.setLength(io.current_elevator_position);
-    current_arm_mech_.setAngle(Math.toDegrees(io.current_arm_position) - 90);
-    SmartDashboard.putData("Superstructure/Mech2d/Current", current_mech2d_);
-
-    // Update target mechanism 2d
-    target_elevator_mech_.setLength(io.target_elevator_position);
-    target_arm_mech_.setAngle(Math.toDegrees(io.target_arm_position) - 90);
-    SmartDashboard.putData("Superstructure/Mech2d/Target", target_mech2d_);
+    // Publish the mechanism 2d and pose3d
+    publishMechanisms();
   }
 
   protected boolean armAtTargetInternal(SuperstructureTarget target) {
@@ -254,6 +277,35 @@ public class Superstructure
 
       targets_.addAll(new_targets);
     }
+  }
+
+  /** Publish the mechanism 2d and pose3d objects to SmartDashboard */
+  private void publishMechanisms(){
+    // Update mechanism 2d
+    current_elevator_mech_.setLength(io.current_elevator_position + CONSTANTS.ARM_MIN_HEIGHT);
+    current_arm_mech_.setAngle(Math.toDegrees(io.current_arm_position) - 90);
+    SmartDashboard.putData("Superstructure/Mech2d/Current", current_mech2d_);
+
+    // Update target mechanism 2d
+    target_elevator_mech_.setLength(io.target_elevator_position + CONSTANTS.ARM_MIN_HEIGHT);
+    target_arm_mech_.setAngle(Math.toDegrees(io.target_arm_position) - 90);
+    SmartDashboard.putData("Superstructure/Mech2d/Target", target_mech2d_);
+
+    // Update the pose3d publishers
+    current_elevator_pub_.set(
+        new Pose3d[] {
+          new Pose3d(
+              0,
+              0,
+              (io.current_elevator_position / 2),
+              Rotation3d.kZero),
+          new Pose3d(
+              0,
+              0,
+              io.current_elevator_position,
+              Rotation3d.kZero)
+        });
+    current_arm_pub_.set(new Pose3d(0, 0, io.current_elevator_position + CONSTANTS.ARM_MIN_HEIGHT, new Rotation3d(0, -io.current_arm_position, 0)));
   }
 
   @Override
