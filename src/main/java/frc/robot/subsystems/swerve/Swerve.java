@@ -1,212 +1,101 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.*;
-
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.swerve_lib.ChassisRequest;
+import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
+import frc.mw_lib.swerve_lib.module.Module.DriveControlMode;
+import frc.mw_lib.swerve_lib.module.Module.SteerControlMode;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.subsystems.swerve.ChassisRequest.ChassisRequestParameters;
-import frc.robot.subsystems.swerve.ChassisRequest.XPositiveReference;
-import frc.robot.subsystems.swerve.Module.DriveControlMode;
-import frc.robot.subsystems.swerve.Module.SteerControlMode;
+import frc.robot.subsystems.swerve.SwerveConstants.OperatorPerspective;
+import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends SubsystemBase {
+public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants> {
+
   private static Swerve instance_ = null;
 
   public static Swerve getInstance() {
     if (instance_ == null) {
-      if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
-        instance_ =
-            new Swerve(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.FL_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.FR_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.BL_MODULE_CONSTANTS),
-                new ModuleIOTalonFXAnalogReal(SwerveConstants.BR_MODULE_CONSTANTS),
-                (pose) -> {});
-      } else if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
-        instance_ =
-            new Swerve(
-                new GyroIOSim(SwerveConstants.SWERVE_SIMULATION.getGyroSimulation()),
-                new ModuleIOTalonFXAnalogSim(
-                    SwerveConstants.FL_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[0]),
-                new ModuleIOTalonFXAnalogSim(
-                    SwerveConstants.FR_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[1]),
-                new ModuleIOTalonFXAnalogSim(
-                    SwerveConstants.BL_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[2]),
-                new ModuleIOTalonFXAnalogSim(
-                    SwerveConstants.BR_MODULE_CONSTANTS,
-                    SwerveConstants.SWERVE_SIMULATION.getModules()[3]),
-                SwerveConstants.SWERVE_SIMULATION::setSimulationWorldPose);
-      } else {
-        instance_ =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                (pose) -> {
-                  // No-op for replay mode
-                });
-      }
+      instance_ = new Swerve();
     }
     return instance_;
   }
 
-  // Desired states for the swerve drive
-  public enum WantedState {
-    SYS_ID,
-    FIELD_CENTRIC,
-    ROBOT_CENTRIC,
-    CHOREO_PATH,
-    ROTATION_LOCK,
-    TRACTOR_BEAM,
-    IDLE
-  }
-
-  // Current system states for the swerve drive
-  public enum SystemState {
-    SYS_ID,
-    FIELD_CENTRIC,
-    ROBOT_CENTRIC,
-    CHOREO_PATH,
-    ROTATION_LOCK,
-    TRACTOR_BEAM,
-    IDLE
-  }
-
-  // State identifiers for the swerve drive
-  @AutoLogOutput private SystemState system_state_ = SystemState.FIELD_CENTRIC;
-  @AutoLogOutput private WantedState wanted_state_ = WantedState.FIELD_CENTRIC;
-
-  // State specific variables
+  // State Specific Members
   Trajectory<SwerveSample> desired_choreo_traj_;
   private final Timer choreo_timer_ = new Timer();
   private Optional<SwerveSample> choreo_sample_to_apply_;
   private final PIDController choreo_x_controller_ =
       new PIDController(
-          SwerveConstants.CHOREO_X_CONTROLLER_KP,
-          SwerveConstants.CHOREO_X_CONTROLLER_KI,
-          SwerveConstants.CHOREO_X_CONTROLLER_KD);
+          CONSTANTS.CHOREO_X_CONTROLLER_KP,
+          CONSTANTS.CHOREO_X_CONTROLLER_KI,
+          CONSTANTS.CHOREO_X_CONTROLLER_KD);
   private final PIDController choreo_y_controller_ =
       new PIDController(
-          SwerveConstants.CHOREO_Y_CONTROLLER_KP,
-          SwerveConstants.CHOREO_Y_CONTROLLER_KI,
-          SwerveConstants.CHOREO_Y_CONTROLLER_KD);
+          CONSTANTS.CHOREO_Y_CONTROLLER_KP,
+          CONSTANTS.CHOREO_Y_CONTROLLER_KI,
+          CONSTANTS.CHOREO_Y_CONTROLLER_KD);
   private final PIDController choreo_theta_controller_ =
       new PIDController(
-          SwerveConstants.CHOREO_THETA_CONTROLLER_KP,
-          SwerveConstants.CHOREO_THETA_CONTROLLER_KI,
-          SwerveConstants.CHOREO_THETA_CONTROLLER_KD);
-
+          CONSTANTS.CHOREO_THETA_CONTROLLER_KP,
+          CONSTANTS.CHOREO_THETA_CONTROLLER_KI,
+          CONSTANTS.CHOREO_THETA_CONTROLLER_KD);
   private Pose2d desired_tractor_beam_pose_ = new Pose2d();
   private double max_lin_vel_for_tractor_beam_;
   private double max_ang_vel_for_tractor_beam_;
   private final PIDController tractor_beam_controller_ =
       new PIDController(
-          SwerveConstants.TRACTOR_BEAM_CONTROLLER_KP,
-          SwerveConstants.TRACTOR_BEAM_CONTROLLER_KI,
-          SwerveConstants.TRACTOR_BEAM_CONTROLLER_KD);
-
+          CONSTANTS.TRACTOR_BEAM_CONTROLLER_KP,
+          CONSTANTS.TRACTOR_BEAM_CONTROLLER_KI,
+          CONSTANTS.TRACTOR_BEAM_CONTROLLER_KD);
   private Rotation2d desired_rotation_lock_rot_ = new Rotation2d();
-
   private double tele_op_velocity_scalar_ = 1.0;
 
+  // IO Members
   static final Lock odometry_lock_ = new ReentrantLock();
+  private SwerveIO swerve_io_;
 
-  // Gyro Setup
-  private final GyroIO gyro_IO_;
-  private final GyroIOInputsAutoLogged gyro_inputs_ = new GyroIOInputsAutoLogged();
-  private final Alert gyro_disconnected_alert_ =
-      new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+  private Rotation2d operator_forward_direction_ = OperatorPerspective.BLUE_ALLIANCE.heading;
 
-  // Swerve Module Setup
-  private final Module[] modules_ = new Module[4]; // FL, FR, BL, BR
-  private SwerveDriveKinematics kinematics_ = new SwerveDriveKinematics(getModuleTranslations());
-  private Rotation2d raw_gyro_rotation_ = new Rotation2d();
-  private SwerveModulePosition[] last_module_positions_ = // For delta tracking
-      new SwerveModulePosition[] {
-        new SwerveModulePosition(),
-        new SwerveModulePosition(),
-        new SwerveModulePosition(),
-        new SwerveModulePosition()
-      };
-
-  // Chassis Request Parameters
-  private ChassisRequestParameters request_parameters_ = new ChassisRequestParameters();
-
-  private Rotation2d operator_forward_direction_ =
-      SwerveConstants.OperatorPerspective.BLUE_ALLIANCE.heading;
-
-  private ChassisRequest request_to_apply_ = new ChassisRequest.Idle();
   private ChassisRequest.FieldCentric field_centric_request_;
   private ChassisRequest.RobotCentric robot_centric_request_;
   private ChassisRequest.FieldCentricFacingAngle rotation_lock_request_;
   private ChassisRequest.ApplyFieldSpeeds field_speeds_request_;
 
-  // SysId Routine
-  private final SysIdRoutine sysId;
-
-  // Pose Estimator
-  private final SwerveDrivePoseEstimator pose_estimator_;
-
-  // Simulation
-  private final Consumer<Pose2d> reset_simulation_pose_callback_;
-
   /**
    * Creates a new Swerve subsystem with the specified gyro and module IOs.
    *
-   * @param gyroIO
-   * @param flModuleIO
-   * @param frModuleIO
-   * @param blModuleIO
-   * @param brModuleIO
+   * @param io The swerve I/O container to use
    */
-  public Swerve(
-      GyroIO gyroIO,
-      ModuleIO flModuleIO,
-      ModuleIO frModuleIO,
-      ModuleIO blModuleIO,
-      ModuleIO brModuleIO,
-      Consumer<Pose2d> reset_simulation_pose_callback) {
-    this.gyro_IO_ = gyroIO;
-    modules_[0] = new Module(flModuleIO, 0, SwerveConstants.FL_MODULE_CONSTANTS);
-    modules_[1] = new Module(frModuleIO, 1, SwerveConstants.FR_MODULE_CONSTANTS);
-    modules_[2] = new Module(blModuleIO, 2, SwerveConstants.BL_MODULE_CONSTANTS);
-    modules_[3] = new Module(brModuleIO, 3, SwerveConstants.BR_MODULE_CONSTANTS);
-    this.reset_simulation_pose_callback_ = reset_simulation_pose_callback;
+  public Swerve() {
+    super(SwerveStates.IDLE, new SwerveConstants());
+
+    // figure out what I/O to use
+    if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
+      this.io = new SwerveIOReal(CONSTANTS);
+    } else {
+      this.io = new SwerveIOSim(CONSTANTS);
+    }
 
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
@@ -216,229 +105,172 @@ public class Swerve extends SubsystemBase {
         new ChassisRequest.FieldCentric()
             .withDriveRequestType(DriveControlMode.OPEN_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP)
-            .withDeadband(SwerveConstants.MAX_TRANSLATION_RATE * 0.01)
-            .withRotationalDeadband(SwerveConstants.MAX_ANGULAR_RATE * 0.01)
+            .withDeadband(CONSTANTS.MAX_TRANSLATION_RATE * 0.01)
+            .withRotationalDeadband(CONSTANTS.MAX_ANGULAR_RATE * 0.01)
             .withXPositiveReference(XPositiveReference.OperatorPerspective);
     robot_centric_request_ =
         new ChassisRequest.RobotCentric()
             .withDriveRequestType(DriveControlMode.OPEN_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP)
-            .withDeadband(SwerveConstants.MAX_TRANSLATION_RATE * 0.01)
-            .withRotationalDeadband(SwerveConstants.MAX_ANGULAR_RATE * 0.01);
+            .withDeadband(CONSTANTS.MAX_TRANSLATION_RATE * 0.01)
+            .withRotationalDeadband(CONSTANTS.MAX_ANGULAR_RATE * 0.01);
     rotation_lock_request_ =
         new ChassisRequest.FieldCentricFacingAngle()
             .withDriveRequestType(DriveControlMode.OPEN_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP)
-            .withDeadband(SwerveConstants.MAX_TRANSLATION_RATE * 0.01)
-            .withRotationalDeadband(SwerveConstants.MAX_ANGULAR_RATE * 0.01)
+            .withDeadband(CONSTANTS.MAX_TRANSLATION_RATE * 0.01)
+            .withRotationalDeadband(CONSTANTS.MAX_ANGULAR_RATE * 0.01)
             .withXPositiveReference(XPositiveReference.OperatorPerspective);
     field_speeds_request_ =
         new ChassisRequest.ApplyFieldSpeeds()
             .withDriveRequestType(DriveControlMode.CLOSED_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP);
-
-    // Configure SysId
-    sysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null, null, null, (state) -> Logger.recordOutput("SysIdState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> runCharacterization(voltage.in(Volts)), null, (Subsystem) this));
-
-    // Configure Pose Estimator
-    pose_estimator_ =
-        new SwerveDrivePoseEstimator(
-            kinematics_, new Rotation2d(), getModulePositions(), Pose2d.kZero);
   }
 
   @Override
-  public void periodic() {
-    odometry_lock_.lock(); // Prevents odometry updates while reading data
-    gyro_IO_.updateInputs(gyro_inputs_);
-    Logger.processInputs("Swerve/Gyro", gyro_inputs_);
-    for (var module : modules_) {
-      module.periodic();
-    }
-    odometry_lock_.unlock();
-
-    // Stop moving when disabled
-    if (DriverStation.isDisabled()) {
-      for (var module : modules_) {
-        module.stop();
-      }
-    }
-
-    // Update odometry
-    double[] sample_timestamps =
-        modules_[0].getOdometryTimestamps(); // All signals are sampled together
-    int sample_count = sample_timestamps.length;
-    for (int i = 0; i < sample_count; i++) {
-      // Read wheel positions and deltas from each module
-      SwerveModulePosition[] module_positions = new SwerveModulePosition[4];
-      SwerveModulePosition[] module_deltas = new SwerveModulePosition[4];
-      for (int module_index = 0; module_index < 4; module_index++) {
-        module_positions[module_index] = modules_[module_index].getOdometryPositions()[i];
-        module_deltas[module_index] =
-            new SwerveModulePosition(
-                module_positions[module_index].distanceMeters
-                    - last_module_positions_[module_index].distanceMeters,
-                module_positions[module_index].angle);
-        last_module_positions_[module_index] = module_positions[module_index];
-      }
-
-      // Update gyro angle
-      if (gyro_inputs_.connected_ && Constants.CURRENT_MODE == Constants.Mode.REAL) {
-        // Use the real gyro angle
-        raw_gyro_rotation_ = gyro_inputs_.odometry_yaw_positions_[i];
-      } else {
-        // Use the angle delta from the kinematics and module deltas
-        Twist2d twist = kinematics_.toTwist2d(module_deltas);
-        raw_gyro_rotation_ = raw_gyro_rotation_.plus(new Rotation2d(twist.dtheta));
-      }
-      pose_estimator_.updateWithTime(sample_timestamps[i], raw_gyro_rotation_, module_positions);
-    }
-
-    // Update the system state based on the wanted state
-    system_state_ = handleStateTransition();
-
+  public void updateLogic(double timestamp) {
     // Update the request to apply based on the system state
     switch (system_state_) {
-      case SYS_ID:
-        break;
       case FIELD_CENTRIC:
-        request_to_apply_ =
+        io.current_request =
             field_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case ROBOT_CENTRIC:
-        request_to_apply_ =
+        io.current_request =
             robot_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case TRACTOR_BEAM:
-        Translation2d translation_to_desired_point =
-            desired_tractor_beam_pose_.getTranslation().minus(getPose().getTranslation());
-        double linear_distance = translation_to_desired_point.getNorm();
-        double friction_constant = 0.0;
-        if (linear_distance >= Units.inchesToMeters(0.5)) {
-          friction_constant =
-              SwerveConstants.TRACTOR_BEAM_STATIC_FRICTION_CONSTANT
-                  * SwerveConstants.MAX_TRANSLATION_RATE;
-        }
-        Rotation2d direction_of_travel = translation_to_desired_point.getAngle();
-        double velocity_output =
-            Math.min(
-                Math.abs(tractor_beam_controller_.calculate(linear_distance, 0))
-                    + friction_constant,
-                max_lin_vel_for_tractor_beam_);
-        double x_component = velocity_output * direction_of_travel.getCos();
-        double y_component = velocity_output * direction_of_travel.getSin();
-
-        Logger.recordOutput("TractorBeam/X Velocity Component", x_component);
-        Logger.recordOutput("TractorBeam/Y Velocity Component", y_component);
-        Logger.recordOutput("TractorBeam/Velocity Output", velocity_output);
-        Logger.recordOutput("TractorBeam/Linear Distance", linear_distance);
-        Logger.recordOutput("TractorBeam/Direction of Travel", direction_of_travel);
-        Logger.recordOutput("TractorBeam/Desired Point", desired_tractor_beam_pose_);
-
-        if (Double.isNaN(max_ang_vel_for_tractor_beam_)) {
-          request_to_apply_ =
-              rotation_lock_request_
-                  .withTwist(new Twist2d(x_component, y_component, 0.0))
-                  .withTargetHeading(desired_tractor_beam_pose_.getRotation());
-        } else {
-          request_to_apply_ =
-              rotation_lock_request_
-                  .withTwist(new Twist2d(x_component, y_component, 0.0))
-                  .withTargetHeading(desired_tractor_beam_pose_.getRotation())
-                  .withMaxAbsRotationalRate(max_ang_vel_for_tractor_beam_);
-        }
+        tractorBeamState();
         break;
       case ROTATION_LOCK:
-        request_to_apply_ = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
+        io.current_request = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
         break;
       case CHOREO_PATH:
-        if (choreo_sample_to_apply_.isPresent()) {
-          SwerveSample sample = choreo_sample_to_apply_.get();
-          Logger.recordOutput("Choreo/Timer Value", choreo_timer_.get());
-          Logger.recordOutput("Choreo/Traj Name", desired_choreo_traj_.name());
-          Logger.recordOutput("Choreo/Total time", desired_choreo_traj_.getTotalTime());
-          Logger.recordOutput("Choreo/sample/Desired Pose", sample.getPose());
-          Logger.recordOutput("Choreo/sample/Desired Chassis Speeds", sample.getChassisSpeeds());
-          Logger.recordOutput("Choreo/sample/Module Forces X", sample.moduleForcesX());
-          Logger.recordOutput("Choreo/sample/Module Forces Y", sample.moduleForcesY());
-          Pose2d pose = getPose();
-          ChassisSpeeds target_speeds = sample.getChassisSpeeds();
-          target_speeds.vxMetersPerSecond += choreo_x_controller_.calculate(pose.getX(), sample.x);
-          target_speeds.vyMetersPerSecond += choreo_y_controller_.calculate(pose.getY(), sample.y);
-          target_speeds.omegaRadiansPerSecond +=
-              choreo_theta_controller_.calculate(pose.getRotation().getRadians(), sample.heading);
-
-          request_to_apply_ = field_speeds_request_.withSpeeds(target_speeds);
-        } else {
-          // If no sample is available, we will just stop the robot
-          request_to_apply_ = new ChassisRequest.Idle();
-        }
+        choreoPathState();
         break;
       case IDLE:
       default:
-        request_to_apply_ = new ChassisRequest.Idle();
+        io.current_request = new ChassisRequest.Idle();
         break;
     }
 
     // Set state static request parameters
-    request_parameters_.kinematics = kinematics_;
-    request_parameters_.currentChassisSpeed = getChassisSpeeds();
-    request_parameters_.currentPose = getPose();
-    request_parameters_.updatePeriod = Timer.getFPGATimestamp() - request_parameters_.timestamp;
-    request_parameters_.timestamp = Timer.getFPGATimestamp();
-    request_parameters_.moduleLocations = getModuleTranslations();
-    request_parameters_.operatorForwardDirection = operator_forward_direction_;
-
-    request_to_apply_.apply(request_parameters_, modules_);
-    gyro_disconnected_alert_.set(
-        !gyro_inputs_.connected_ && Constants.CURRENT_MODE == Constants.Mode.REAL);
+    io.current_request_parameters.currentChassisSpeed = getChassisSpeeds();
+    io.current_request_parameters.currentPose = getPose();
+    io.current_request_parameters.updatePeriod =
+        Timer.getFPGATimestamp() - io.current_request_parameters.timestamp;
+    io.current_request_parameters.timestamp = Timer.getFPGATimestamp();
+    io.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
   }
+
+  @Override
+  public void reset() {}
 
   // ------------------------------------------------
   // Subsystem State Update Methods
   // ------------------------------------------------
 
   /**
-   * Sets the desired state for the Swerve subsystem.
-   *
-   * @param state the desired chassis state
-   */
-  public void setWantedState(WantedState state) {
-    wanted_state_ = state;
-  }
-
-  /**
    * Gets the current system state of the Swerve subsystem.
    *
    * @return the current system state
    */
-  private SystemState handleStateTransition() {
-    return switch (wanted_state_) {
-      case SYS_ID -> SystemState.SYS_ID;
-      case FIELD_CENTRIC -> SystemState.FIELD_CENTRIC;
-      case ROBOT_CENTRIC -> SystemState.ROBOT_CENTRIC;
-      case CHOREO_PATH -> {
-        if (system_state_ != SystemState.CHOREO_PATH) {
-          choreo_timer_.restart();
-          choreo_sample_to_apply_ =
-              desired_choreo_traj_.sampleAt(
-                  choreo_timer_.get(), SwerveConstants.FLIP_TRAJECTORY_ON_RED);
-          yield SystemState.CHOREO_PATH;
-        } else {
-          choreo_sample_to_apply_ =
-              desired_choreo_traj_.sampleAt(
-                  choreo_timer_.get(), SwerveConstants.FLIP_TRAJECTORY_ON_RED);
-          yield SystemState.CHOREO_PATH;
-        }
-      }
-      case ROTATION_LOCK -> SystemState.ROTATION_LOCK;
-      case TRACTOR_BEAM -> SystemState.TRACTOR_BEAM;
-      default -> SystemState.IDLE;
-    };
+  @Override
+  protected void handleStateTransition(SwerveStates wanted_state) {
+    system_state_ =
+        switch (wanted_state) {
+          case FIELD_CENTRIC -> SwerveStates.FIELD_CENTRIC;
+          case ROBOT_CENTRIC -> SwerveStates.ROBOT_CENTRIC;
+          case CHOREO_PATH -> {
+            if (system_state_ != SwerveStates.CHOREO_PATH) {
+              choreo_timer_.restart();
+              choreo_sample_to_apply_ =
+                  desired_choreo_traj_.sampleAt(
+                      choreo_timer_.get(), CONSTANTS.FLIP_TRAJECTORY_ON_RED);
+              yield SwerveStates.CHOREO_PATH;
+            } else {
+              choreo_sample_to_apply_ =
+                  desired_choreo_traj_.sampleAt(
+                      choreo_timer_.get(), CONSTANTS.FLIP_TRAJECTORY_ON_RED);
+              yield SwerveStates.CHOREO_PATH;
+            }
+          }
+          case ROTATION_LOCK -> SwerveStates.ROTATION_LOCK;
+          case TRACTOR_BEAM -> SwerveStates.TRACTOR_BEAM;
+          default -> SwerveStates.IDLE;
+        };
+  }
+
+  /**
+   * Handles the TRACTOR_BEAM state by calculating the necessary chassis speeds to move towards the
+   * desired tractor beam pose.
+   */
+  private void tractorBeamState() {
+    Translation2d translation_to_desired_point =
+        desired_tractor_beam_pose_.getTranslation().minus(getPose().getTranslation());
+    double linear_distance = translation_to_desired_point.getNorm();
+    double friction_constant = 0.0;
+    if (linear_distance >= Units.inchesToMeters(0.5)) {
+      friction_constant =
+          CONSTANTS.TRACTOR_BEAM_STATIC_FRICTION_CONSTANT
+              * CONSTANTS.MAX_TRANSLATION_RATE;
+    }
+    Rotation2d direction_of_travel = translation_to_desired_point.getAngle();
+    double velocity_output =
+        Math.min(
+            Math.abs(tractor_beam_controller_.calculate(linear_distance, 0)) + friction_constant,
+            max_lin_vel_for_tractor_beam_);
+    double x_component = velocity_output * direction_of_travel.getCos();
+    double y_component = velocity_output * direction_of_travel.getSin();
+
+    DogLog.log(getSubsystemKey() + "TractorBeam/XVelocityComponent", x_component);
+    DogLog.log(getSubsystemKey() + "TractorBeam/YVelocityComponent", y_component);
+    DogLog.log(getSubsystemKey() + "TractorBeam/VelocityOutput", velocity_output);
+    DogLog.log(getSubsystemKey() + "TractorBeam/LinearDistance", linear_distance);
+    DogLog.log(getSubsystemKey() + "TractorBeam/DirectionOfTravel", direction_of_travel);
+    DogLog.log(getSubsystemKey() + "TractorBeam/DesiredPoint", desired_tractor_beam_pose_);
+
+    if (Double.isNaN(max_ang_vel_for_tractor_beam_)) {
+      io.current_request =
+          rotation_lock_request_
+              .withTwist(new Twist2d(x_component, y_component, 0.0))
+              .withTargetHeading(desired_tractor_beam_pose_.getRotation());
+    } else {
+      io.current_request =
+          rotation_lock_request_
+              .withTwist(new Twist2d(x_component, y_component, 0.0))
+              .withTargetHeading(desired_tractor_beam_pose_.getRotation())
+              .withMaxAbsRotationalRate(max_ang_vel_for_tractor_beam_);
+    }
+  }
+
+  /**
+   * Handles the CHOREO_PATH state by applying the appropriate chassis speeds based on the current
+   * trajectory sample and PID controller outputs.
+   */
+  private void choreoPathState() {
+    if (choreo_sample_to_apply_.isPresent()) {
+      SwerveSample sample = choreo_sample_to_apply_.get();
+      DogLog.log(getSubsystemKey() + "/Choreo/TimerValue", choreo_timer_.get());
+      DogLog.log(getSubsystemKey() + "/Choreo/TrajName", desired_choreo_traj_.name());
+      DogLog.log(getSubsystemKey() + "/Choreo/TotalTime", desired_choreo_traj_.getTotalTime());
+      DogLog.log(getSubsystemKey() + "/Choreo/sample/DesiredPose", sample.getPose());
+      DogLog.log(
+          getSubsystemKey() + "/Choreo/sample/DesiredChassisSpeeds", sample.getChassisSpeeds());
+      DogLog.log(getSubsystemKey() + "/Choreo/sample/ModuleForcesX", sample.moduleForcesX());
+      DogLog.log(getSubsystemKey() + "/Choreo/sample/ModuleForcesY", sample.moduleForcesY());
+      Pose2d pose = getPose();
+      ChassisSpeeds target_speeds = sample.getChassisSpeeds();
+      target_speeds.vxMetersPerSecond += choreo_x_controller_.calculate(pose.getX(), sample.x);
+      target_speeds.vyMetersPerSecond += choreo_y_controller_.calculate(pose.getY(), sample.y);
+      target_speeds.omegaRadiansPerSecond +=
+          choreo_theta_controller_.calculate(pose.getRotation().getRadians(), sample.heading);
+
+      io.current_request = field_speeds_request_.withSpeeds(target_speeds);
+    } else {
+      // If no sample is available, we will just stop the robot
+      io.current_request = new ChassisRequest.Idle();
+    }
   }
 
   // ------------------------------------------------
@@ -452,7 +284,6 @@ public class Swerve extends SubsystemBase {
    */
   public void setDesiredChoreoTrajectory(Trajectory<SwerveSample> trajectory) {
     desired_choreo_traj_ = trajectory;
-    wanted_state_ = WantedState.CHOREO_PATH;
   }
 
   /**
@@ -464,7 +295,6 @@ public class Swerve extends SubsystemBase {
     desired_tractor_beam_pose_ = pose;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     max_ang_vel_for_tractor_beam_ = Double.NaN;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
   }
 
   /**
@@ -477,7 +307,6 @@ public class Swerve extends SubsystemBase {
     max_lin_vel_for_tractor_beam_ = max_lin_vel;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
   }
 
   /**
@@ -490,7 +319,6 @@ public class Swerve extends SubsystemBase {
     max_lin_vel_for_tractor_beam_ = max_ang_vel;
     max_lin_vel_for_tractor_beam_ = Double.NaN;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
   }
 
   /**
@@ -505,7 +333,6 @@ public class Swerve extends SubsystemBase {
     max_lin_vel_for_tractor_beam_ = max_lin_vel;
     max_ang_vel_for_tractor_beam_ = max_ang_vel;
     desired_tractor_beam_pose_ = pose;
-    wanted_state_ = WantedState.TRACTOR_BEAM;
   }
 
   /**
@@ -515,16 +342,15 @@ public class Swerve extends SubsystemBase {
    */
   public void setDesiredRotationLock(Rotation2d rotation) {
     desired_rotation_lock_rot_ = rotation;
-    wanted_state_ = WantedState.ROTATION_LOCK;
   }
 
   public Command toggleFieldCentric() {
-    return runOnce(
+    return Commands.runOnce(
         () -> {
-          if (system_state_ == SystemState.FIELD_CENTRIC) {
-            setWantedState(WantedState.ROBOT_CENTRIC);
+          if (system_state_ == SwerveStates.FIELD_CENTRIC) {
+            setWantedState(SwerveStates.ROBOT_CENTRIC);
           } else {
-            setWantedState(WantedState.FIELD_CENTRIC);
+            setWantedState(SwerveStates.FIELD_CENTRIC);
           }
         });
   }
@@ -553,9 +379,9 @@ public class Swerve extends SubsystemBase {
 
     Twist2d twist =
         new Twist2d(
-            x_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
-            y_magnitude * SwerveConstants.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
-            angular_magnitude * SwerveConstants.MAX_ANGULAR_RATE);
+            x_magnitude * CONSTANTS.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
+            y_magnitude * CONSTANTS.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
+            angular_magnitude * CONSTANTS.MAX_ANGULAR_RATE);
     return twist;
   }
 
@@ -564,7 +390,7 @@ public class Swerve extends SubsystemBase {
    *
    * @param reference the operator's perspective reference
    */
-  public void setOperatorForwardDirection(SwerveConstants.OperatorPerspective reference) {
+  public void setOperatorForwardDirection(OperatorPerspective reference) {
     operator_forward_direction_ = reference.heading;
   }
 
@@ -589,7 +415,7 @@ public class Swerve extends SubsystemBase {
   public boolean isAtTractorBeamSetpoint() {
     double distance =
         desired_tractor_beam_pose_.getTranslation().minus(getPose().getTranslation()).getNorm();
-    return MathUtil.isNear(0.0, distance, SwerveConstants.TRACTOR_BEAM_TRANSLATION_ERROR_MARGIN);
+    return MathUtil.isNear(0.0, distance, CONSTANTS.TRACTOR_BEAM_TRANSLATION_ERROR_MARGIN);
   }
 
   /**
@@ -617,17 +443,17 @@ public class Swerve extends SubsystemBase {
    * @return true if the robot is at the choreo setpoint, false otherwise
    */
   public boolean isAtChoreoSetpoint() {
-    if (system_state_ != SystemState.CHOREO_PATH) {
+    if (system_state_ != SwerveStates.CHOREO_PATH) {
       return false;
     }
     return MathUtil.isNear(
             desired_choreo_traj_.getFinalPose(true).get().getX(),
             getPose().getX(),
-            SwerveConstants.CHOREO_TRANSLATION_ERROR_MARGIN)
+            CONSTANTS.CHOREO_TRANSLATION_ERROR_MARGIN)
         && MathUtil.isNear(
             desired_choreo_traj_.getFinalPose(true).get().getY(),
             getPose().getY(),
-            SwerveConstants.CHOREO_TRANSLATION_ERROR_MARGIN);
+            CONSTANTS.CHOREO_TRANSLATION_ERROR_MARGIN);
   }
 
   /**
@@ -641,11 +467,11 @@ public class Swerve extends SubsystemBase {
       return (MathUtil.isNear(
                   desired_choreo_traj_.getFinalPose(true).get().getX(),
                   getPose().getX(),
-                  SwerveConstants.CHOREO_TRANSLATION_ERROR_MARGIN))
+                  CONSTANTS.CHOREO_TRANSLATION_ERROR_MARGIN))
               && MathUtil.isNear(
                   desired_choreo_traj_.getFinalPose(true).get().getY(),
                   getPose().getY(),
-                  SwerveConstants.CHOREO_TRANSLATION_ERROR_MARGIN)
+                  CONSTANTS.CHOREO_TRANSLATION_ERROR_MARGIN)
           || isAtTractorBeamSetpoint();
     } else {
       return isAtTractorBeamSetpoint();
@@ -661,7 +487,7 @@ public class Swerve extends SubsystemBase {
     double distance =
         Math.abs(
             desired_choreo_traj_
-                .getFinalPose(SwerveConstants.FLIP_TRAJECTORY_ON_RED)
+                .getFinalPose(CONSTANTS.FLIP_TRAJECTORY_ON_RED)
                 .get()
                 .minus(getPose())
                 .getTranslation()
@@ -685,39 +511,26 @@ public class Swerve extends SubsystemBase {
   // ------------------------------------------------
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
-  @AutoLogOutput(key = "Swerve/ModuleStates")
   public SwerveModuleState[] getModuleStates() {
-    SwerveModuleState[] states = new SwerveModuleState[4];
-    for (int i = 0; i < 4; i++) {
-      states[i] = modules_[i].getState();
-    }
-    return states;
+    return io.module_states;
   }
 
   /** Returns the module positions (turn angles and drive positions) for all of the modules. */
-  @AutoLogOutput(key = "Swerve/ModulePositions")
   public SwerveModulePosition[] getModulePositions() {
-    SwerveModulePosition[] states = new SwerveModulePosition[4];
-    for (int i = 0; i < 4; i++) {
-      states[i] = modules_[i].getPosition();
-    }
-    return states;
+    return io.module_positions;
   }
 
   /** Returns the measured chassis speeds of the robot. */
-  @AutoLogOutput(key = "Swerve/ChassisSpeeds")
   public ChassisSpeeds getChassisSpeeds() {
-    return kinematics_.toChassisSpeeds(getModuleStates());
+    return io.chassis_speeds;
   }
 
   /** Returns the current odometry pose */
-  @AutoLogOutput(key = "Swerve/Pose")
   public Pose2d getPose() {
-    return pose_estimator_.getEstimatedPosition();
+    return io.pose;
   }
 
   /** Returns the current odometry rotation */
-  @AutoLogOutput(key = "Swerve/Rotation")
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
@@ -728,70 +541,12 @@ public class Swerve extends SubsystemBase {
    * @param pose
    */
   public void setPose(Pose2d pose) {
-    reset_simulation_pose_callback_.accept(pose);
-    pose_estimator_.resetPosition(raw_gyro_rotation_, getModulePositions(), pose);
+    swerve_io_.resetPose(pose);
   }
 
   /** Returns the raw gyro rotation */
   public Rotation2d getGyroRotation() {
-    return raw_gyro_rotation_;
+    return io.raw_gyro_rotation;
   }
 
-  /** Returns an array of module translations. */
-  public Translation2d[] getModuleTranslations() {
-    return new Translation2d[] {
-      SwerveConstants.FL_MODULE_TRANSLATION,
-      SwerveConstants.FR_MODULE_TRANSLATION,
-      SwerveConstants.BL_MODULE_TRANSLATION,
-      SwerveConstants.BR_MODULE_TRANSLATION
-    };
-  }
-
-  /** Returns the kinematics object used to control the swerve frame */
-  public SwerveDriveKinematics getKinematics() {
-    return kinematics_;
-  }
-
-  // ------------------------------------------------
-  // Characterization Methods
-  // ------------------------------------------------
-
-  /** Runs the drive in a straight line with the specified drive output. */
-  public void runCharacterization(double output) {
-    for (int i = 0; i < 4; i++) {
-      modules_[i].runCharacterization(output);
-    }
-  }
-
-  /** Returns a command to run a quasistatic test in the specified direction. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return Commands.run(() -> runCharacterization(0.0))
-        .withTimeout(1.0)
-        .andThen(sysId.quasistatic(direction));
-  }
-
-  /** Returns a command to run a dynamic test in the specified direction. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return Commands.run(() -> runCharacterization(0.0))
-        .withTimeout(1.0)
-        .andThen(sysId.dynamic(direction));
-  }
-
-  /** Returns the position of each module in radians. */
-  public double[] getWheelRadiusCharacterizationPositions() {
-    double[] values = new double[4];
-    for (int i = 0; i < 4; i++) {
-      values[i] = modules_[i].getWheelRadiusCharacterizationPosition();
-    }
-    return values;
-  }
-
-  /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
-  public double getFFCharacterizationVelocity() {
-    double output = 0.0;
-    for (int i = 0; i < 4; i++) {
-      output += modules_[i].getFFCharacterizationVelocity() / 4.0;
-    }
-    return output;
-  }
 }

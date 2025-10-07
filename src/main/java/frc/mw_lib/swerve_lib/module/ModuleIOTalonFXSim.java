@@ -11,10 +11,12 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve;
+package frc.mw_lib.swerve_lib.module;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import frc.mw_lib.util.PhoenixUtil;
 import java.util.Arrays;
@@ -24,17 +26,17 @@ import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
  * Physics sim implementation of module IO. The sim models are configured using a set of module
  * constants from Phoenix. Simulation is always based on voltage control.
  */
-public class ModuleIOTalonFXAnalogSim extends ModuleIOTalonFXAnalog {
+public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
   private final SwerveModuleSimulation simulation;
 
-  public ModuleIOTalonFXAnalogSim(
-      SwerveModuleConstants constants, SwerveModuleSimulation simulation) {
-    super(PhoenixUtil.regulateModuleConstantForSimulation(constants));
+  public ModuleIOTalonFXSim(SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants, String can_bus_name, SwerveModuleSimulation simulation) {
+    super(constants, can_bus_name);
 
     this.simulation = simulation;
     simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
 
-    simulation.useSteerMotorController(new PhoenixUtil.TalonFXMotorControllerSim(turnTalon));
+    simulation.useSteerMotorController(
+        new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
   }
 
   @Override
@@ -42,13 +44,13 @@ public class ModuleIOTalonFXAnalogSim extends ModuleIOTalonFXAnalog {
     super.updateInputs(inputs);
 
     // Update odometry inputs
-    inputs.odometry_timestamps_ = PhoenixUtil.getSimulationOdometryTimeStamps();
+    inputs.odometryTimestamps = PhoenixUtil.getSimulationOdometryTimeStamps();
 
-    inputs.odometry_drive_positions_ =
+    inputs.odometryDrivePositionsRad =
         Arrays.stream(simulation.getCachedDriveWheelFinalPositions())
             .mapToDouble(angle -> angle.in(Radians))
             .toArray();
 
-    inputs.odometry_turn_positions_ = simulation.getCachedSteerAbsolutePositions();
+    inputs.odometryTurnPositions = simulation.getCachedSteerAbsolutePositions();
   }
 }

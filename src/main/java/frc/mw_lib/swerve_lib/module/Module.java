@@ -1,27 +1,28 @@
-package frc.robot.subsystems.swerve;
+// Copyright 2021-2024 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+package frc.mw_lib.swerve_lib.module;
+
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private final ModuleIO io;
-  private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
-  private final SwerveModuleConstants<
-          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      constants;
-  private final int index;
-
-  private final Alert driveDisconnectedAlert;
-  private final Alert turnDisconnectedAlert;
-  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public enum DriveControlMode {
     OPEN_LOOP,
@@ -32,13 +33,17 @@ public class Module {
     CLOSED_LOOP
   }
 
-  public Module(
-      ModuleIO io,
-      int index,
-      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-          constants) {
+  private final ModuleIO io;
+  private final ModuleIO.ModuleIOInputs inputs = new ModuleIO.ModuleIOInputs();
+  private final SwerveModuleConstants constants;
+
+  private final Alert driveDisconnectedAlert;
+  private final Alert turnDisconnectedAlert;
+  private final Alert turnEncoderDisconnectedAlert;
+  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+
+  public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
     this.io = io;
-    this.index = index;
     this.constants = constants;
     driveDisconnectedAlert =
         new Alert(
@@ -47,24 +52,28 @@ public class Module {
     turnDisconnectedAlert =
         new Alert(
             "Disconnected turn motor on module " + Integer.toString(index) + ".", AlertType.kError);
+    turnEncoderDisconnectedAlert =
+        new Alert(
+            "Disconnected turn encoder on module " + Integer.toString(index) + ".",
+            AlertType.kError);
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Swerve/Module" + index, inputs);
 
     // Calculate positions for odometry
-    int sampleCount = inputs.odometry_timestamps_.length; // All signals are sampled together
+    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      double positionMeters = inputs.odometry_drive_positions_[i] * constants.WheelRadius;
-      Rotation2d angle = inputs.odometry_turn_positions_[i];
+      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
+      Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
 
     // Update alerts
-    driveDisconnectedAlert.set(!inputs.drive_connected_);
-    turnDisconnectedAlert.set(!inputs.turn_connected_);
+    driveDisconnectedAlert.set(!inputs.driveConnected);
+    turnDisconnectedAlert.set(!inputs.turnConnected);
+    turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
@@ -72,13 +81,13 @@ public class Module {
       SwerveModuleState state, DriveControlMode DriveMode, SteerControlMode SteerMode) {
     // Optimize velocity setpoint
     state.optimize(getAngle());
-    state.cosineScale(inputs.turn_position_);
+    state.cosineScale(inputs.turnAbsolutePosition);
 
     // Apply setpoints
     switch (DriveMode) {
       case CLOSED_LOOP -> io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius);
       case OPEN_LOOP -> io.setDriveOpenLoop(
-          state.speedMetersPerSecond / SwerveConstants.SPEED_AT_12V_MPS * 12.0);
+          state.speedMetersPerSecond / constants.SpeedAt12Volts * 12.0);
     }
     switch (SteerMode) {
       case CLOSED_LOOP -> io.setTurnPosition(state.angle);
@@ -100,17 +109,17 @@ public class Module {
 
   /** Returns the current turn angle of the module. */
   public Rotation2d getAngle() {
-    return inputs.turn_position_;
+    return inputs.turnAbsolutePosition;
   }
 
   /** Returns the current drive position of the module in meters. */
   public double getPositionMeters() {
-    return inputs.drive_position_ * constants.WheelRadius;
+    return inputs.drivePositionRad * constants.WheelRadius;
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
   public double getVelocityMetersPerSec() {
-    return inputs.drive_velocity_ * constants.WheelRadius;
+    return inputs.driveVelocityRadPerSec * constants.WheelRadius;
   }
 
   /** Returns the module position (turn angle and drive position). */
@@ -130,16 +139,25 @@ public class Module {
 
   /** Returns the timestamps of the samples received this cycle. */
   public double[] getOdometryTimestamps() {
-    return inputs.odometry_timestamps_;
+    return inputs.odometryTimestamps;
   }
 
   /** Returns the module position in radians. */
   public double getWheelRadiusCharacterizationPosition() {
-    return inputs.drive_position_;
+    return inputs.drivePositionRad;
   }
 
   /** Returns the module velocity in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
-    return Units.radiansToRotations(inputs.drive_velocity_);
+    return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
+  }
+
+  /**
+   * Returns the translation of the module in the robot's coordinate system.
+   *
+   * @return Translation2d representing the module's position in meters
+   */
+  public Translation2d getTranslation() {
+    return new Translation2d(constants.LocationX, constants.LocationY);
   }
 }

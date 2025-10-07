@@ -74,13 +74,13 @@
             "min_height": 0.0,
             "max_height": 1.5,
             "stator_limit": 40.0,
-            "kp": 10.0,
+            "kp": 0.001,
             "ki": 0.0,
             "kd": 0.0,
-            "ks": 0.1,
-            "kv": 0.12,
-            "ka": 0.01,
-            "kg": 0.15
+            "ks": 0.0,
+            "kv": 0.0,
+            "ka": 0.00,
+            "kg": 0.421
         },
         "arm": {
             "motor_id": 12,
@@ -88,8 +88,8 @@
             "motion_ratio": 0.05,
             "tolerance": 0.05,
             "rescue_angle": 1.57,
-            "min_angle": -1.57,
-            "max_angle": 1.57,
+            "min_angle": -2.5,
+            "max_angle": 2.5,
             "stator_limit": 40.0,
             "kp": 8.0,
             "ki": 0.0,
@@ -98,7 +98,7 @@
             "kv": 0.1,
             "ka": 0.02,
             "kg": 0.3,
-            "encoder_inverted": false,
+            "encoder_inverted": true,
             "encoder_discontinuity": 0.5
         }
     },

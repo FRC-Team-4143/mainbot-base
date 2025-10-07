@@ -4,54 +4,55 @@
 
 package frc.robot;
 
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.mw_lib.logging.GitLogger;
 import frc.mw_lib.proxy_server.ProxyServer;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
 
   private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
+  private RobotContainer robot_container_;
 
   public Robot() {
-    // Record metadata
-    recordMetadata();
-
-    // Setup Logging
-    setupDataReceiversAndReplay();
+    // Load the subsystems
+    robot_container_ = RobotContainer.getInstance();
 
     // Configure External Interfaces
     OI.configureBindings();
     ProxyServer.configureServer();
-
-    // Ensure subsystems are created
-    Swerve.getInstance(); // ensure swerve is created
   }
 
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+  }
 
   @Override
   public void robotPeriodic() {
+    // updates data from chassis proxy server
+    ProxyServer.updateData();
+
     // Call the scheduler so that commands work for buttons
     CommandScheduler.getInstance().run();
 
-    // updates data from chassis proxy server
-    ProxyServer.updateData();
+    // run the main robot loop for each subsystem
+    robot_container_.doControlLoop();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
   public void disabledPeriodic() {
@@ -70,13 +71,16 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -85,83 +89,35 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    Superstructure.getInstance().setWantedState(SuperstructureStates.TUNING);
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
+
+  @Override
+  public void testExit() {
+    Superstructure.getInstance().setWantedState(SuperstructureStates.AT_TARGET);
+  }
 
   @Override
   public void simulationInit() {
-    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
-      SimulatedArena.getInstance().addDriveTrainSimulation(SwerveConstants.SWERVE_SIMULATION);
-      OI.resetSimulationField();
-    }
+    SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   @Override
   public void simulationPeriodic() {
-    if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
-      SimulatedArena.getInstance().simulationPeriodic();
-      Logger.recordOutput(
-          "FieldSimulation/RobotPosition",
-          SwerveConstants.SWERVE_SIMULATION.getSimulatedDriveTrainPose());
-      Logger.recordOutput(
-          "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-      Logger.recordOutput(
-          "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-    }
-  }
-
-  /** Record build metadata (git sha, branch, etc.) to the log on robot startup */
-  private void recordMetadata() {
-    // Record metadata
-    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    switch (BuildConstants.DIRTY) {
-      case 0:
-        Logger.recordMetadata("GitDirty", "All changes committed");
-        break;
-      case 1:
-        Logger.recordMetadata("GitDirty", "Uncommitted changes");
-        break;
-      default:
-        Logger.recordMetadata("GitDirty", "Unknown");
-        break;
-    }
-  }
-
-  /** Set up data receivers and replay source (if any) based on the current mode */
-  private void setupDataReceiversAndReplay() {
-    // Set up data receivers & replay source
-    switch (Constants.CURRENT_MODE) {
-      case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-
-      case SIM:
-        // Running a physics simulator, log to NT
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-
-      case REPLAY:
-        // Replaying a log, set up replay source
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
-    }
-    // Start AdvantageKit logger
-    Logger.start();
+    SimulatedArena.getInstance().simulationPeriodic();
+    DogLog.log(
+        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+    DogLog.log(
+        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
   }
 }

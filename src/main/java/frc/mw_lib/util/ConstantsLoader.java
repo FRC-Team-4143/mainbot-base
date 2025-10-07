@@ -9,6 +9,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,19 +30,28 @@ public class ConstantsLoader extends JSONReader {
   }
 
   private static final String robot_name_pref_name = "RobotName";
+  private final String robot_name_;
 
   private ConstantsLoader() {
     String robot_name = "AlphaBot";
-    if (!MWPreferences.getInstance().hasPreference(robot_name_pref_name)) {
+    if (RobotBase.isSimulation()) {
+      // Default to SimBot, but allow an environment variable to override it
+      robot_name = "SimBot";
+      if (System.getenv("ROBOT_NAME") != null) {
+        robot_name = System.getenv("ROBOT_NAME");
+      }
+      DriverStation.reportWarning("Simulation Environment Detected, Using Robot Name: " + robot_name, false);
+    } else if (MWPreferences.getInstance().hasPreference(robot_name_pref_name)) {
+      robot_name = MWPreferences.getInstance().getPreferenceString(robot_name_pref_name, robot_name);
+    } else {
       DriverStation.reportError(
           "Failed to retrieve robot name on startup, using default: " + robot_name, false);
-    } else {
-      robot_name =
-          MWPreferences.getInstance().getPreferenceString(robot_name_pref_name, robot_name);
     }
 
-    Path json_path =
-        Filesystem.getDeployDirectory().toPath().resolve("robots/" + robot_name + ".json");
+    // record the final robot name
+    robot_name_ = robot_name;
+
+    Path json_path = Filesystem.getDeployDirectory().toPath().resolve("robots/" + robot_name + ".json");
     try {
       loadJson(json_path);
     } catch (IOException e) {
@@ -66,28 +76,56 @@ public class ConstantsLoader extends JSONReader {
     }
   }
 
+  public String getRobotName() {
+    return robot_name_;
+  }
+
   public double getDoubleValue(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
+
     return current.asDouble();
   }
 
   public int getIntValue(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
+
     return current.asInt();
   }
 
   public boolean getBoolValue(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
+
     return current.asBoolean();
   }
 
   public String getStringValue(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
+
     return current.asText();
   }
 
   public List<String> getStringList(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
 
     List<String> elements = new ArrayList<>();
     if (current.isArray()) {
@@ -105,6 +143,11 @@ public class ConstantsLoader extends JSONReader {
 
   protected List<String> getChildList(String... path_steps) {
     JsonNode current = walkTree(root_node_, path_steps);
+
+    if (current.isMissingNode()) {
+      throw new RuntimeException("Failed to find JSON path: " + String.join("/", path_steps));
+    }
+
     return getChildren(current);
   }
 
@@ -119,16 +162,15 @@ public class ConstantsLoader extends JSONReader {
 
       CamConstants config = new CamConstants();
       config.camera_name = walkTree(camera_root, "NAME").asText();
-      config.camera_transform =
-          new Transform3d(
-              new Translation3d(
-                  Units.inchesToMeters(walkTree(camera_root, "location", "X").asDouble()),
-                  Units.inchesToMeters(walkTree(camera_root, "location", "Y").asDouble()),
-                  Units.inchesToMeters(walkTree(camera_root, "location", "Z").asDouble())),
-              new Rotation3d(
-                  Units.degreesToRadians(walkTree(camera_root, "location", "ROLL").asDouble()),
-                  Units.degreesToRadians(walkTree(camera_root, "location", "PITCH").asDouble()),
-                  Units.degreesToRadians(walkTree(camera_root, "location", "YAW").asDouble())));
+      config.camera_transform = new Transform3d(
+          new Translation3d(
+              Units.inchesToMeters(walkTree(camera_root, "location", "X").asDouble()),
+              Units.inchesToMeters(walkTree(camera_root, "location", "Y").asDouble()),
+              Units.inchesToMeters(walkTree(camera_root, "location", "Z").asDouble())),
+          new Rotation3d(
+              Units.degreesToRadians(walkTree(camera_root, "location", "ROLL").asDouble()),
+              Units.degreesToRadians(walkTree(camera_root, "location", "PITCH").asDouble()),
+              Units.degreesToRadians(walkTree(camera_root, "location", "YAW").asDouble())));
 
       cameras.add(config);
     }

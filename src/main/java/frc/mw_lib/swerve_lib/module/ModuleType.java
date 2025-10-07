@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.mw_lib.swerve_lib.module;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.mw_lib.util.ConstantsLoader;
@@ -61,16 +61,19 @@ public class ModuleType {
   }
 
   /**
-   * @param position String represneting the module location [fl, fr, bl, br, etc..]
+   * @param position String representing the module location [fl, fr, bl, br, etc..]
    * @return ModuleType to be load the gear ratio constants from
    */
-  public static ModuleType getModuleType(String position) {
+  public static ModuleType getModuleTypeFromJSON(String position) {
     String type = LOADER.getStringValue("drive", position, "MODULE_TYPE");
     String gearing = LOADER.getStringValue("drive", position, "MODULE_GEARING");
-    ModuleType module = ALL_MODULE_TYPES.get(type + "-" + gearing);
+    return getModuleType(type + "-" + gearing);
+  }
+
+  public static ModuleType getModuleType(String type) {
+    ModuleType module = ALL_MODULE_TYPES.get(type);
     if (module == null) {
-      DataLogManager.log(
-          "ERROR: Invalid Module Type: " + type + "-" + gearing + "\nDefaulting to MK4I-L3");
+      DataLogManager.log("ERROR: Invalid Module Type: " + type + "\nDefaulting to MK4I-L3");
       module = ALL_MODULE_TYPES.get("MK4I-L3");
     }
     return module;

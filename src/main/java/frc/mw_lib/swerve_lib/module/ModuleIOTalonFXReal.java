@@ -11,11 +11,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve;
+package frc.mw_lib.swerve_lib.module;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.swerve.PhoenixOdometryThread;
 import java.util.Queue;
 
 /**
@@ -24,19 +27,20 @@ import java.util.Queue;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class ModuleIOTalonFXAnalogReal extends ModuleIOTalonFXAnalog {
+public class ModuleIOTalonFXReal extends ModuleIOTalonFX {
   // Queue to read inputs from odometry thread
   private final Queue<Double> timestampQueue;
   private final Queue<Double> drivePositionQueue;
   private final Queue<Double> turnPositionQueue;
 
-  public ModuleIOTalonFXAnalogReal(SwerveModuleConstants constants) {
-    super(constants);
+  public ModuleIOTalonFXReal(SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants, String can_bus_name) {
+    super(constants, can_bus_name);
 
     this.timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     this.drivePositionQueue =
         PhoenixOdometryThread.getInstance().registerSignal(super.drivePosition);
-    this.turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(super.turnPosition);
+    this.turnPositionQueue =
+        PhoenixOdometryThread.getInstance().registerSignal(super.turnAbsolutePosition);
   }
 
   @Override
@@ -44,11 +48,11 @@ public class ModuleIOTalonFXAnalogReal extends ModuleIOTalonFXAnalog {
     super.updateInputs(inputs);
 
     // Update odometry inputs
-    inputs.odometry_timestamps_ =
+    inputs.odometryTimestamps =
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometry_drive_positions_ =
+    inputs.odometryDrivePositionsRad =
         drivePositionQueue.stream().mapToDouble(Units::rotationsToRadians).toArray();
-    inputs.odometry_turn_positions_ =
+    inputs.odometryTurnPositions =
         turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
     timestampQueue.clear();
     drivePositionQueue.clear();
