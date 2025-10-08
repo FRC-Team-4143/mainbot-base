@@ -4,36 +4,34 @@ import static edu.wpi.first.units.Units.Fahrenheit;
 import static edu.wpi.first.units.Units.Meters;
 
 import frc.robot.Constants;
+import frc.robot.subsystems.swerve.SwerveConstants;
+
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class IntakeIOSim extends IntakeIO {
 
-  private final IntakeSimulation intake_sim;
   private final TalonFX pivot_motor_;
   private final TalonFX roller_motor_;
   private final DCMotor pivot_motor_sim_;
   private final DCMotor roller_motor_sim_;
   private final SingleJointedArmSim pivot_sim_;
-  private final FlywheelSim roller_sim_;
+  private final DCMotorSim roller_sim_;
 
   private final PositionVoltage pivot_control_request_ = new PositionVoltage(0);
 
@@ -42,16 +40,16 @@ public class IntakeIOSim extends IntakeIO {
 
     // Initialize the TalonFX motors
     pivot_motor_ = new TalonFX(CONSTANTS.PIVOT_ID);
-    roller_motor_ = new TalonFX(CONSTANTS.INTAKE_ID);
+    roller_motor_ = new TalonFX(CONSTANTS.ROLLER_ID);
 
     // Apply the configurations to the motors
     pivot_motor_.getConfigurator().apply(CONSTANTS.PIVOT_CONFIG);
 
     // Initialize the simulation objects
-    intake_sim =
+    IntakeConstants.INTAKE_SIMULATOR =
         IntakeSimulation.OverTheBumperIntake(
             "Coral",
-            Constants.SWERVE_SIMULATOR,
+            SwerveConstants.SWERVE_SIMULATOR,
             Meters.of(CONSTANTS.INTAKE_WIDTH),
             Meters.of(CONSTANTS.INTAKE_LENGTH_EXTENDED),
             IntakeSide.BACK,
@@ -71,10 +69,7 @@ public class IntakeIOSim extends IntakeIO {
             false,
             70);
 
-    roller_sim_ =
-        new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(roller_motor_sim_, 0.01, 1),
-            roller_motor_sim_);
+    roller_sim_ = new DCMotorSim(LinearSystemId.createDCMotorSystem(roller_motor_sim_, 0.01, 1.0), roller_motor_sim_);
   }
 
   @Override
@@ -106,10 +101,10 @@ public class IntakeIOSim extends IntakeIO {
     // Update roller motor simulation states
     roller_motor_
         .getSimState()
-        .setRotorVelocity(roller_sim_.getAngularVelocityRadPerSec());
+        .setRawRotorPosition(Units.radiansToRotations(roller_sim_.getAngularPositionRad()));
     roller_motor_
         .getSimState()
-        .setRawRotorPosition(roller_sim_.getAngularVelocityRadPerSec());
+        .setRotorVelocity(Units.radiansToRotations(roller_sim_.getAngularVelocityRadPerSec()));
 
     // Update pivot motor inputs
     pivot_current_position = Rotation2d.fromRotations(pivot_motor_.getPosition().getValueAsDouble());
@@ -124,8 +119,8 @@ public class IntakeIOSim extends IntakeIO {
 
     // Update the tof sensor input
     tof_dist =
-        (intake_sim.getGamePiecesAmount() > 0)
-            ? CONSTANTS.TOF_CORAL_DISTANCE
+        (IntakeConstants.INTAKE_SIMULATOR.getGamePiecesAmount() > 0)
+            ? CONSTANTS.TOF_CORAL_DISTANCE / 2
             : CONSTANTS.TOF_CORAL_DISTANCE * 2; // Simulated Time of Flight sensor distance
   }
 
@@ -136,11 +131,11 @@ public class IntakeIOSim extends IntakeIO {
 
     // Start/stop the MapleSim intake based on roller output
     if (roller_target_output > 0) {
-      intake_sim.startIntake();
+      IntakeConstants.INTAKE_SIMULATOR.startIntake();
     } else if (roller_target_output < 0) {
-      intake_sim.obtainGamePieceFromIntake();
+      IntakeConstants.INTAKE_SIMULATOR.obtainGamePieceFromIntake();
     } else {
-      intake_sim.stopIntake();
+      IntakeConstants.INTAKE_SIMULATOR.stopIntake();
     }
   }
 

@@ -19,7 +19,7 @@ public class IntakeIOReal extends IntakeIO {
     super(constants);
 
     pivot_motor_ = new TalonFX(CONSTANTS.PIVOT_ID);
-    roller_motor_ = new TalonFX(CONSTANTS.INTAKE_ID);
+    roller_motor_ = new TalonFX(CONSTANTS.ROLLER_ID);
     tof_ = new TimeOfFlight(CONSTANTS.TIME_OF_FLIGHT_ID);
     pivotRequest = new PositionVoltage(0);
 

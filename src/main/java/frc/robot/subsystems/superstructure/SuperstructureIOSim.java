@@ -110,26 +110,26 @@ public class SuperstructureIOSim extends SuperstructureIO {
         .setRotorVelocity(Units.radiansToRotations(arm_sim_.getVelocityRadPerSec() * CONSTANTS.ARM_RATIO));
 
     // Update leader motor inputs
-    current_leader_position = elevator_motor_.getPosition().getValueAsDouble();
-    current_leader_velocity = elevator_motor_.getVelocity().getValueAsDouble();
+    leader_current_position = elevator_motor_.getPosition().getValueAsDouble();
+    leader_current_velocity = elevator_motor_.getVelocity().getValueAsDouble();
     leader_applied_voltage = elevator_motor_.getMotorVoltage().getValueAsDouble();
     leader_current = elevator_motor_.getTorqueCurrent().getValueAsDouble();
     leader_temp = elevator_motor_.getDeviceTemp().getValue().in(Fahrenheit);
 
     // Update follower motor inputs
-    current_follower_position = elevator_motor_.getPosition().getValueAsDouble();
-    current_follower_velocity = elevator_motor_.getVelocity().getValueAsDouble();
+    follower_current_position = elevator_motor_.getPosition().getValueAsDouble();
+    follower_current_velocity = elevator_motor_.getVelocity().getValueAsDouble();
     follower_applied_voltage = elevator_motor_.getMotorVoltage().getValueAsDouble();
     follower_current = elevator_motor_.getTorqueCurrent().getValueAsDouble();
     follower_temp = elevator_motor_.getDeviceTemp().getValue().in(Fahrenheit);
 
     // Update additional inputs
-    current_elevator_position = current_leader_position * CONSTANTS.ROTATIONS_TO_TRANSLATION;
-    current_elevator_velocity = current_leader_velocity * CONSTANTS.ROTATIONS_TO_TRANSLATION;
+    elevator_current_position = leader_current_position * CONSTANTS.ROTATIONS_TO_TRANSLATION;
+    elevator_current_velocity = leader_current_velocity * CONSTANTS.ROTATIONS_TO_TRANSLATION;
 
     // Update arm motor inputs
-    current_arm_position = Units.rotationsToRadians(arm_motor_.getPosition().getValueAsDouble());
-    current_arm_velocity = Units.rotationsToRadians(arm_motor_.getVelocity().getValueAsDouble());
+    arm_current_position = Units.rotationsToRadians(arm_motor_.getPosition().getValueAsDouble());
+    arm_current_velocity = Units.rotationsToRadians(arm_motor_.getVelocity().getValueAsDouble());
     arm_applied_voltage = arm_motor_.getMotorVoltage().getValueAsDouble();
     arm_current = arm_motor_.getTorqueCurrent().getValueAsDouble();
     arm_temp = arm_motor_.getDeviceTemp().getValue().in(Fahrenheit);
@@ -140,12 +140,12 @@ public class SuperstructureIOSim extends SuperstructureIO {
   public void writeOutputs(double timestamp) {
     // Set the control request for the leader motor
     elevator_control_request_.withPosition(
-        target_elevator_position / CONSTANTS.ROTATIONS_TO_TRANSLATION);
+        elevator_target_position / CONSTANTS.ROTATIONS_TO_TRANSLATION);
     elevator_motor_.setControl(elevator_control_request_);
 
     // Set the arm motor control request
     arm_motor_.setControl(
-        arm_control_request_.withPosition(Units.radiansToRotations(target_arm_position)));
+        arm_control_request_.withPosition(Units.radiansToRotations(arm_target_position)));
   }
 
   /** Zeroes the elevator position. */

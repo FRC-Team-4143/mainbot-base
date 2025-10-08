@@ -21,7 +21,9 @@
             "steer_gains_d": 4.5,
             "steer_gains_s": 0,
             "steer_gains_v": 1.91,
-            "steer_gains_a": 0
+            "steer_gains_a": 0,
+            "bumper_width": 34.75,
+            "bumper_length": 34.75
         },
         "fl": {
             "drive_id": 1,
@@ -74,13 +76,13 @@
             "min_height": 0.0,
             "max_height": 1.5,
             "stator_limit": 100.0,
-            "kp": 0.001,
+            "kp": 0.0,
             "ki": 0.0,
             "kd": 0.0,
             "ks": 0.0,
             "kv": 0.0,
             "ka": 0.0,
-            "kg": 0.43
+            "kg": 0.774
         },
         "arm": {
             "motor_id": 12,
@@ -90,6 +92,8 @@
             "rescue_angle": 1.57,
             "min_angle": -2.5,
             "max_angle": 2.5,
+            "min_height": 0.7459,
+            "shooter_offset": -36.0,
             "stator_limit": 100.0,
             "kp": 40.0,
             "ki": 0.0,
@@ -109,7 +113,7 @@
             "id": 4,
             "coral_distance": 6.5
         },
-        "intake": {
+        "roller": {
             "id": 41,
             "in_speed": 0.5,
             "out_speed": -0.5
@@ -119,6 +123,17 @@
             "mech_ratio": 85.714,
             "kp": 10.0,
             "kd": 8.0
+        }
+    },
+    "shooter":{
+        "roller":{
+            "id": 11,
+            "ccw_positive": true,
+            "stator_limit": 40.0
+        },
+        "tof":{
+            "id": 3,
+            "coral_distance": 50.0
         }
     }
 }

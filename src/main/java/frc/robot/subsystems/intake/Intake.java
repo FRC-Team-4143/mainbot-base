@@ -95,6 +95,7 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
 
     // Log the subsystem state
     DogLog.log(getSubsystemKey() + "State", system_state_);
+    DogLog.log(getSubsystemKey() + "HasCoral", hasCoral());
 
     publishMechanisms();
   }

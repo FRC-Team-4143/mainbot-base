@@ -8,7 +8,8 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
+import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MWConstants;
 
 public class SuperstructureConstants extends MWConstants {
@@ -48,15 +49,16 @@ public class SuperstructureConstants extends MWConstants {
   // Meachanism limits
   public final double ELEVATOR_MIN_HEIGHT = getDoubleConstant("elevator", "min_height"); // m
   public final double ELEVATOR_MAX_HEIGHT = getDoubleConstant("elevator", "max_height"); // m
-  public final double ARM_MIN_HEIGHT = 0.7459; // Determined from adscope model
+  public final double ARM_MIN_HEIGHT = getDoubleConstant("arm", "min_height");
   public final double ARM_MIN_ANGLE = getDoubleConstant("arm", "min_angle"); // rad
   public final double ARM_MAX_ANGLE = getDoubleConstant("arm", "max_angle"); // rad
+  public final double SHOOTER_ANGLE_OFFSET = Units.degreesToRadians(getDoubleConstant("arm", "shooter_offset")); // rad
 
   // Simulation constants
-  public final double CARRIAGE_MASS = 5.0; // kg
-  public final double ARM_LENGTH = 0.3; // meters
-  public final double ARM_MASS = 2.0; // kg
-  public final double ARM_MOI = SingleJointedArmSim.estimateMOI(ARM_LENGTH, ARM_MASS); // kg m^2
+  public final double ARM_MASS = Units.lbsToKilograms(6.2);
+  public final double ARM_LENGTH = Units.inchesToMeters(18.8);
+  public final double ARM_MOI = 0.3151316153;
+  public final double CARRIAGE_MASS = Units.lbsToKilograms(14.1) + ARM_MASS; // 14.1 lbs is the elevator carriage mass
 
   public SuperstructureConstants() {
 

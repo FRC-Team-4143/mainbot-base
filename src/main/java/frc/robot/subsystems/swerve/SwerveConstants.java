@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
@@ -37,6 +38,9 @@ public class SwerveConstants extends MWConstants {
     IDLE
   }
 
+  // Simulation Object
+  public static SwerveDriveSimulation SWERVE_SIMULATOR;
+
   // CAN bus name and CAN ID for the pigeon2
   public final int PIGEON2_ID = 0;
   public final String PIGEON2_CANBUS_NAME = "CANivore";
@@ -50,9 +54,9 @@ public class SwerveConstants extends MWConstants {
   public final double STEER_FRICTION_VOLTAGE = 0.2;
 
   public final double ROBOT_MASS_KG = Units.lbsToKilograms(140.0); // Mass of the robot in pounds
-  public final double BUMPER_WIDTH_METERS = Units.inchesToMeters(34.75); // Width of the bumpers in meters (y
+  public final double BUMPER_WIDTH_METERS = Units.inchesToMeters(getDoubleConstant("com", "bumper_width")); // Width of the bumpers in meters (y
   // axis : left -> right)
-  public final double BUMPER_LENGTH_METERS = Units.inchesToMeters(34.75); // Length of the bumpers in meters (x
+  public final double BUMPER_LENGTH_METERS = Units.inchesToMeters(getDoubleConstant("com", "bumper_length")); // Length of the bumpers in meters (x
   // axis : front -> back)
   public final double WHEEL_COF = 1.916; // Coefficient of friction for the wheels VEX Grip V2
 

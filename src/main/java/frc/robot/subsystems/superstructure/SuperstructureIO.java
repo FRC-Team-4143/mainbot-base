@@ -13,10 +13,10 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
 
   // Leader Elevator Motor
   /** Position in meters */
-  public double current_leader_position = 0.0;
+  public double leader_current_position = 0.0;
 
   /** Velocity in meters per second */
-  public double current_leader_velocity = 0.0;
+  public double leader_current_velocity = 0.0;
 
   /** Applied voltage */
   public double leader_applied_voltage = 0.0;
@@ -28,14 +28,14 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
   public double leader_temp = 0.0;
 
   /** Target position in meters */
-  public double target_elevator_position = 0.0;
+  public double elevator_target_position = 0.0;
 
   // Follower Elevator Motor
   /** Position in meters */
-  public double current_follower_position = 0.0;
+  public double follower_current_position = 0.0;
 
   /** Velocity in meters per second */
-  public double current_follower_velocity = 0.0;
+  public double follower_current_velocity = 0.0;
 
   /** Applied voltage */
   public double follower_applied_voltage = 0.0;
@@ -48,17 +48,17 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
 
   // Elevator Mechanism
   /** Position in meters */
-  public double current_elevator_position = 0.0;
+  public double elevator_current_position = 0.0;
 
   /** Velocity in meters per second */
-  public double current_elevator_velocity = 0.0;
+  public double elevator_current_velocity = 0.0;
 
   // Arm Mechanism
   /** Position in radians */
-  public double current_arm_position = 0.0;
+  public double arm_current_position = 0.0;
 
   /** Velocity in radians per second */
-  public double current_arm_velocity = 0.0;
+  public double arm_current_velocity = 0.0;
 
   /** Applied voltage */
   public double arm_applied_voltage = 0.0;
@@ -70,7 +70,7 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
   public double arm_temp = 0.0;
 
   /** Target Position in radians */
-  public double target_arm_position = 0.0;
+  public double arm_target_position = 0.0;
 
   /** Arm Encoder position in Rotation */
   public double arm_encoder_position = 0.0;
@@ -78,22 +78,22 @@ public abstract class SuperstructureIO extends SubsystemIO<SuperstructureConstan
   /** Logs data to DogLog. */
   @Override
   public void logData(){
-    DogLog.log(getSubsystemKey() + "Elevator/Leader/Position", current_leader_position);
-    DogLog.log(getSubsystemKey() + "Elevator/Leader/Velocity", current_leader_velocity);
+    DogLog.log(getSubsystemKey() + "Elevator/Leader/Position", leader_current_position);
+    DogLog.log(getSubsystemKey() + "Elevator/Leader/Velocity", leader_current_velocity);
     DogLog.log(getSubsystemKey() + "Elevator/Leader/AppliedVoltage", leader_applied_voltage);
     DogLog.log(getSubsystemKey() + "Elevator/Leader/Current", leader_current);
     DogLog.log(getSubsystemKey() + "Elevator/Leader/Temperature", leader_temp);
-    DogLog.log(getSubsystemKey() + "Elevator/Follower/Position", current_follower_position);
-    DogLog.log(getSubsystemKey() + "Elevator/Follower/Velocity", current_follower_velocity);
+    DogLog.log(getSubsystemKey() + "Elevator/Follower/Position", follower_current_position);
+    DogLog.log(getSubsystemKey() + "Elevator/Follower/Velocity", follower_current_velocity);
     DogLog.log(getSubsystemKey() + "Elevator/Follower/AppliedVoltage", follower_applied_voltage);
     DogLog.log(getSubsystemKey() + "Elevator/Follower/Current", follower_current);
     DogLog.log(getSubsystemKey() + "Elevator/Follower/Temperature", follower_temp);
-    DogLog.log(getSubsystemKey() + "Elevator/Position/Current", current_elevator_position);
-    DogLog.log(getSubsystemKey() + "Elevator/Position/Target", target_elevator_position);
-    DogLog.log(getSubsystemKey() + "Elevator/Velocity", current_elevator_velocity);
-    DogLog.log(getSubsystemKey() + "Arm/Position/Current", current_arm_position);
-    DogLog.log(getSubsystemKey() + "Arm/Position/Target", target_arm_position);
-    DogLog.log(getSubsystemKey() + "Arm/Velocity", current_arm_velocity);
+    DogLog.log(getSubsystemKey() + "Elevator/Position/Current", elevator_current_position);
+    DogLog.log(getSubsystemKey() + "Elevator/Position/Target", elevator_target_position);
+    DogLog.log(getSubsystemKey() + "Elevator/Velocity", elevator_current_velocity);
+    DogLog.log(getSubsystemKey() + "Arm/Position/Current", arm_current_position);
+    DogLog.log(getSubsystemKey() + "Arm/Position/Target", arm_target_position);
+    DogLog.log(getSubsystemKey() + "Arm/Velocity", arm_current_velocity);
     DogLog.log(getSubsystemKey() + "Arm/AppliedVoltage", arm_applied_voltage);
     DogLog.log(getSubsystemKey() + "Arm/Current", arm_current);
     DogLog.log(getSubsystemKey() + "Arm/Temperature", arm_temp);

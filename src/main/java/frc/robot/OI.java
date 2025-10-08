@@ -6,10 +6,15 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeStates;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants.ShooterStates;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureTarget.Targets;
 import frc.robot.subsystems.swerve.Swerve;
@@ -23,9 +28,34 @@ public abstract class OI {
   public static void configureBindings() {
     DriverStation.silenceJoystickConnectionWarning(true);
 
+    // Toggle field centric driving / robot centric driving
     driver_controller_.rightStick().onTrue(Swerve.getInstance().toggleFieldCentric());
-    driver_controller_.a().whileTrue(Commands.startEnd(() -> Superstructure.getInstance().requestMove(Targets.L3), () -> Superstructure.getInstance().requestMove(Targets.CORAL_INTAKE)));
-    driver_controller_.b().whileTrue(Commands.startEnd(() -> Intake.getInstance().setWantedState(IntakeStates.PICK_UP), () -> Intake.getInstance().setWantedState(IntakeStates.IDLE)));
+
+    // Move to scoring positions
+    driver_controller_.a().whileTrue(Commands.runOnce(() -> Superstructure.getInstance().requestMove(Targets.CORAL_INTAKE)));
+    driver_controller_.x().whileTrue(Commands.runOnce(() -> Superstructure.getInstance().requestMove(Targets.L2)));
+    driver_controller_.b().whileTrue(Commands.runOnce(() -> Superstructure.getInstance().requestMove(Targets.L3)));
+    driver_controller_.y().whileTrue(
+      new ConditionalCommand(
+        Commands.runOnce(() -> Superstructure.getInstance().requestMove(Targets.L4)), 
+        Commands.runOnce(() -> Superstructure.getInstance().requestMove(Targets.BARGE)), 
+        () -> (Shooter.getInstance().getTargetGamePiece() == GamePiece.CORAL)));
+
+    // Toggle target game piece for shooter
+    driver_controller_.leftBumper().onTrue(Shooter.getInstance().toggleTargetGamePiece());
+
+    // Intake coral
+    driver_controller_.rightBumper().whileTrue(Commands.startEnd(() -> {
+      Intake.getInstance().setWantedState(IntakeStates.PICK_UP);
+      Shooter.getInstance().setWantedState(ShooterStates.GRABBING_CORAL);
+    }, 
+    () -> {
+      Intake.getInstance().setWantedState(IntakeStates.IDLE);
+      Shooter.getInstance().setWantedState(ShooterStates.IDLE);
+    }).until(Shooter.getInstance()::hasCoral));
+
+    // Shoot game piece
+    driver_controller_.rightTrigger().whileTrue(Commands.startEnd(() -> Shooter.getInstance().shootGamePiece(), () -> Shooter.getInstance().stop()));
   }
 
   /**

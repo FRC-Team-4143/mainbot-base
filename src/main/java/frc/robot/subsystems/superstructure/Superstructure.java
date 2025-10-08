@@ -90,8 +90,8 @@ public class Superstructure
 
   // Use tunables with callbacks to update local setpoints. Avoid the two-arg overload
   // which can trigger an internal NPE in DogLog's Notifier thread.
-  tunable_target_elevator_position_ = io.current_elevator_position;
-  tunable_target_arm_position_ = io.current_arm_position;
+  tunable_target_elevator_position_ = io.elevator_current_position;
+  tunable_target_arm_position_ = io.arm_current_position;
   DogLog.tunable(
     getSubsystemKey() + "Elevator/Setpoint",
     tunable_target_elevator_position_,
@@ -139,11 +139,11 @@ public class Superstructure
 
       // If we were moving outside the RESCUE height and arm angle, then we need to
       // rescue. Practically this means we do it for L4 only really
-      if (io.current_elevator_position > CONSTANTS.ELEV_RESCUE_HEIGHT
-          && io.current_arm_position > CONSTANTS.ARM_RESCUE_ANGLE) {
-        double elevator_ht = NumUtil.clamp(io.current_elevator_position + 0.20, CONSTANTS.ELEVATOR_MIN_HEIGHT,
+      if (io.elevator_current_position > CONSTANTS.ELEV_RESCUE_HEIGHT
+          && io.arm_current_position > CONSTANTS.ARM_RESCUE_ANGLE) {
+        double elevator_ht = NumUtil.clamp(io.elevator_current_position + 0.20, CONSTANTS.ELEVATOR_MIN_HEIGHT,
             CONSTANTS.ELEVATOR_MAX_HEIGHT);
-        double arm_angle = io.current_arm_position;
+        double arm_angle = io.arm_current_position;
         SuperstructureTarget rescue_target = new SuperstructureTarget("RESCUE", elevator_ht,
             Rotation2d.fromRadians(arm_angle));
 
@@ -158,7 +158,7 @@ public class Superstructure
       SuperstructureTarget next_tgt = targets_.get(1);
 
       // if the elevator and arm are at their next targets
-      if (elevatorAtTargetInternal(next_tgt)
+      if (isElevatorAtTargetInternal(next_tgt)
           /* && armAtTargetInternal(next_tgt) */) {
         targets_.remove(0);
       }
@@ -187,14 +187,14 @@ public class Superstructure
         break;
       case MOVING:
         // run the current arm position
-        io.target_arm_position = targets_.get(1).getAngle().getRadians();
-        io.target_elevator_position = targets_.get(1).getHeight();
+        io.arm_target_position = targets_.get(1).getAngle().getRadians();
+        io.elevator_target_position = targets_.get(1).getHeight();
         break;
       case RESCUE:
         break;
       case TUNING:
-        io.target_arm_position = Units.degreesToRadians(tunable_target_arm_position_);
-        io.target_elevator_position = tunable_target_elevator_position_;
+        io.arm_target_position = Units.degreesToRadians(tunable_target_arm_position_);
+        io.elevator_target_position = tunable_target_elevator_position_;
         break;
       default:
         DataLogManager.log("Unhandled state in Superstructure logic " + system_state_.name());
@@ -218,17 +218,18 @@ public class Superstructure
     publishMechanisms();
   }
 
-  protected boolean armAtTargetInternal(SuperstructureTarget target) {
+  protected boolean isArmAtTargetInternal(SuperstructureTarget target) {
     return NumUtil.epislonEquals(
-        target.getAngle().getRadians(), io.current_arm_position, CONSTANTS.ARM_TOLERANCE);
+        target.getAngle().getRadians(), io.arm_current_position, CONSTANTS.ARM_TOLERANCE);
   }
 
-  protected boolean elevatorAtTargetInternal(SuperstructureTarget target) {
+  protected boolean isElevatorAtTargetInternal(SuperstructureTarget target) {
     return NumUtil.epislonEquals(
-        target.getHeight(), io.current_elevator_position, CONSTANTS.ELEV_TOLERANCE);
+        target.getHeight(), io.elevator_current_position, CONSTANTS.ELEV_TOLERANCE);
   }
 
-  public boolean systemAtTarget() {
+  /** Returns true if the system is at its internal target */
+  public boolean isSystemAtTarget() {
     // If the subsystem state is at target, then definitely yes
     if (system_state_ == SuperstructureStates.AT_TARGET) {
       return true;
@@ -236,8 +237,13 @@ public class Superstructure
 
     // Otherwise check if the elevator and arm are at their respective targets
     int final_tgt_idx = targets_.size() - 1;
-    return armAtTargetInternal(targets_.get(final_tgt_idx))
-        && elevatorAtTargetInternal(targets_.get(final_tgt_idx));
+    return isArmAtTargetInternal(targets_.get(final_tgt_idx))
+        && isElevatorAtTargetInternal(targets_.get(final_tgt_idx));
+  }
+
+  /** Returns true if the system is at provided target */
+  public boolean isSystemAtTarget(SuperstructureTarget.Targets target) {
+    return (target.target == targets_.get(0)) && isSystemAtTarget();
   }
 
   protected List<SuperstructureTarget> getSafeMove(
@@ -279,16 +285,39 @@ public class Superstructure
     }
   }
 
+  /** Returns the current travel position of the elevator */
+  public double getCurrentElevatorPosition() {
+    return io.elevator_current_position;
+  }
+
+  /** Returns the current angle of the arm in radians */
+  public double getCurrentArmAngle() {
+    return io.arm_current_position;
+  }
+
+  /** Returns the current height of the arm in m */
+  public double getCurrentEndEffectorPosition(){
+    // Calculate the height of the end effector based on elevator height and arm angle
+    double elevator_height = io.elevator_current_position + CONSTANTS.ARM_MIN_HEIGHT;
+    double arm_height_offset = CONSTANTS.ARM_LENGTH * Math.sin(Math.toRadians(io.arm_current_position));
+    return elevator_height + arm_height_offset;
+  }
+
+  /** Returns the current angle of the end effector in radians */
+  public double getCurrentEndEffectorAngle(){
+    return getCurrentArmAngle() + CONSTANTS.SHOOTER_ANGLE_OFFSET;
+  }
+
   /** Publish the mechanism 2d and pose3d objects to SmartDashboard */
   private void publishMechanisms(){
     // Update mechanism 2d
-    current_elevator_mech_.setLength(io.current_elevator_position + CONSTANTS.ARM_MIN_HEIGHT);
-    current_arm_mech_.setAngle(Math.toDegrees(io.current_arm_position) - 90);
+    current_elevator_mech_.setLength(io.elevator_current_position + CONSTANTS.ARM_MIN_HEIGHT);
+    current_arm_mech_.setAngle(Math.toDegrees(io.arm_current_position) - 90);
     SmartDashboard.putData("Superstructure/Mech2d/Current", current_mech2d_);
 
     // Update target mechanism 2d
-    target_elevator_mech_.setLength(io.target_elevator_position + CONSTANTS.ARM_MIN_HEIGHT);
-    target_arm_mech_.setAngle(Math.toDegrees(io.target_arm_position) - 90);
+    target_elevator_mech_.setLength(io.elevator_target_position + CONSTANTS.ARM_MIN_HEIGHT);
+    target_arm_mech_.setAngle(Math.toDegrees(io.arm_target_position) - 90);
     SmartDashboard.putData("Superstructure/Mech2d/Target", target_mech2d_);
 
     // Update the pose3d publishers
@@ -297,15 +326,15 @@ public class Superstructure
           new Pose3d(
               0,
               0,
-              (io.current_elevator_position / 2),
+              (io.elevator_current_position / 2),
               Rotation3d.kZero),
           new Pose3d(
               0,
               0,
-              io.current_elevator_position,
+              io.elevator_current_position,
               Rotation3d.kZero)
         });
-    current_arm_pub_.set(new Pose3d(0, 0, io.current_elevator_position + CONSTANTS.ARM_MIN_HEIGHT, new Rotation3d(0, -io.current_arm_position, 0)));
+    current_arm_pub_.set(new Pose3d(0, 0, io.elevator_current_position + CONSTANTS.ARM_MIN_HEIGHT, new Rotation3d(0, -io.arm_current_position, 0)));
   }
 
   @Override
