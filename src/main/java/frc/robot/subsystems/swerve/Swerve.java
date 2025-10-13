@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.swerve_lib.ChassisRequest;
 import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
 import frc.mw_lib.swerve_lib.module.Module.DriveControlMode;
@@ -26,11 +27,14 @@ import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.subsystems.swerve.SwerveConstants.OperatorPerspective;
 import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants> {
+public class Swerve extends MWSubsystem<SwerveStates, SwerveConstants> {
 
   private static Swerve instance_ = null;
 
@@ -92,9 +96,9 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
 
     // figure out what I/O to use
     if (Constants.CURRENT_MODE == Constants.Mode.REAL) {
-      this.io = new SwerveIOReal(CONSTANTS);
+      swerve_io_ = new SwerveIOReal(CONSTANTS);
     } else {
-      this.io = new SwerveIOSim(CONSTANTS);
+      swerve_io_ = new SwerveIOSim(CONSTANTS);
     }
 
     // Start odometry thread
@@ -132,35 +136,35 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
     // Update the request to apply based on the system state
     switch (system_state_) {
       case FIELD_CENTRIC:
-        io.current_request =
+      swerve_io_.current_request =
             field_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case ROBOT_CENTRIC:
-        io.current_request =
+      swerve_io_.current_request =
             robot_centric_request_.withTwist(calculateSpeedsBasedOnJoystickInputs());
         break;
       case TRACTOR_BEAM:
         tractorBeamState();
         break;
       case ROTATION_LOCK:
-        io.current_request = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
+      swerve_io_.current_request = rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_);
         break;
       case CHOREO_PATH:
         choreoPathState();
         break;
       case IDLE:
       default:
-        io.current_request = new ChassisRequest.Idle();
+        swerve_io_.current_request = new ChassisRequest.Idle();
         break;
     }
 
     // Set state static request parameters
-    io.current_request_parameters.currentChassisSpeed = getChassisSpeeds();
-    io.current_request_parameters.currentPose = getPose();
-    io.current_request_parameters.updatePeriod =
-        Timer.getFPGATimestamp() - io.current_request_parameters.timestamp;
-    io.current_request_parameters.timestamp = Timer.getFPGATimestamp();
-    io.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
+    swerve_io_.current_request_parameters.currentChassisSpeed = getChassisSpeeds();
+    swerve_io_.current_request_parameters.currentPose = getPose();
+    swerve_io_.current_request_parameters.updatePeriod =
+        Timer.getFPGATimestamp() - swerve_io_.current_request_parameters.timestamp;
+    swerve_io_.current_request_parameters.timestamp = Timer.getFPGATimestamp();
+    swerve_io_.current_request_parameters.operatorForwardDirection = operator_forward_direction_;
   }
 
   @Override
@@ -231,12 +235,12 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
     DogLog.log(getSubsystemKey() + "TractorBeam/DesiredPoint", desired_tractor_beam_pose_);
 
     if (Double.isNaN(max_ang_vel_for_tractor_beam_)) {
-      io.current_request =
+      swerve_io_.current_request =
           rotation_lock_request_
               .withTwist(new Twist2d(x_component, y_component, 0.0))
               .withTargetHeading(desired_tractor_beam_pose_.getRotation());
     } else {
-      io.current_request =
+      swerve_io_.current_request =
           rotation_lock_request_
               .withTwist(new Twist2d(x_component, y_component, 0.0))
               .withTargetHeading(desired_tractor_beam_pose_.getRotation())
@@ -266,10 +270,10 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
       target_speeds.omegaRadiansPerSecond +=
           choreo_theta_controller_.calculate(pose.getRotation().getRadians(), sample.heading);
 
-      io.current_request = field_speeds_request_.withSpeeds(target_speeds);
+      swerve_io_.current_request = field_speeds_request_.withSpeeds(target_speeds);
     } else {
       // If no sample is available, we will just stop the robot
-      io.current_request = new ChassisRequest.Idle();
+      swerve_io_.current_request = new ChassisRequest.Idle();
     }
   }
 
@@ -512,22 +516,22 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
   public SwerveModuleState[] getModuleStates() {
-    return io.module_states;
+    return swerve_io_.module_states;
   }
 
   /** Returns the module positions (turn angles and drive positions) for all of the modules. */
   public SwerveModulePosition[] getModulePositions() {
-    return io.module_positions;
+    return swerve_io_.module_positions;
   }
 
   /** Returns the measured chassis speeds of the robot. */
   public ChassisSpeeds getChassisSpeeds() {
-    return io.chassis_speeds;
+    return swerve_io_.chassis_speeds;
   }
 
   /** Returns the current odometry pose */
   public Pose2d getPose() {
-    return io.pose;
+    return swerve_io_.pose;
   }
 
   /** Returns the current odometry rotation */
@@ -546,7 +550,11 @@ public class Swerve extends MWSubsystem<SwerveIO, SwerveStates, SwerveConstants>
 
   /** Returns the raw gyro rotation */
   public Rotation2d getGyroRotation() {
-    return io.raw_gyro_rotation;
+    return swerve_io_.raw_gyro_rotation;
+  }
+
+  public List<SubsystemIoBase> getIos() {
+    return Arrays.asList(swerve_io_);
   }
 
 }

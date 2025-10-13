@@ -10,11 +10,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.util.NumUtil;
 import frc.mw_lib.util.TunablePid;
 import frc.robot.Constants;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import dev.doglog.DogLog;
 
@@ -34,7 +36,7 @@ import dev.doglog.DogLog;
  * system is re-enabled
  */
 public class Superstructure
-    extends MWSubsystem<SuperstructureIO, SuperstructureStates, SuperstructureConstants> {
+    extends MWSubsystem<SuperstructureStates, SuperstructureConstants> {
   private static Superstructure instance_ = null;
 
   public static Superstructure getInstance() {
@@ -44,6 +46,8 @@ public class Superstructure
     }
     return instance_;
   }
+
+  private SuperstructureIO io;
 
   private List<SuperstructureTarget> targets_;
   private final Mechanism2d current_mech2d_;
@@ -258,6 +262,11 @@ public class Superstructure
 
   @Override
   public void reset() {
+  }
+
+  @Override
+  public List<SubsystemIoBase> getIos() {
+    return Arrays.asList(io);
   }
 
 }
