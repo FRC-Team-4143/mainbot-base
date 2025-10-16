@@ -4,12 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeStates;
 
-public class Intake extends MWSubsystem<IntakeStates, IntakeConstants> {
+public class Intake extends MwSubsystem<IntakeStates, IntakeConstants> {
 
   private static Intake instance_ = null;
 

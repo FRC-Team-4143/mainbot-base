@@ -2,9 +2,9 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.mw_lib.subsystem.MWConstants;
+import frc.mw_lib.subsystem.MwConstants;
 
-public class IntakeConstants extends MWConstants {
+public class IntakeConstants extends MwConstants {
 
   public enum IntakeStates {
     DEPLOY,

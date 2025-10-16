@@ -9,9 +9,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import frc.mw_lib.subsystem.MWConstants;
+import frc.mw_lib.subsystem.MwConstants;
 
-public class SuperstructureConstants extends MWConstants {
+public class SuperstructureConstants extends MwConstants {
   // State enum for the subsystem
   // Current system states for the superstructure
   public enum SuperstructureStates {

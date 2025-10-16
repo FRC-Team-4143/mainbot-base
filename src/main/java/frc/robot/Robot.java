@@ -5,14 +5,13 @@
 package frc.robot;
 
 import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.mw_lib.logging.GitLogger;
 import frc.mw_lib.proxy_server.ProxyServer;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import frc.robot.subsystems.swerve.Swerve;
@@ -95,7 +94,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    Superstructure.getInstance().setWantedState(SuperstructureStates.TUNING);
+    ElevatorSubsystem.getInstance().setWantedState(ElevatorStates.TUNING);
   }
 
   @Override
@@ -104,7 +103,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testExit() {
-    Superstructure.getInstance().setWantedState(SuperstructureStates.AT_TARGET);
+    ElevatorSubsystem.getInstance().setWantedState(ElevatorStates.IDLE);
   }
 
   @Override

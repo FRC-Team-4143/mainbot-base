@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.swerve_lib.ChassisRequest;
 import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Swerve extends MWSubsystem<SwerveStates, SwerveConstants> {
+public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
 
   private static Swerve instance_ = null;
 

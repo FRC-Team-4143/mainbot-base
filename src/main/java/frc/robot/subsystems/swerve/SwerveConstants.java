@@ -23,10 +23,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.mw_lib.subsystem.MWConstants;
+import frc.mw_lib.subsystem.MwConstants;
 import frc.mw_lib.swerve_lib.module.ModuleType;
 
-public class SwerveConstants extends MWConstants {
+public class SwerveConstants extends MwConstants {
   // Current system states for the swerve drive
   enum SwerveStates {
     FIELD_CENTRIC,
