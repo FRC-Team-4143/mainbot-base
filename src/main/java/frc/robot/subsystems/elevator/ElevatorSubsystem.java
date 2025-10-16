@@ -6,7 +6,6 @@ import java.util.List;
 import com.ctre.phoenix6.configs.SlotConfigs;
 
 import dev.doglog.DogLog;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import frc.mw_lib.mechanisms.ElevatorMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
@@ -24,8 +23,7 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
     }
 
     private ElevatorMech elevator_mech_;
-    private final DoubleSubscriber elevator_setpoint_sub_;
-    private double target_elevator_position = 0.0;
+    private double target_elevator_position_ = 0.0;
 
     public ElevatorSubsystem() {
         super(ElevatorStates.IDLE, new ElevatorConstants());
@@ -36,7 +34,7 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
         elevator_mech_.setLoggingPrefix(getSubsystemKey());
 
         TunablePid.create(getSubsystemKey() + "elevator_mech", elevator_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
-        elevator_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", target_elevator_position);
+        DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", target_elevator_position_, v -> target_elevator_position_ = v);
     }
 
     // @Override
@@ -57,8 +55,7 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
                 elevator_mech_.setTargetVelocity(0);
                 break;
             case TUNING:
-                target_elevator_position = elevator_setpoint_sub_.get();
-                elevator_mech_.setTargetPosition(target_elevator_position);
+                elevator_mech_.setTargetPosition(target_elevator_position_);
                 break;
         }
     }
