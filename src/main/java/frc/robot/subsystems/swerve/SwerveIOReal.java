@@ -19,40 +19,40 @@ public class SwerveIOReal extends SwerveIO {
   private final Gyro gyro_;
 
   private final SwerveDrivePoseEstimator pose_estimator_;
-  private final SwerveDriveKinematics kinematics_ =
-      new SwerveDriveKinematics(getModuleTranslations());
+  private final SwerveDriveKinematics kinematics_;
 
   SwerveIOReal(SwerveConstants constants) {
     super(constants);
     // Configure Gyro
     gyro_ = new Gyro(new GyroIOPigeon2(CONSTANTS.PIGEON2_ID, CONSTANTS.PIGEON2_CANBUS_NAME));
     // Configure Modules
-    modules_[0] =
-        new Module(
-            new ModuleIOTalonFXReal(CONSTANTS.FL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
-            0,
-            CONSTANTS.FL_MODULE_CONSTANTS);
-    modules_[1] =
-        new Module(
-            new ModuleIOTalonFXReal(CONSTANTS.FR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
-            1,
-            CONSTANTS.FR_MODULE_CONSTANTS);
-    modules_[2] =
-        new Module(
-            new ModuleIOTalonFXReal(CONSTANTS.BL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
-            2,
-            CONSTANTS.BL_MODULE_CONSTANTS);
-    modules_[3] =
-        new Module(
-            new ModuleIOTalonFXReal(CONSTANTS.BR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
-            3,
-            CONSTANTS.BR_MODULE_CONSTANTS);
+    modules_[0] = new Module(
+        new ModuleIOTalonFXReal(CONSTANTS.FL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
+        0,
+        CONSTANTS.FL_MODULE_CONSTANTS);
+    modules_[1] = new Module(
+        new ModuleIOTalonFXReal(CONSTANTS.FR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
+        1,
+        CONSTANTS.FR_MODULE_CONSTANTS);
+    modules_[2] = new Module(
+        new ModuleIOTalonFXReal(CONSTANTS.BL_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
+        2,
+        CONSTANTS.BL_MODULE_CONSTANTS);
+    modules_[3] = new Module(
+        new ModuleIOTalonFXReal(CONSTANTS.BR_MODULE_CONSTANTS, CONSTANTS.MODULE_CANBUS_NAME),
+        3,
+        CONSTANTS.BR_MODULE_CONSTANTS);
 
-    // Configure Pose Estimator
-    pose_estimator_ =
-        new SwerveDrivePoseEstimator(
-            kinematics_, new Rotation2d(), new SwerveModulePosition[4], Pose2d.kZero);
-    // Setup MapleSim Drive Train Simulation
+    // configure the kinematics after the modules are created
+    kinematics_ = new SwerveDriveKinematics(getModuleTranslations());
+
+    // Finally configure the Pose Estimator
+    SwerveModulePosition[] module_positions = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      module_positions[i] = new SwerveModulePosition();
+    }
+    pose_estimator_ = new SwerveDrivePoseEstimator(
+        kinematics_, new Rotation2d(), module_positions, Pose2d.kZero);
   }
 
   @Override
@@ -71,18 +71,16 @@ public class SwerveIOReal extends SwerveIO {
     }
 
     // Update odometry
-    double[] sample_timestamps =
-        modules_[0].getOdometryTimestamps(); // All signals are sampled together
+    double[] sample_timestamps = modules_[0].getOdometryTimestamps(); // All signals are sampled together
     int sample_count = sample_timestamps.length;
     for (int i = 0; i < sample_count; i++) {
       // Read wheel positions and deltas from each module
       for (int module_index = 0; module_index < 4; module_index++) {
         module_positions[module_index] = modules_[module_index].getOdometryPositions()[i];
-        module_deltas[module_index] =
-            new SwerveModulePosition(
-                module_positions[module_index].distanceMeters
-                    - last_module_positions[module_index].distanceMeters,
-                module_positions[module_index].angle);
+        module_deltas[module_index] = new SwerveModulePosition(
+            module_positions[module_index].distanceMeters
+                - last_module_positions[module_index].distanceMeters,
+            module_positions[module_index].angle);
         last_module_positions[module_index] = module_positions[module_index];
         module_states[module_index] = modules_[module_index].getState();
       }
@@ -118,10 +116,10 @@ public class SwerveIOReal extends SwerveIO {
 
   private Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
-      modules_[0].getTranslation(), // FL
-      modules_[1].getTranslation(), // FR
-      modules_[2].getTranslation(), // BL
-      modules_[3].getTranslation() // BR
+        modules_[0].getTranslation(), // FL
+        modules_[1].getTranslation(), // FR
+        modules_[2].getTranslation(), // BL
+        modules_[3].getTranslation() // BR
     };
   }
 }
