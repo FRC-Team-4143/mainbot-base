@@ -47,10 +47,6 @@ public class SwerveIOReal extends SwerveIO {
     kinematics_ = new SwerveDriveKinematics(getModuleTranslations());
 
     // Finally configure the Pose Estimator
-    SwerveModulePosition[] module_positions = new SwerveModulePosition[4];
-    for (int i = 0; i < 4; i++) {
-      module_positions[i] = new SwerveModulePosition();
-    }
     pose_estimator_ = new SwerveDrivePoseEstimator(
         kinematics_, new Rotation2d(), module_positions, Pose2d.kZero);
   }
