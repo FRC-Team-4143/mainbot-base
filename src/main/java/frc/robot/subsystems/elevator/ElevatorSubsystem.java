@@ -33,7 +33,7 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
                 CONSTANTS.elevator_rigging_ratio);
         elevator_mech_.setLoggingPrefix(getSubsystemKey());
 
-        TunablePid.create(getSubsystemKey() + "elevator_mech", elevator_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
+        TunablePid.create(getSubsystemKey() + "Elevator", elevator_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
         DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", target_elevator_position_, v -> target_elevator_position_ = v);
     }
 
@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
                 elevator_mech_.setTargetDutyCycle(0);
                 break;
             case MOVE_TO_POSITION:
-                elevator_mech_.setTargetPosition(timestamp);
+                elevator_mech_.setTargetPosition(target_elevator_position_);
                 break;
             case HOLD:
                 elevator_mech_.setTargetVelocity(0);
