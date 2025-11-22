@@ -9,12 +9,14 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.MwSubsystem;
+import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.util.NumUtil;
 import frc.mw_lib.util.TunablePid;
 import frc.robot.Constants;
 import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import dev.doglog.DogLog;
 
@@ -34,7 +36,7 @@ import dev.doglog.DogLog;
  * system is re-enabled
  */
 public class Superstructure
-    extends MWSubsystem<SuperstructureIO, SuperstructureStates, SuperstructureConstants> {
+    extends MwSubsystem<SuperstructureStates, SuperstructureConstants> {
   private static Superstructure instance_ = null;
 
   public static Superstructure getInstance() {
@@ -44,6 +46,8 @@ public class Superstructure
     }
     return instance_;
   }
+
+  private SuperstructureIO io;
 
   private List<SuperstructureTarget> targets_;
   private final Mechanism2d current_mech2d_;
@@ -70,12 +74,12 @@ public class Superstructure
     targets_.add(SuperstructureTarget.Targets.CORAL_INTAKE.target);
 
     // Create tunable objects for the elevator and arm
-    TunablePid.create(
-        getSubsystemKey() + "Elevator",
-        io::updateElevatorGains,
-        CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
-    TunablePid.create(
-        getSubsystemKey() + "Arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
+    // TunablePid.create(
+    //     getSubsystemKey() + "Elevator",
+    //     io::updateElevatorGains,
+    //     CONSTANTS.ELEVATOR_LEADER_CONFIG.Slot0);
+    // TunablePid.create(
+    //     getSubsystemKey() + "Arm", io::updateArmGains, CONSTANTS.ARM_MOTOR_CONFIG.Slot0);
     elevator_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", io.current_elevator_position);
     arm_setpoint_sub_ = DogLog.tunable(getSubsystemKey() + "Arm/Setpoint", io.current_arm_position);
 
@@ -258,6 +262,11 @@ public class Superstructure
 
   @Override
   public void reset() {
+  }
+
+  @Override
+  public List<SubsystemIoBase> getIos() {
+    return Arrays.asList(io);
   }
 
 }

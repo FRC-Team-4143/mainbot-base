@@ -1,11 +1,15 @@
 package frc.robot.subsystems.intake;
 
+import java.util.Arrays;
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.mw_lib.subsystem.MWSubsystem;
+import frc.mw_lib.subsystem.MwSubsystem;
+import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeStates;
 
-public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants> {
+public class Intake extends MwSubsystem<IntakeStates, IntakeConstants> {
 
   private static Intake instance_ = null;
 
@@ -15,6 +19,8 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
     }
     return instance_;
   }
+
+  private IntakeIO io;
 
   /** Constructor for the Intake subsystem. */
   public Intake() {
@@ -59,4 +65,9 @@ public class Intake extends MWSubsystem<IntakeIO, IntakeStates, IntakeConstants>
 
   @Override
   public void reset() {}
+
+  @Override
+  public List<SubsystemIoBase> getIos() {
+    return Arrays.asList(io);
+  }
 }

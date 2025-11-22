@@ -2,14 +2,12 @@ package frc.mw_lib.subsystem;
 
 import dev.doglog.DogLog;
 
-public abstract class MWSubsystem<
-        IoType extends SubsystemIO,
+public abstract class MwSubsystem<
         StateType extends Enum<StateType>,
-        ConstantsType extends MWConstants>
-    implements MWSubsystemBase {
+        ConstantsType extends MwConstants>
+    implements MwSubsystemBase {
 
   // state info
-  protected IoType io;
   protected StateType system_state_;
   protected final ConstantsType CONSTANTS;
   private StateType wanted_state_;
@@ -17,7 +15,7 @@ public abstract class MWSubsystem<
   // internal info
   protected String subsystem_name_;
 
-  public MWSubsystem(StateType default_state, ConstantsType constants) {
+  public MwSubsystem(StateType default_state, ConstantsType constants) {
     // Use some Java magic to pull the class name
     String name = this.getClass().getSimpleName();
     name = name.substring(name.lastIndexOf('.') + 1);
@@ -91,14 +89,5 @@ public abstract class MWSubsystem<
    */
   public String getName() {
     return subsystem_name_;
-  }
-
-  /**
-   * Gets the I/O container for the manager to exercise
-   *
-   * @return the generic I/O container to be called
-   */
-  public IoType getIo() {
-    return io;
   }
 }
