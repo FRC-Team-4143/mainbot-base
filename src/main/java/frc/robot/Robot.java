@@ -4,20 +4,16 @@
 
 package frc.robot;
 
-import dev.doglog.DogLog;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.proxy_server.ProxyServer;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorStates;
-import frc.robot.subsystems.superstructure.Superstructure;
-import frc.robot.subsystems.superstructure.SuperstructureConstants.SuperstructureStates;
-import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants.DrivetrainStates;
+
 import java.util.Optional;
-import org.ironmaple.simulation.SimulatedArena;
 
 public class Robot extends TimedRobot {
 
@@ -57,24 +53,26 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
-
       if (alliance.get() != alliance_) {
         alliance_ = alliance.get();
-        Swerve.getInstance()
-            .setOperatorForwardDirection(
-                alliance_ == Alliance.Blue
-                    ? SwerveConstants.OperatorPerspective.BLUE_ALLIANCE
-                    : SwerveConstants.OperatorPerspective.RED_ALLIANCE);
       }
     }
   }
 
   @Override
   public void autonomousInit() {
+    DrivetrainSubsystem.getInstance().zeroCurrentPosition();
   }
 
   @Override
   public void autonomousPeriodic() {
+    if (DrivetrainSubsystem.getInstance().getCurrentPosition().getX() < 9.9) {
+      DrivetrainSubsystem.getInstance().setAutoCommand(0.25, 0);
+    } else if (DrivetrainSubsystem.getInstance().getCurrentPosition().getX() > 10.1) {
+      DrivetrainSubsystem.getInstance().setAutoCommand(-0.25, 0);
+    } else {
+      DrivetrainSubsystem.getInstance().setAutoCommand(0, 0);
+    }
   }
 
   @Override
@@ -85,6 +83,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     ProxyServer.syncMatchData();
     CommandScheduler.getInstance().cancelAll();
+    DrivetrainSubsystem.getInstance().setWantedState(DrivetrainStates.TELE_OP);
   }
 
   @Override
@@ -94,7 +93,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    ElevatorSubsystem.getInstance().setWantedState(ElevatorStates.TUNING);
   }
 
   @Override
@@ -103,20 +101,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testExit() {
-    ElevatorSubsystem.getInstance().setWantedState(ElevatorStates.IDLE);
   }
 
   @Override
   public void simulationInit() {
-    SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   @Override
   public void simulationPeriodic() {
-    SimulatedArena.getInstance().simulationPeriodic();
-    DogLog.log(
-        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-    DogLog.log(
-        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
   }
 }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
+import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MwConstants;
 
 public class DrivetrainConstants extends MwConstants {
@@ -10,18 +11,12 @@ public class DrivetrainConstants extends MwConstants {
         AUTO,
     }
 
-    public final double elevator_gear_ratio;
-    public final double elevator_drum_radius;
-    public final double elevator_carrige_mass;
-    public final double elevator_rigging_ratio;
-    public final double elevator_max_extension;
+    public final double wheel_circumference_meters;
+    public final double track_width_meters;
 
     public DrivetrainConstants() {
-        elevator_gear_ratio = getDoubleConstant("elevator_mech", "gear_ratio");
-        elevator_drum_radius = getDoubleConstant("elevator_mech", "drum_radius");
-        elevator_carrige_mass = getDoubleConstant("elevator_mech", "carrige_mass");
-        elevator_rigging_ratio = getDoubleConstant("elevator_mech", "rigging_ratio");
-        elevator_max_extension = getDoubleConstant("elevator_mech", "max_extension");
+        wheel_circumference_meters = Units.inchesToMeters(6);
+        track_width_meters = Units.inchesToMeters(24);
     }
 
 }

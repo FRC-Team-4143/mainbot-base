@@ -1,32 +1,9 @@
-package frc.mw_lib.mechanisms;
+package frc.robot.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import com.revrobotics.spark.SparkFlex;
+import frc.mw_lib.mechanisms.MechBase;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-
-import dev.doglog.DogLog;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.mw_lib.mechanisms.FxMotorConfig.FxMotorType;
-
-public class RollerMech extends MechBase {
+public class SparkFlexRollerMech extends MechBase {
 
     protected enum ControlMode {
         POSITION,
@@ -37,11 +14,7 @@ public class RollerMech extends MechBase {
     private ControlMode control_mode_ = ControlMode.DUTY_CYCLE;
 
     // Always assume that we have the leader motor in index 0
-    private final TalonFX motor_;
-    private final PositionVoltage position_request_;
-    private final VelocityVoltage velocity_request_;
-    private final DutyCycleOut duty_cycle_request_;
-    protected final BaseStatusSignal[] signals_;
+    private final SparkFlex motor_;
 
     // sensor inputs
     protected double position_ = 0;
@@ -57,7 +30,7 @@ public class RollerMech extends MechBase {
     // Simulation
     private final DCMotorSim roller_sim_;
 
-    public RollerMech(FxMotorConfig motor_config) {
+    public SparkFlexRollerMech(FxMotorConfig motor_config) {
         super();
 
         List<FxMotorConfig> motor_configs = new ArrayList<>();

@@ -6,10 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.swerve.Swerve;
 import java.util.Optional;
 
 public abstract class OI {
@@ -19,33 +16,30 @@ public abstract class OI {
 
   public static void configureBindings() {
     DriverStation.silenceJoystickConnectionWarning(true);
-
-    driver_controller_.rightStick().onTrue(Swerve.getInstance().toggleFieldCentric());
-    // driver_controller_.a().whileTrue(Commands.startEnd(() -> Superstructure.getInstance().requestMove(Targets.L3), () -> Superstructure.getInstance().requestMove(Targets.CORAL_INTAKE)));
-
-    driver_controller_.a().onTrue(Commands.run(() -> DrivetrainSubsystem.getInstance().requestMove(0.0)));
-    driver_controller_.b().onTrue(Commands.run(() -> DrivetrainSubsystem.getInstance().requestMove(1.0)));
   }
 
   /**
-   * @return driver controller left joystick x axis scaled quadratically
+   * @return driver controller left joystick x axis
+   * NOTE: Inverted to match typical robot controls
    */
   public static double getDriverJoystickLeftX() {
-    return driver_controller_.getLeftX();
+    return -driver_controller_.getLeftX();
   }
 
   /**
-   * @return driver controller left joystick y axis scaled quadratically
+   * @return driver controller left joystick y axis
+   * NOTE: Inverted to match typical robot controls
    */
   public static double getDriverJoystickLeftY() {
-    return driver_controller_.getLeftY();
+    return -driver_controller_.getLeftY();
   }
 
   /**
-   * @return driver controller right joystick x axis scaled quadratically
+   * @return driver controller right joystick x axis
+   * NOTE: Inverted to match typical robot controls
    */
   public static double getDriverJoystickRightX() {
-    return driver_controller_.getRightX();
+    return -driver_controller_.getRightX();
   }
 
   /**
