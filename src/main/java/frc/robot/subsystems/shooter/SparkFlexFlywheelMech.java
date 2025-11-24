@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -31,6 +30,7 @@ public class SparkFlexFlywheelMech extends MechBase {
 
     private final SparkFlex motor_;
     private final SparkClosedLoopController controller_;
+    private final SparkFlexConfig stored_config_; // Store our configuration to avoid overwriting
 
     // Simulation info
     protected final FlywheelSim flywheel_sim_;
@@ -53,9 +53,9 @@ public class SparkFlexFlywheelMech extends MechBase {
 
         // Setup motor controller
         motor_ = new SparkFlex(can_id, MotorType.kBrushless);
-        SparkFlexConfig base_config = new SparkFlexConfig(); 
-        base_config.inverted(is_inverted);
-        motor_.configure(base_config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        stored_config_ = new SparkFlexConfig();
+        stored_config_.inverted(is_inverted);
+        motor_.configure(stored_config_, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         controller_ = motor_.getClosedLoopController();
 
         // set the system constants
@@ -93,10 +93,11 @@ public class SparkFlexFlywheelMech extends MechBase {
             flex_sim.iterate(flywheel_sim_.getAngularVelocityRPM(), 12.0, 0.02);
 
             // Update simulated sensor readings
-            velocity_ = Units.rotationsPerMinuteToRadiansPerSecond(motor_.getAbsoluteEncoder().getVelocity());
+            position_ = Units.rotationsToRadians(flex_sim.getAbsoluteEncoderSim().getPosition());
+            velocity_ = Units.rotationsPerMinuteToRadiansPerSecond(flex_sim.getAbsoluteEncoderSim().getVelocity());
             applied_voltage_ = flex_sim.getAppliedOutput();
             current_draw_ = flywheel_sim_.getCurrentDrawAmps();
-            bus_voltage_ = flex_sim.getBusVoltage();       
+            bus_voltage_ = flex_sim.getBusVoltage();
         }
     }
 
@@ -104,7 +105,7 @@ public class SparkFlexFlywheelMech extends MechBase {
     public void writeOutputs(double timestamp) {
         switch (control_mode_) {
             case VELOCITY:
-                controller_.setReference(velocity_target_, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+                controller_.setReference(Units.radiansPerSecondToRotationsPerMinute(velocity_target_), ControlType.kVelocity, ClosedLoopSlot.kSlot1);
                 break;
             case DUTY_CYCLE:
                 motor_.set(duty_cycle_target_);
@@ -114,19 +115,45 @@ public class SparkFlexFlywheelMech extends MechBase {
         }
     }
 
+    /**
+     * Configure PID gains for velocity control (Slot 1)
+     * This method preserves all other motor settings by using the stored configuration.
+     */
+    public void setVelocityPID(SlotConfigs config) {
+        // Update only the closed-loop parameters in our stored config
+        stored_config_.closedLoop.pidf(config.kP, config.kI, config.kD, config.kV, ClosedLoopSlot.kSlot1);
+        motor_.configure(stored_config_, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    /**
+     * Get the current velocity of the flywheel in radians per second
+     * @return Current velocity in radians per second
+     */
     public double getCurrentVelocity() {
         return velocity_;
     }
 
+    /**
+     * Get the current draw of the flywheel motor in amps
+     * @return Current draw in amps
+     */
     public double getCurrent() {
         return current_draw_;
     }
 
+    /**
+     * Set the target velocity for the flywheel in radians per second
+     * @param velocity_rad_per_sec Target velocity in radians per second
+     */
     public void setTargetVelocity(double velocity_rad_per_sec) {
         control_mode_ = ControlMode.VELOCITY;
         velocity_target_ = velocity_rad_per_sec;
     }
 
+    /**
+     * Set the target duty cycle for the flywheel motor
+     * @param duty_cycle Target duty cycle (-1.0 to 1.0)
+     */
     public void setTargetDutyCycle(double duty_cycle) {
         control_mode_ = ControlMode.DUTY_CYCLE;
         duty_cycle_target_ = duty_cycle;

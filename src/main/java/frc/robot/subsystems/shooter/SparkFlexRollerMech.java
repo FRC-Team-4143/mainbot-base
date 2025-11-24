@@ -1,6 +1,21 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.SlotConfigs;
+import com.revrobotics.sim.SparkFlexSim;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
+import dev.doglog.DogLog;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.mw_lib.mechanisms.MechBase;
 
 public class SparkFlexRollerMech extends MechBase {
@@ -13,8 +28,9 @@ public class SparkFlexRollerMech extends MechBase {
 
     private ControlMode control_mode_ = ControlMode.DUTY_CYCLE;
 
-    // Always assume that we have the leader motor in index 0
     private final SparkFlex motor_;
+    private final SparkClosedLoopController controller_;
+    private final SparkFlexConfig stored_config_; // Store our configuration to avoid overwriting
 
     // sensor inputs
     protected double position_ = 0;
@@ -27,24 +43,22 @@ public class SparkFlexRollerMech extends MechBase {
     protected double motor_temp_c_ = 0;
     protected double bus_voltage_ = 0;
 
-    // Simulation
-    private final DCMotorSim roller_sim_;
+    // Simulation info
+    protected final DCMotorSim roller_sim_;
+    protected final double gear_ratio_;
 
-    public SparkFlexRollerMech(FxMotorConfig motor_config) {
+    public SparkFlexRollerMech(double gear_ratio, int can_id, boolean is_inverted) {
         super();
 
-        List<FxMotorConfig> motor_configs = new ArrayList<>();
-        motor_configs.add(motor_config);
+        // Setup motor controller
+        motor_ = new SparkFlex(can_id, MotorType.kBrushless);
+        stored_config_ = new SparkFlexConfig();
+        stored_config_.inverted(is_inverted);
+        motor_.configure(stored_config_, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        controller_ = motor_.getClosedLoopController();
 
-        ConstructedMotors configured_motors = configMotors(motor_configs, 1.0);
-
-        position_request_ = new PositionVoltage(0).withSlot(0);
-        velocity_request_ = new VelocityVoltage(0).withSlot(1);
-        duty_cycle_request_ = new DutyCycleOut(0);
-
-        // convert the list to an array for easy access
-        motor_ = configured_motors.motors[0];
-        signals_ = configured_motors.signals;
+        // set the system constants
+        this.gear_ratio_ = gear_ratio;
 
         // default the inputs
         position_ = 0;
@@ -54,71 +68,41 @@ public class SparkFlexRollerMech extends MechBase {
         motor_temp_c_ = 0;
         bus_voltage_ = 0;
 
-        //////////////////////////
+        ////////////////////////
         /// SIMULATION SETUP ///
-        //////////////////////////
-
-        DCMotor motor_type;
-        if (motor_config.motor_type == FxMotorType.X60) {
-            motor_type = DCMotor.getKrakenX60(1);
-        } else {
-            throw new IllegalArgumentException("Unsupported motor type for ArmMech");
-        }
-
+        ////////////////////////
+        DCMotor motor_type = DCMotor.getNeoVortex(1);
         roller_sim_ = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.001, 1.0),
-            motor_type);
-    }
-
-    protected void configSlot(int slot, SlotConfigs config) {
-        if (slot == 0) {
-            motor_.getConfigurator().apply(Slot0Configs.from(config));
-        } else if (slot == 1) {
-            motor_.getConfigurator().apply(Slot1Configs.from(config));
-        } else {
-            throw new IllegalArgumentException("Slot must be 0, 1, or 2");
-        }
-    }
-
-    public void setPositionSlot(SlotConfigs config) {
-        configSlot(0, config);
-    }
-
-    public void setVelocitySlot(SlotConfigs config) {
-        configSlot(1, config);
+                LinearSystemId.createDCMotorSystem(motor_type, 0.01, gear_ratio_), motor_type);
     }
 
     @Override
     public void readInputs(double timestamp) {
-        BaseStatusSignal.refreshAll(signals_);
-
         // always read the sensor data
-        position_ = motor_.getPosition().getValue().in(Radians);
-        velocity_ = motor_.getVelocity().getValue().in(RadiansPerSecond);
-        applied_voltage_ = motor_.getMotorVoltage().getValueAsDouble();
-        current_draw_ = motor_.getSupplyCurrent().getValue().in(Amps);
-        motor_temp_c_ = motor_.getDeviceTemp().getValue().in(Celsius);
-        bus_voltage_ = motor_.getSupplyVoltage().getValueAsDouble();
+        position_ = Units.rotationsToRadians(motor_.getAbsoluteEncoder().getPosition());
+        velocity_ = Units.rotationsPerMinuteToRadiansPerSecond(motor_.getAbsoluteEncoder().getVelocity());
+        applied_voltage_ = motor_.getAppliedOutput();
+        current_draw_ = motor_.getOutputCurrent();
+        motor_temp_c_ = motor_.getMotorTemperature();
+        bus_voltage_ = motor_.getBusVoltage();
 
         // run the simulation update step here if we are simulating
         if (IS_SIM) {
-            // Provide a battery voltage to the TalonFX sim so controller output is
-            // meaningful
-            motor_.getSimState().setSupplyVoltage(12.0);
 
+            SparkFlexSim flex_sim = new SparkFlexSim(motor_, DCMotor.getNeoVortex(1));
             // Set input voltage from motor controller to simulation
-            roller_sim_.setInput(motor_.getSimState().getMotorVoltage());
+            roller_sim_.setInput(applied_voltage_);
 
             // Update simulation by 20ms
             roller_sim_.update(0.020);
+            flex_sim.iterate(Units.radiansPerSecondToRotationsPerMinute(roller_sim_.getAngularVelocityRadPerSec()), 12.0, 0.02);
 
-            // Convert meters to motor rotations
-            double motorPosition = Radians.of(roller_sim_.getAngularPositionRad()).in(Rotations);
-            double motorVelocity = RadiansPerSecond.of(roller_sim_.getAngularVelocityRadPerSec())
-                    .in(RotationsPerSecond);
-
-            motor_.getSimState().setRawRotorPosition(motorPosition);
-            motor_.getSimState().setRotorVelocity(motorVelocity);
+            // Update simulated sensor readings
+            position_ = Units.rotationsToRadians(flex_sim.getAbsoluteEncoderSim().getPosition());
+            velocity_ = Units.rotationsPerMinuteToRadiansPerSecond(flex_sim.getAbsoluteEncoderSim().getVelocity());
+            applied_voltage_ = flex_sim.getAppliedOutput();
+            current_draw_ = roller_sim_.getCurrentDrawAmps();
+            bus_voltage_ = flex_sim.getBusVoltage();
         }
     }
 
@@ -126,52 +110,95 @@ public class SparkFlexRollerMech extends MechBase {
     public void writeOutputs(double timestamp) {
         switch (control_mode_) {
             case POSITION:
-                motor_.setControl(position_request_);
+                controller_.setReference(Units.radiansToRotations(position_target_), ControlType.kPosition, ClosedLoopSlot.kSlot0);
                 break;
             case VELOCITY:
-                motor_.setControl(velocity_request_);
+                controller_.setReference(Units.radiansPerSecondToRotationsPerMinute(velocity_target_), ControlType.kVelocity, ClosedLoopSlot.kSlot1);
                 break;
             case DUTY_CYCLE:
-                motor_.setControl(duty_cycle_request_);
+                motor_.set(duty_cycle_target_);
                 break;
             default:
                 throw new IllegalStateException("Unexpected control mode: " + control_mode_);
         }
+    }
 
+    /**
+     * Configure PID gains for position control (Slot 0)
+     * This method preserves all other motor settings by using the stored configuration.
+     */
+    public void setPositionPID(SlotConfigs config) {
+        // Update only the closed-loop parameters in our stored config
+        stored_config_.closedLoop.pidf(config.kP, config.kI, config.kD, config.kV, ClosedLoopSlot.kSlot0);
+        motor_.configure(stored_config_, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    /**
+     * Configure PID gains for velocity control (Slot 1)
+     * This method preserves all other motor settings by using the stored configuration.
+     */
+    public void setVelocityPID(SlotConfigs config) {
+        // Update only the closed-loop parameters in our stored config
+        stored_config_.closedLoop.pidf(config.kP, config.kI, config.kD, config.kV, ClosedLoopSlot.kSlot1);
+        motor_.configure(stored_config_, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void setCurrentPosition(double position_rad) {
-        motor_.setPosition(Units.radiansToRotations(position_rad));
+        // Note: SparkFlex absolute encoder position cannot be set directly
+        // This would typically be done during initialization or with a relative encoder
+        // For now, we'll store the position offset
+        position_ = position_rad;
     }
 
+    /**
+     * Get the current position of the roller in radians
+     * @return Current position in radians
+     */
     public double getCurrentPosition() {
         return position_;
     }
 
+    /**
+     * Get the current velocity of the roller in radians per second
+     * @return Current velocity in radians per second
+     */
     public double getCurrentVelocity() {
         return velocity_;
     }
 
+    /**
+     * Get the current draw of the roller motor in amps
+     * @return Current draw in amps
+     */
     public double getLeaderCurrent() {
         return current_draw_;
     }
 
+    /**
+     * Set the target position for the roller in radians
+     * @param position_rad Target position in radians
+     */
     public void setTargetPosition(double position_rad) {
         position_target_ = position_rad;
         control_mode_ = ControlMode.POSITION;
-        position_request_.Position = Units.radiansToRotations(position_rad);
     }
 
+    /**
+     * Set the target velocity for the roller in radians per second
+     * @param velocity_rad_per_sec Target velocity in radians per second
+     */
     public void setTargetVelocity(double velocity_rad_per_sec) {
         velocity_target_ = velocity_rad_per_sec;
         control_mode_ = ControlMode.VELOCITY;
-        velocity_request_.Velocity = Units.radiansToRotations(velocity_rad_per_sec);
     }
 
+    /**
+     * Set the target velocity for the roller in radians per second
+     * @param velocity_rad_per_sec Target velocity in radians per second
+     */
     public void setTargetDutyCycle(double duty_cycle) {
         duty_cycle_target_ = duty_cycle;
         control_mode_ = ControlMode.DUTY_CYCLE;
-        duty_cycle_request_.Output = duty_cycle;
     }
 
     @Override
