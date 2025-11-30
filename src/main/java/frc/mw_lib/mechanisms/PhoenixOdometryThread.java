@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve;
+package frc.mw_lib.mechanisms;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -43,6 +43,7 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> phoenixQueues = new ArrayList<>();
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
+  private final Lock odometry_lock_ = new ReentrantLock();
 
   private static final boolean IS_CANFD = true;
   private static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0; 
@@ -71,7 +72,7 @@ public class PhoenixOdometryThread extends Thread {
   public Queue<Double> registerSignal(StatusSignal<Angle> signal) {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
     signalsLock.lock();
-    Swerve.odometry_lock_.lock();
+    odometry_lock_.lock();
     try {
       BaseStatusSignal[] newSignals = new BaseStatusSignal[phoenixSignals.length + 1];
       System.arraycopy(phoenixSignals, 0, newSignals, 0, phoenixSignals.length);
@@ -80,7 +81,7 @@ public class PhoenixOdometryThread extends Thread {
       phoenixQueues.add(queue);
     } finally {
       signalsLock.unlock();
-      Swerve.odometry_lock_.unlock();
+      odometry_lock_.unlock();
     }
     return queue;
   }
@@ -89,13 +90,13 @@ public class PhoenixOdometryThread extends Thread {
   public Queue<Double> registerSignal(DoubleSupplier signal) {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
     signalsLock.lock();
-    Swerve.odometry_lock_.lock();
+    odometry_lock_.lock();
     try {
       genericSignals.add(signal);
       genericQueues.add(queue);
     } finally {
       signalsLock.unlock();
-      Swerve.odometry_lock_.unlock();
+      odometry_lock_.unlock();
     }
     return queue;
   }
@@ -103,13 +104,17 @@ public class PhoenixOdometryThread extends Thread {
   /** Returns a new queue that returns timestamp values for each sample. */
   public Queue<Double> makeTimestampQueue() {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
-    Swerve.odometry_lock_.lock();
+    odometry_lock_.lock();
     try {
       timestampQueues.add(queue);
     } finally {
-      Swerve.odometry_lock_.unlock();
+      odometry_lock_.unlock();
     }
     return queue;
+  }
+
+  public Lock getOdometryLock() {
+    return odometry_lock_;
   }
 
   @Override
@@ -134,7 +139,7 @@ public class PhoenixOdometryThread extends Thread {
       }
 
       // Save new data to queues
-      Swerve.odometry_lock_.lock();
+      odometry_lock_.lock();
       try {
         // Sample timestamp is current FPGA time minus average CAN latency
         //     Default timestamps from Phoenix are NOT compatible with
@@ -159,7 +164,7 @@ public class PhoenixOdometryThread extends Thread {
           timestampQueues.get(i).offer(timestamp);
         }
       } finally {
-        Swerve.odometry_lock_.unlock();
+        odometry_lock_.unlock();
       }
     }
   }
