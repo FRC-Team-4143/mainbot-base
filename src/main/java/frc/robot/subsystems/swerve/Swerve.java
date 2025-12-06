@@ -17,11 +17,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.mw_lib.mechanisms.SwerveMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.swerve_lib.ChassisRequest;
+import frc.mw_lib.swerve_lib.SwerveMech;
 import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
+import frc.mw_lib.swerve_lib.SwerveDriveConfig;
 import frc.mw_lib.swerve_lib.module.Module.DriveControlMode;
 import frc.mw_lib.swerve_lib.module.Module.SteerControlMode;
 import frc.robot.Constants;
@@ -90,7 +91,8 @@ public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
   public Swerve() {
     super(SwerveStates.IDLE, new SwerveConstants());
 
-    swerve_ = new SwerveMech(CONSTANTS);
+    SwerveDriveConfig config = new SwerveDriveConfig();
+    swerve_ = new SwerveMech(config);
 
     // Initialize drive mode requests
     field_centric_request_ = new ChassisRequest.FieldCentric()
