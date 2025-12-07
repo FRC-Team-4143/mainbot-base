@@ -36,8 +36,10 @@ public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
     simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
 
     simulation.useSteerMotorController(
-        new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
+        //new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
+        new PhoenixUtil.TalonFXMotorControllerSim(turnTalon));
   }
+
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {

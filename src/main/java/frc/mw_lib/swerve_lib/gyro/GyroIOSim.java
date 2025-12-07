@@ -23,4 +23,6 @@ public class GyroIOSim implements GyroIO {
     inputs.odometryYawTimestamps = PhoenixUtil.getSimulationOdometryTimeStamps();
     inputs.odometryYawPositions = gyroSimulation.getCachedGyroReadings();
   }
+  @Override
+  public void setYaw(double angle){};
 }

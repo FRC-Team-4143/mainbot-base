@@ -9,10 +9,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.mw_lib.subsystem.SubsystemIO;
 import frc.mw_lib.swerve_lib.ChassisRequest;
 import frc.mw_lib.swerve_lib.ChassisRequest.ChassisRequestParameters;
+import frc.mw_lib.swerve_lib.gyro.Gyro;
 import frc.mw_lib.swerve_lib.module.Module;
 
 public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
-
+  protected Module[] modules_ = new Module[4]; // FL, FR, BL, BR
+  protected Gyro gyro_;
   public SwerveIO(SwerveConstants constants) {
     super(constants);
   }
@@ -69,5 +71,9 @@ public abstract class SwerveIO extends SubsystemIO<SwerveConstants> {
 
   Module[] getModules() {
     return new Module[4];
+  }
+
+  public void setOrientation(){
+    gyro_.setYaw(0);
   }
 }

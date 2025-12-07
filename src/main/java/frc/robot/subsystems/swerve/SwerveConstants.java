@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerFeedbackType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 
@@ -28,7 +29,7 @@ import frc.mw_lib.swerve_lib.module.ModuleType;
 
 public class SwerveConstants extends MwConstants {
   // Current system states for the swerve drive
-  enum SwerveStates {
+  public enum SwerveStates {
     FIELD_CENTRIC,
     ROBOT_CENTRIC,
     CHOREO_PATH,
@@ -39,10 +40,10 @@ public class SwerveConstants extends MwConstants {
 
   // CAN bus name and CAN ID for the pigeon2
   public final int PIGEON2_ID = 0;
-  public final String PIGEON2_CANBUS_NAME = "CANivore";
+  public final String PIGEON2_CANBUS_NAME = "rio";
 
   // CAN bus names for each of the swerve modules
-  public final String MODULE_CANBUS_NAME = "CANivore";
+  public final String MODULE_CANBUS_NAME = "rio";
 
   public final double DRIVE_INERTIA = 0.025; // kg*m^2, inertia of the drive motor
   public final double STEER_INERTIA = 0.004; // kg*m^2, inertia of the steer motor
@@ -69,7 +70,7 @@ public class SwerveConstants extends MwConstants {
   }
 
   // The steer motor uses MotionMagicVoltage control
-  private final Slot0Configs STEER_GAINS = new Slot0Configs().withKP(80).withKI(0).withKD(0).withKS(0).withKV(0)
+  private final Slot0Configs STEER_GAINS = new Slot0Configs().withKP(80 ).withKI(0).withKD(0).withKS(0).withKV(0)
       .withKA(0);
   // When using closed-loop control, the drive motor uses VelocityVoltage
   private final Slot0Configs DRIVE_GAINS = new Slot0Configs().withKP(0.5).withKI(0).withKD(0).withKS(0.18)
@@ -96,17 +97,18 @@ public class SwerveConstants extends MwConstants {
       .withSpeedAt12Volts(SPEED_AT_12V_MPS)
       .withDriveMotorType(DriveMotorArrangement.TalonFX_Integrated)
       .withSteerMotorType(SteerMotorArrangement.TalonFX_Integrated)
-      // .withFeedbackSource(kSteerFeedbackType) Not set for Analog Encoder
+      //.withFeedbackSource()  //kSteerFeedbackType) // Not set for Analog Encoder
       .withDriveMotorInitialConfigs(new TalonFXConfiguration())
       .withSteerMotorInitialConfigs(new TalonFXConfiguration())
       .withEncoderInitialConfigs(new CANcoderConfiguration())
       .withSteerInertia(STEER_INERTIA)
       .withDriveInertia(DRIVE_INERTIA)
       .withSteerFrictionVoltage(STEER_FRICTION_VOLTAGE)
-      .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE);
+      .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE)
+      .withFeedbackSource(SteerFeedbackType.RemoteCANcoder);
 
   // Front Left Module Constants
-  private final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
+  private final ModuleType FL_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
   public final Translation2d FL_MODULE_TRANSLATION = new Translation2d(Units.inchesToMeters(11.4),
       Units.inchesToMeters(11.4));
   public final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FL_MODULE_CONSTANTS = CONSTANT_CREATOR
@@ -142,7 +144,7 @@ public class SwerveConstants extends MwConstants {
       .withSteerMotorGearRatio(FR_MODULE_TYPE.steerRatio);
 
   // Back Left Module Constants
-  private final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("MK4N-L2+");
+  private final ModuleType BL_MODULE_TYPE = ModuleType.getModuleType("MK4I-L2+");
   public final Translation2d BL_MODULE_TRANSLATION = new Translation2d(Units.inchesToMeters(-11.4),
       Units.inchesToMeters(11.4));
   public final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BL_MODULE_CONSTANTS = CONSTANT_CREATOR

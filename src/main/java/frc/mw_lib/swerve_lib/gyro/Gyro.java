@@ -40,4 +40,8 @@ public class Gyro {
   public Rotation2d[] getOdometryYawPositions() {
     return inputs.odometryYawPositions;
   }
+
+  public void setYaw(double angle){
+    io.setYaw(angle);
+  }
 }

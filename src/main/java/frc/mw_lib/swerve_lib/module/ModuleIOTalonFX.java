@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public abstract class ModuleIOTalonFX implements ModuleIO {
   protected final SwerveModuleConstants<
@@ -30,7 +31,7 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
 
   protected final TalonFX driveTalon;
   protected final TalonFX turnTalon;
-  protected final CANcoder cancoder;
+  //protected final CANcoder cancoder;
 
   protected final VoltageOut voltageRequest = new VoltageOut(0);
   protected final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
@@ -67,7 +68,7 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
 
     driveTalon = new TalonFX(constants.DriveMotorId, can_bus_name);
     turnTalon = new TalonFX(constants.SteerMotorId, can_bus_name);
-    cancoder = new CANcoder(constants.EncoderId, can_bus_name);
+    //cancoder = new CANcoder(constants.EncoderId, can_bus_name);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -91,8 +92,8 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = constants.SteerMotorGains;
 
-    turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
-    turnConfig.Feedback.FeedbackSensorSource =
+    //turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
+    /*turnConfig.Feedback.FeedbackSensorSource =
         switch (constants.FeedbackSource) {
           case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
           case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
@@ -100,8 +101,10 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
           default -> throw new RuntimeException(
               "You are using an unsupported swerve configuration, which this template does not support without manual customization. \n"
                   + "The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
-        };
-    turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+        };*/
+    //turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    //turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+    turnConfig.Feedback.SensorToMechanismRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
         turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
@@ -121,14 +124,15 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
     driveCurrent = driveTalon.getStatorCurrent();
 
     // Create turn status signals
-    turnAbsolutePosition = cancoder.getAbsolutePosition();
+    //turnAbsolutePosition = cancoder.getAbsolutePosition();
+    turnAbsolutePosition = turnTalon.getPosition();
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getStatorCurrent();
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
-        new CANBus(can_bus_name).isNetworkFD() ? 250.0 : 100.0, turnAbsolutePosition, drivePosition);
+        new CANBus(can_bus_name).isNetworkFD() ? 250.0 : 100.0, /*turnAbsolutePosition,*/ drivePosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         driveVelocity,
@@ -146,7 +150,7 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
     var turnStatus = BaseStatusSignal.refreshAll(turnVelocity, turnAppliedVolts, turnCurrent);
-    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
+    //var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
 
     // Update drive inputs
     inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
@@ -157,8 +161,9 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
 
     // Update turn inputs
     inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
-    inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
+    inputs.turnEncoderConnected = true; //turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
+    inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnTalon.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber(this.constants.DriveMotorId + " position", inputs.turnAbsolutePosition.getRotations());
     inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
@@ -202,5 +207,12 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
               rotation.getRotations());
         });
+    SmartDashboard.putNumber(this.constants.DriveMotorId + " setTurnPosition", rotation.getRotations());
+
+  }
+
+  @Override
+  public void zeroEncoder(){
+    tryUntilOk(5, () -> turnTalon.setPosition(0.0, 0.25));
   }
 }

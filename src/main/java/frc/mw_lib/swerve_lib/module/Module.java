@@ -160,4 +160,7 @@ public class Module {
   public Translation2d getTranslation() {
     return new Translation2d(constants.LocationX, constants.LocationY);
   }
+  public void zeroEncoder(){
+    io.zeroEncoder();
+  }
 }

@@ -44,7 +44,7 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-  private static final boolean IS_CANFD = true;
+  private static final boolean IS_CANFD = false;
   private static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0; 
   private static PhoenixOdometryThread instance = null;
 

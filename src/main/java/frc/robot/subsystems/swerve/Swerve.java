@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.mw_lib.subsystem.MwSubsystem;
@@ -129,6 +130,7 @@ public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
         new ChassisRequest.ApplyFieldSpeeds()
             .withDriveRequestType(DriveControlMode.CLOSED_LOOP)
             .withSteerRequestType(SteerControlMode.CLOSED_LOOP);
+    SmartDashboard.putData("zeroEncoders", zeroEncoders());
   }
 
   @Override
@@ -160,7 +162,7 @@ public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
 
     // Set state static request parameters
     swerve_io_.current_request_parameters.currentChassisSpeed = getChassisSpeeds();
-    swerve_io_.current_request_parameters.currentPose = getPose();
+    swerve_io_.current_request_parameters.currentPose = new Pose2d(0,0, swerve_io_.raw_gyro_rotation);
     swerve_io_.current_request_parameters.updatePeriod =
         Timer.getFPGATimestamp() - swerve_io_.current_request_parameters.timestamp;
     swerve_io_.current_request_parameters.timestamp = Timer.getFPGATimestamp();
@@ -358,7 +360,21 @@ public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
           }
         });
   }
+  public Command zeroEncoders(){
+    return Commands.runOnce(
+      () -> {
+        frc.mw_lib.swerve_lib.module.Module[] modules = swerve_io_.getModules();
+        for(int i = 0; i < modules.length; i++){
+          modules[i].zeroEncoder();
+        }
+        System.out.println("Zero encoders");
+      }).ignoringDisable(true);
+  }
 
+  public void seedFieldCentric(){
+    swerve_io_.setOrientation();
+  }
+  
   // ------------------------------------------------
   // Operator Interface Methods
   // ------------------------------------------------
@@ -556,5 +572,4 @@ public class Swerve extends MwSubsystem<SwerveStates, SwerveConstants> {
   public List<SubsystemIoBase> getIos() {
     return Arrays.asList(swerve_io_);
   }
-
 }

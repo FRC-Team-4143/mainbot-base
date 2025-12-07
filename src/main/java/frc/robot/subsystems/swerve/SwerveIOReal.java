@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.mw_lib.swerve_lib.gyro.Gyro;
 import frc.mw_lib.swerve_lib.gyro.GyroIOPigeon2;
@@ -15,12 +16,10 @@ import frc.mw_lib.swerve_lib.module.ModuleIOTalonFXReal;
 
 public class SwerveIOReal extends SwerveIO {
 
-  private final Module[] modules_ = new Module[4]; // FL, FR, BL, BR
-  private final Gyro gyro_;
+  
 
   private final SwerveDrivePoseEstimator pose_estimator_;
-  private final SwerveDriveKinematics kinematics_ =
-      new SwerveDriveKinematics(getModuleTranslations());
+  private final SwerveDriveKinematics kinematics_;
 
   SwerveIOReal(SwerveConstants constants) {
     super(constants);
@@ -48,11 +47,21 @@ public class SwerveIOReal extends SwerveIO {
             3,
             CONSTANTS.BR_MODULE_CONSTANTS);
 
+    kinematics_ =
+            new SwerveDriveKinematics(getModuleTranslations());
+
+
+    SwerveModulePosition[] swerveArray = new SwerveModulePosition[4];
+    swerveArray[0] = new SwerveModulePosition();
+    swerveArray[1] = new SwerveModulePosition();
+    swerveArray[2] = new SwerveModulePosition();
+    swerveArray[3] = new SwerveModulePosition();
     // Configure Pose Estimator
     pose_estimator_ =
         new SwerveDrivePoseEstimator(
-            kinematics_, new Rotation2d(), new SwerveModulePosition[4], Pose2d.kZero);
+            kinematics_, new Rotation2d(), swerveArray, Pose2d.kZero);
     // Setup MapleSim Drive Train Simulation
+
   }
 
   @Override

@@ -21,9 +21,6 @@ public class SwerveIOSim extends SwerveIO {
 
   private final Pose2d SIM_START_POSE = new Pose2d(3, 3, Rotation2d.kZero);
 
-  private final Module[] modules_ = new Module[4]; // FL, FR, BL, BR
-  private final Gyro gyro_;
-
   private final SwerveDrivePoseEstimator pose_estimator_;
   private final SwerveDriveKinematics kinematics_;
 

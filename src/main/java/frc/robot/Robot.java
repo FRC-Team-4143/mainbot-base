@@ -85,6 +85,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     ProxyServer.syncMatchData();
     CommandScheduler.getInstance().cancelAll();
+    Swerve.getInstance().setWantedState(SwerveConstants.SwerveStates.FIELD_CENTRIC);
   }
 
   @Override

@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -25,6 +26,7 @@ public abstract class OI {
   
     driver_controller_.a().onTrue(Commands.run(() -> ElevatorSubsystem.getInstance().requestMove(0.0)));
     driver_controller_.b().onTrue(Commands.run(() -> ElevatorSubsystem.getInstance().requestMove(1.0)));
+    SmartDashboard.putData("SeedFieldCentric", Commands.runOnce(Swerve.getInstance()::seedFieldCentric));
   }
 
   /**
