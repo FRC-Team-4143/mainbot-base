@@ -94,8 +94,7 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
   public SwerveSubsystem() {
     super(SwerveStates.IDLE, new SwerveConstants());
 
-    SwerveDriveConfig config = new SwerveDriveConfig();
-    swerve_mech_ = new SwerveMech(getSubsystemKey(), config, CONSTANTS.MAPLE_SIM_DRIVETRAIN_CONFIG);
+    swerve_mech_ = new SwerveMech(getSubsystemKey(), CONSTANTS.SWERVE_DRIVE_CONFIG, CONSTANTS.SIM_SWERVE_DRIVE_CONFIG);
 
     // Initialize drive mode requests
     field_centric_request_ = new ChassisRequest.FieldCentric()
