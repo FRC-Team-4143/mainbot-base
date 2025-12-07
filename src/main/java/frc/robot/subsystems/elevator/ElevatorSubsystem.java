@@ -3,13 +3,10 @@ package frc.robot.subsystems.elevator;
 import java.util.Arrays;
 import java.util.List;
 
-import com.ctre.phoenix6.configs.SlotConfigs;
-
 import dev.doglog.DogLog;
 import frc.mw_lib.mechanisms.ElevatorMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
-import frc.mw_lib.util.TunablePid;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConstants> {
@@ -28,13 +25,9 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
     public ElevatorSubsystem() {
         super(ElevatorStates.IDLE, new ElevatorConstants());
 
-        elevator_mech_ = new ElevatorMech(Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.elevator_gear_ratio,
+        elevator_mech_ = new ElevatorMech(getSubsystemKey(), Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.elevator_gear_ratio,
                 CONSTANTS.elevator_drum_radius, CONSTANTS.elevator_carrige_mass, CONSTANTS.elevator_max_extension,
                 CONSTANTS.elevator_rigging_ratio);
-        elevator_mech_.setLoggingPrefix(getSubsystemKey());
-
-        TunablePid.create(getSubsystemKey() + "Elevator", elevator_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
-        DogLog.tunable(getSubsystemKey() + "Elevator/Setpoint", target_elevator_position_, v -> target_elevator_position_ = v);
     }
 
     // @Override

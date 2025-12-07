@@ -29,11 +29,8 @@ public class ArmSubsystem extends MwSubsystem<ArmStates, ArmConstants> {
     public ArmSubsystem() {
         super(ArmStates.IDLE, new ArmConstants());
 
-        arm_mech_ = new ArmMech(Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.arm_gear_ratio, CONSTANTS.arm_length, CONSTANTS.arm_mass, CONSTANTS.arm_min_angle, CONSTANTS.arm_max_angle);
-        arm_mech_.setLoggingPrefix(getSubsystemKey());
+        arm_mech_ = new ArmMech(getSubsystemKey(), Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.arm_gear_ratio, CONSTANTS.arm_length, CONSTANTS.arm_mass, CONSTANTS.arm_min_angle, CONSTANTS.arm_max_angle);
 
-        TunablePid.create(getSubsystemKey() + "Arm", arm_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
-        DogLog.tunable(getSubsystemKey() + "Arm/Setpoint", target_arm_position_, v -> target_arm_position_ = v);
     }
 
     // @Override
