@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:FRC-Team-4143/MW-Lib.git
 	branch = develop
-	commit = 5d783d4c01daa73ce3efd02f106638391eb397ff
+	commit = db9c2dcfd9f88b931eadc6796deb497874045394
 	parent = 
 	method = merge
 	cmdver = 0.4.9
