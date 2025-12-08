@@ -66,6 +66,11 @@ public class PolygonRegion implements Region {
         return name_;
     }
 
+    /**
+     * Get the points that define the polygon region
+     *
+     * @return the points of the polygon region
+     */
     public Translation2d[] getPoints() {
         Translation2d[] saftey = points_;
         return saftey;

@@ -25,6 +25,7 @@ import java.util.List;
 
 public class ElevatorMech extends MechBase {
 
+    /** Control modes for the elevator mechanism */
     protected enum ControlMode {
         MOTION_MAGIC_POSITION,
         POSITION,
@@ -252,63 +253,6 @@ public class ElevatorMech extends MechBase {
         }
     }
 
-    public void configPositionSlot(SlotConfigs config) {
-        configSlot(0, config);
-    }
-
-    public void configVelocitySlot(SlotConfigs config) {
-        configSlot(1, config);
-    }
-
-    private void configSlot(int slot, SlotConfigs config) {
-        if (slot == 0) {
-            motors_[0].getConfigurator().apply(Slot0Configs.from(config));
-        } else if (slot == 1) {
-            motors_[0].getConfigurator().apply(Slot1Configs.from(config));
-        } else {
-            throw new IllegalArgumentException("Slot must be 0, 1, or 2");
-        }
-    }
-
-    public void setCurrentPosition(double position) {
-        motors_[0].setPosition(position);
-    }
-
-    public double getCurrentPosition() {
-        return position_;
-    }
-
-    public double getCurrentVelocity() {
-        return velocity_;
-    }
-
-    public double getLeaderCurrent() {
-        return current_draw_[0];
-    }
-
-    public void setTargetPosition(double position_m) {
-        position_target_ = position_m;
-        if (use_motion_magic_) {
-            control_mode_ = ControlMode.MOTION_MAGIC_POSITION;
-            motion_magic_position_request_.Position = position_m / position_to_rotations_;
-        } else {
-            control_mode_ = ControlMode.POSITION;
-            position_request_.Position = position_m / position_to_rotations_;
-        }
-    }
-
-    public void setTargetVelocity(double velocity_mps) {
-        control_mode_ = ControlMode.VELOCITY;
-        velocity_target_ = velocity_mps;
-        velocity_request_.Velocity = velocity_mps / position_to_rotations_;
-    }
-
-    public void setTargetDutyCycle(double duty_cycle) {
-        control_mode_ = ControlMode.DUTY_CYCLE;
-        duty_cycle_target_ = duty_cycle;
-        duty_cycle_request_.Output = duty_cycle;
-    }
-
     @Override
     public void logData() {
         // commands
@@ -326,5 +270,113 @@ public class ElevatorMech extends MechBase {
             DogLog.log(getLoggingKey() + "motor" + i + "/temp_c", motor_temp_c_[i]);
             DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
+    }
+
+    /**
+     * Configures the position slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configPositionSlot(SlotConfigs config) {
+        configSlot(0, config);
+    }
+
+    /**
+     * Configures the velocity slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configVelocitySlot(SlotConfigs config) {
+        configSlot(1, config);
+    }
+
+    /**
+     * Configures the given slot with the given config
+     *
+     * @param slot the slot to configure
+     * @param config the slot config to apply
+     */
+    private void configSlot(int slot, SlotConfigs config) {
+        if (slot == 0) {
+            motors_[0].getConfigurator().apply(Slot0Configs.from(config));
+        } else if (slot == 1) {
+            motors_[0].getConfigurator().apply(Slot1Configs.from(config));
+        } else {
+            throw new IllegalArgumentException("Slot must be 0, 1, or 2");
+        }
+    }
+
+    /**
+     * Sets the current position of the elevator (for zeroing purposes)
+     *
+     * @param position the position to set in meters
+     */
+    public void setCurrentPosition(double position) {
+        motors_[0].setPosition(position);
+    }
+
+    /**
+     * Gets the current position of the elevator in meters
+     *
+     * @return the current position in meters
+     */
+    public double getCurrentPosition() {
+        return position_;
+    }
+
+    /**
+     * Gets the current velocity of the elevator in meters per second
+     *
+     * @return the current velocity in meters per second
+     */
+    public double getCurrentVelocity() {
+        return velocity_;
+    }
+
+    /**
+     * Gets the current draw of the leader motor in amps
+     *
+     * @return the current draw of the leader motor in amps
+     */
+    public double getLeaderCurrent() {
+        return current_draw_[0];
+    }
+
+    /**
+     * Sets the target position of the elevator in meters
+     *
+     * @param position_m the target position in meters
+     */
+    public void setTargetPosition(double position_m) {
+        position_target_ = position_m;
+        if (use_motion_magic_) {
+            control_mode_ = ControlMode.MOTION_MAGIC_POSITION;
+            motion_magic_position_request_.Position = position_m / position_to_rotations_;
+        } else {
+            control_mode_ = ControlMode.POSITION;
+            position_request_.Position = position_m / position_to_rotations_;
+        }
+    }
+
+    /**
+     * Sets the target velocity of the elevator in meters per second
+     *
+     * @param velocity_mps the target velocity in meters per second
+     */
+    public void setTargetVelocity(double velocity_mps) {
+        control_mode_ = ControlMode.VELOCITY;
+        velocity_target_ = velocity_mps;
+        velocity_request_.Velocity = velocity_mps / position_to_rotations_;
+    }
+
+    /**
+     * Sets the target duty cycle of the elevator
+     *
+     * @param duty_cycle the target duty cycle (-1.0 to 1.0)
+     */
+    public void setTargetDutyCycle(double duty_cycle) {
+        control_mode_ = ControlMode.DUTY_CYCLE;
+        duty_cycle_target_ = duty_cycle;
+        duty_cycle_request_.Output = duty_cycle;
     }
 }

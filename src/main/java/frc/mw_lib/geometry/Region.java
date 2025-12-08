@@ -13,7 +13,9 @@ public interface Region {
     /** Returns true if the region contains a given Pose2d. */
     public boolean contains(Pose2d other);
 
+    /** Returns the name of the region for logging purposes. */
     public String getName();
 
+    /** Constructs the region and prepares it for logging. */
     public void constructRegion();
 }

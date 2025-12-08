@@ -30,6 +30,11 @@ public class MwConstants {
         return system_name;
     }
 
+    /**
+     * Get a double constant from the configuration file
+     * @param path_steps comma separated list of strings representing the path to the constant
+     * @return the double constant
+     */
     protected final double getDoubleConstant(String... path_steps) {
         String[] arr = new String[path_steps.length + 1];
         arr[0] = system_name;
@@ -39,6 +44,11 @@ public class MwConstants {
         return LOADER.getDoubleValue(arr);
     }
 
+    /**
+     * Get an integer constant from the configuration file
+     * @param path_steps comma separated list of strings representing the path to the constant
+     * @return the integer constant
+     */
     protected final int getIntConstant(String... path_steps) {
         String[] arr = new String[path_steps.length + 1];
         arr[0] = system_name;
@@ -48,6 +58,11 @@ public class MwConstants {
         return LOADER.getIntValue(arr);
     }
 
+    /**
+     * Get a string constant from the configuration file
+     * @param path_steps comma separated list of strings representing the path to the constant
+     * @return the string constant
+     */
     protected final String getStringConstant(String... path_steps) {
         String[] arr = new String[path_steps.length + 1];
         arr[0] = system_name;
@@ -57,6 +72,11 @@ public class MwConstants {
         return LOADER.getStringValue(arr);
     }
 
+    /**
+     * Get a boolean constant from the configuration file
+     * @param path_steps comma separated list of strings representing the path to the constant
+     * @return the boolean constant
+     */
     protected final boolean getBoolConstant(String... path_steps) {
         String[] arr = new String[path_steps.length + 1];
         arr[0] = system_name;

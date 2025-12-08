@@ -24,7 +24,7 @@ import java.util.List;
 
 public class FlywheelMech extends MechBase {
 
-    // control modes for the flywheel mechanism
+    /** Control modes for the flywheel mechanism */
     protected enum ControlMode {
         VELOCITY,
         DUTY_CYCLE
@@ -170,14 +170,38 @@ public class FlywheelMech extends MechBase {
         }
     }
 
-    public void configPositionSlot(SlotConfigs config) {
-        configSlot(0, config);
+    @Override
+    public void logData() {
+        // commands
+        DogLog.log(getLoggingKey() + "control/mode", control_mode_.toString());
+        DogLog.log(getLoggingKey() + "control/velocity/target", velocity_target_);
+        DogLog.log(getLoggingKey() + "control/velocity/actual", velocity_);
+        DogLog.log(getLoggingKey() + "control/duty_cycle/target", duty_cycle_target_);
+
+        // per motor data
+        for (int i = 0; i < motors_.length; i++) {
+            DogLog.log(getLoggingKey() + "motor" + i + "/applied_voltage", applied_voltage_[i]);
+            DogLog.log(getLoggingKey() + "motor" + i + "/current_draw", current_draw_[i]);
+            DogLog.log(getLoggingKey() + "motor" + i + "/temp_c", motor_temp_c_[i]);
+            DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
+        }
     }
 
-    public void configVelocitySlot(SlotConfigs config) {
+    /**
+     * Configures the velocity slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configVelocitySlot(SlotConfigs config) {
         configSlot(1, config);
     }
 
+    /**
+     * Configures the given slot with the given config
+     *
+     * @param slot the slot index to configure
+     * @param config the slot config to apply
+     */
     private void configSlot(int slot, SlotConfigs config) {
         if (slot == 0) {
             motors_[0].getConfigurator().apply(Slot0Configs.from(config));
@@ -188,12 +212,22 @@ public class FlywheelMech extends MechBase {
         }
     }
 
+    /**
+     * Sets the target velocity of the flywheel in radians per second
+     *
+     * @param velocity_rad_per_sec the target velocity in radians per second
+     */
     public void setTargetVelocity(double velocity_rad_per_sec) {
         control_mode_ = ControlMode.VELOCITY;
         velocity_target_ = velocity_rad_per_sec;
         velocity_request_.Velocity = Units.radiansToRotations(velocity_rad_per_sec);
     }
 
+    /**
+     * Sets the target duty cycle of the flywheel
+     *
+     * @param duty_cycle the target duty cycle (-1.0 to 1.0)
+     */
     public void setTargetDutyCycle(double duty_cycle) {
         control_mode_ = ControlMode.DUTY_CYCLE;
         duty_cycle_target_ = duty_cycle;
@@ -216,23 +250,6 @@ public class FlywheelMech extends MechBase {
         // Apply the calculated velocity to simulation
         if (IS_SIM) {
             flywheel_sim_.setAngularVelocity(new_velocity);
-        }
-    }
-
-    @Override
-    public void logData() {
-        // commands
-        DogLog.log(getLoggingKey() + "control/mode", control_mode_.toString());
-        DogLog.log(getLoggingKey() + "control/velocity/target", velocity_target_);
-        DogLog.log(getLoggingKey() + "control/velocity/actual", velocity_);
-        DogLog.log(getLoggingKey() + "control/duty_cycle/target", duty_cycle_target_);
-
-        // per motor data
-        for (int i = 0; i < motors_.length; i++) {
-            DogLog.log(getLoggingKey() + "motor" + i + "/applied_voltage", applied_voltage_[i]);
-            DogLog.log(getLoggingKey() + "motor" + i + "/current_draw", current_draw_[i]);
-            DogLog.log(getLoggingKey() + "motor" + i + "/temp_c", motor_temp_c_[i]);
-            DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
     }
 }

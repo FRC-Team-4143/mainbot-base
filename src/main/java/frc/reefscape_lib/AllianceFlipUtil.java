@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.lib;
+package frc.reefscape_lib;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -112,14 +112,14 @@ public class AllianceFlipUtil {
     public static TightRope apply(TightRope tightRope, SymmetryType symmetry) {
         if (symmetry == SymmetryType.DIAGONAL) {
             return new TightRope(
-                    AllianceFlipUtil.apply(tightRope.poseB, symmetry),
-                    AllianceFlipUtil.apply(tightRope.poseA, symmetry),
-                    tightRope.getName());
+                    AllianceFlipUtil.apply(tightRope.pose_b_, symmetry),
+                    AllianceFlipUtil.apply(tightRope.pose_a_, symmetry),
+                    tightRope.getName_());
         } else {
             return new TightRope(
-                    AllianceFlipUtil.apply(tightRope.poseA, symmetry),
-                    AllianceFlipUtil.apply(tightRope.poseB, symmetry),
-                    tightRope.getName());
+                    AllianceFlipUtil.apply(tightRope.pose_a_, symmetry),
+                    AllianceFlipUtil.apply(tightRope.pose_b_, symmetry),
+                    tightRope.getName_());
         }
     }
 }

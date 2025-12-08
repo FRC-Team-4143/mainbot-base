@@ -5,11 +5,11 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.lib;
+package frc.reefscape_lib;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
-import frc.lib.AllianceFlipUtil.SymmetryType;
+import frc.reefscape_lib.AllianceFlipUtil.SymmetryType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

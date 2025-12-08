@@ -60,6 +60,9 @@ public abstract class SubsystemManager {
         }
     }
 
+    /**
+     * Preform the control loop for all subsystems
+     */
     public void doControlLoop() {
         // For each subsystem run its update loop
         for (MwSubsystemBase subsystem : subsystems) {

@@ -28,6 +28,7 @@ import java.util.List;
 
 public class ArmMech extends MechBase {
 
+    /** Control modes for the arm mechanism */
     protected enum ControlMode {
         MOTION_MAGIC_POSITION,
         POSITION,
@@ -152,24 +153,6 @@ public class ArmMech extends MechBase {
                 getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
     }
 
-    public void configPositionSlot(SlotConfigs config) {
-        configSlot(0, config);
-    }
-
-    public void configVelocitySlot(SlotConfigs config) {
-        configSlot(1, config);
-    }
-
-    private void configSlot(int slot, SlotConfigs config) {
-        if (slot == 0) {
-            motors_[0].getConfigurator().apply(Slot0Configs.from(config));
-        } else if (slot == 1) {
-            motors_[0].getConfigurator().apply(Slot1Configs.from(config));
-        } else {
-            throw new IllegalArgumentException("Slot must be 0, 1, or 2");
-        }
-    }
-
     @Override
     public void readInputs(double timestamp) {
         BaseStatusSignal.refreshAll(signals_);
@@ -229,45 +212,6 @@ public class ArmMech extends MechBase {
         }
     }
 
-    public void setCurrentPosition(double position_rad) {
-        motors_[0].setPosition(Units.radiansToRotations(position_rad));
-    }
-
-    public double getCurrentPosition() {
-        return position_;
-    }
-
-    public double getCurrentVelocity() {
-        return velocity_;
-    }
-
-    public double getLeaderCurrent() {
-        return current_draw_[0];
-    }
-
-    public void setTargetPosition(double position_rad) {
-        position_target_ = position_rad;
-        if (use_motion_magic_) {
-            control_mode_ = ControlMode.MOTION_MAGIC_POSITION;
-            motion_magic_position_request_.Position = Units.radiansToRotations(position_rad);
-        } else {
-            control_mode_ = ControlMode.POSITION;
-            position_request_.Position = Units.radiansToRotations(position_rad);
-        }
-    }
-
-    public void setTargetVelocity(double velocity_rad_per_sec) {
-        control_mode_ = ControlMode.VELOCITY;
-        velocity_target_ = velocity_rad_per_sec;
-        velocity_request_.Velocity = Units.radiansToRotations(velocity_rad_per_sec);
-    }
-
-    public void setTargetDutyCycle(double duty_cycle) {
-        control_mode_ = ControlMode.DUTY_CYCLE;
-        duty_cycle_target_ = duty_cycle;
-        duty_cycle_request_.Output = duty_cycle;
-    }
-
     @Override
     public void logData() {
         // commands
@@ -285,5 +229,113 @@ public class ArmMech extends MechBase {
             DogLog.log(getLoggingKey() + "motor" + i + "/temp_c", motor_temp_c_[i]);
             DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
+    }
+
+    /**
+     * Configures the position slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configPositionSlot(SlotConfigs config) {
+        configSlot(0, config);
+    }
+
+    /**
+     * Configures the velocity slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configVelocitySlot(SlotConfigs config) {
+        configSlot(1, config);
+    }
+
+    /**
+     * Configures the given slot with the given config
+     *
+     * @param slot the slot to configure
+     * @param config the config to apply
+     */
+    private void configSlot(int slot, SlotConfigs config) {
+        if (slot == 0) {
+            motors_[0].getConfigurator().apply(Slot0Configs.from(config));
+        } else if (slot == 1) {
+            motors_[0].getConfigurator().apply(Slot1Configs.from(config));
+        } else {
+            throw new IllegalArgumentException("Slot must be 0, 1, or 2");
+        }
+    }
+
+    /**
+     * Set the current position of the arm (for zeroing)
+     *
+     * @param position_rad the current position in radians
+     */
+    public void setCurrentPosition(double position_rad) {
+        motors_[0].setPosition(Units.radiansToRotations(position_rad));
+    }
+
+    /**
+     * Get the current position of the arm
+     *
+     * @return the current position in radians
+     */
+    public double getCurrentPosition() {
+        return position_;
+    }
+
+    /**
+     * Get the current velocity of the arm
+     *
+     * @return the current velocity in radians per second
+     */
+    public double getCurrentVelocity() {
+        return velocity_;
+    }
+
+    /**
+     * Get the current draw of the leader motor
+     *
+     * @return the current draw in amps
+     */
+    public double getLeaderCurrent() {
+        return current_draw_[0];
+    }
+
+    /**
+     * Set the target position of the arm
+     *
+     * @param position_rad the target position in radians
+     */
+    public void setTargetPosition(double position_rad) {
+        position_target_ = position_rad;
+        if (use_motion_magic_) {
+            control_mode_ = ControlMode.MOTION_MAGIC_POSITION;
+            motion_magic_position_request_.Position = Units.radiansToRotations(position_rad);
+        } else {
+            control_mode_ = ControlMode.POSITION;
+            position_request_.Position = Units.radiansToRotations(position_rad);
+        }
+    }
+
+    /**
+     * Set the target velocity of the arm
+     *
+     * @param velocity_rad_per_sec the target velocity in radians per second
+     */
+    public void setTargetVelocity(double velocity_rad_per_sec) {
+        control_mode_ = ControlMode.VELOCITY;
+        velocity_target_ = velocity_rad_per_sec;
+        velocity_request_.Velocity = Units.radiansToRotations(velocity_rad_per_sec);
+    }
+
+    /**
+     * Set the target duty cycle of the arm
+     *
+     * @param duty_cycle the target duty cycle (-1.0 to 1.0)
+     */
+    public void setTargetDutyCycle(double duty_cycle) {
+        control_mode_ = ControlMode.DUTY_CYCLE;
+        duty_cycle_target_ = duty_cycle;
+        duty_cycle_request_.Output = duty_cycle;
     }
 }

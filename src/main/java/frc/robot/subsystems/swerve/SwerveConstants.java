@@ -21,6 +21,9 @@ public class SwerveConstants extends MwConstants {
         IDLE
     }
 
+    // Deadband for joystick axis in swerve
+    public final double CONTROLLER_DEADBAND = 0.05;
+
     // CAN bus name and CAN ID for the pigeon2
     public final int PIGEON2_ID = 0;
     public final String PIGEON2_CANBUS_NAME = "rio";

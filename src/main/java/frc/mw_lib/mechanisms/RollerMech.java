@@ -28,6 +28,7 @@ import java.util.List;
 
 public class RollerMech extends MechBase {
 
+    /** Control modes for the roller mechanism */
     protected enum ControlMode {
         POSITION,
         VELOCITY,
@@ -176,14 +177,46 @@ public class RollerMech extends MechBase {
         }
     }
 
-    public void configPositionSlot(SlotConfigs config) {
+    @Override
+    public void logData() {
+        // commands
+        DogLog.log(getLoggingKey() + "control/mode", control_mode_.toString());
+        DogLog.log(getLoggingKey() + "control/position/target", position_target_);
+        DogLog.log(getLoggingKey() + "control/position/actual", position_);
+        DogLog.log(getLoggingKey() + "control/velocity/target", velocity_target_);
+        DogLog.log(getLoggingKey() + "control/velocity/actual", velocity_);
+        DogLog.log(getLoggingKey() + "control/duty_cycle/target", duty_cycle_target_);
+
+        DogLog.log(getLoggingKey() + "motor/applied_voltage", applied_voltage_);
+        DogLog.log(getLoggingKey() + "motor/current_draw", current_draw_);
+        DogLog.log(getLoggingKey() + "motor/temp_c", motor_temp_c_);
+        DogLog.log(getLoggingKey() + "motor/bus_voltage", bus_voltage_);
+    }
+
+    /**
+     * Configures the position slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configPositionSlot(SlotConfigs config) {
         configSlot(0, config);
     }
 
-    public void configVelocitySlot(SlotConfigs config) {
+    /**
+     * Configures the velocity slot with the given config
+     *
+     * @param config the slot config to apply
+     */
+    private void configVelocitySlot(SlotConfigs config) {
         configSlot(1, config);
     }
 
+    /**
+     * Configures the given slot with the given config
+     *
+     * @param slot the slot index to configure
+     * @param config the slot config to apply
+     */
     private void configSlot(int slot, SlotConfigs config) {
         if (slot == 0) {
             motor_.getConfigurator().apply(Slot0Configs.from(config));
@@ -194,34 +227,69 @@ public class RollerMech extends MechBase {
         }
     }
 
+    /**
+     * Sets the current position of the roller mechanism (for resetting encoders, etc.)
+     *
+     * @param position_rad the position in radians
+     */
     public void setCurrentPosition(double position_rad) {
         motor_.setPosition(Units.radiansToRotations(position_rad));
     }
 
+    /**
+     * Gets the current position of the roller mechanism in radians
+     *
+     * @return the position in radians
+     */
     public double getCurrentPosition() {
         return position_;
     }
 
+    /**
+     * Gets the current velocity of the roller mechanism in radians per second
+     *
+     * @return the velocity in radians per second
+     */
     public double getCurrentVelocity() {
         return velocity_;
     }
 
+    /**
+     * Gets the current draw of the leader motor in amps
+     *
+     * @return the current draw in amps
+     */
     public double getLeaderCurrent() {
         return current_draw_;
     }
 
+    /**
+     * Sets the target position of the roller mechanism in radians
+     *
+     * @param position_rad the target position in radians
+     */
     public void setTargetPosition(double position_rad) {
         position_target_ = position_rad;
         control_mode_ = ControlMode.POSITION;
         position_request_.Position = Units.radiansToRotations(position_rad);
     }
 
+    /**
+     * Sets the target velocity of the roller mechanism in radians per second
+     *
+     * @param velocity_rad_per_sec the target velocity in radians per second
+     */
     public void setTargetVelocity(double velocity_rad_per_sec) {
         control_mode_ = ControlMode.VELOCITY;
         velocity_target_ = velocity_rad_per_sec;
         velocity_request_.Velocity = Units.radiansToRotations(velocity_rad_per_sec);
     }
 
+    /**
+     * Sets the target duty cycle of the roller mechanism
+     *
+     * @param duty_cycle the target duty cycle (-1.0 to 1.0)
+     */
     public void setTargetDutyCycle(double duty_cycle) {
         control_mode_ = ControlMode.DUTY_CYCLE;
         duty_cycle_target_ = duty_cycle;
@@ -245,21 +313,5 @@ public class RollerMech extends MechBase {
         if (IS_SIM) {
             roller_sim_.setAngularVelocity(new_velocity);
         }
-    }
-
-    @Override
-    public void logData() {
-        // commands
-        DogLog.log(getLoggingKey() + "control/mode", control_mode_.toString());
-        DogLog.log(getLoggingKey() + "control/position/target", position_target_);
-        DogLog.log(getLoggingKey() + "control/position/actual", position_);
-        DogLog.log(getLoggingKey() + "control/velocity/target", velocity_target_);
-        DogLog.log(getLoggingKey() + "control/velocity/actual", velocity_);
-        DogLog.log(getLoggingKey() + "control/duty_cycle/target", duty_cycle_target_);
-
-        DogLog.log(getLoggingKey() + "motor/applied_voltage", applied_voltage_);
-        DogLog.log(getLoggingKey() + "motor/current_draw", current_draw_);
-        DogLog.log(getLoggingKey() + "motor/temp_c", motor_temp_c_);
-        DogLog.log(getLoggingKey() + "motor/bus_voltage", bus_voltage_);
     }
 }

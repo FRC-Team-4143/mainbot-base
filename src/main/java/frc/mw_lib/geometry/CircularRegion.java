@@ -66,10 +66,20 @@ public class CircularRegion implements Region {
         return name_;
     }
 
+    /**
+     * Get the center of the circular region
+     *
+     * @return the center of the circular region
+     */
     public Translation2d getCenter() {
         return center_;
     }
 
+    /**
+     * Get the radius of the circular region
+     *
+     * @return the radius of the circular region
+     */
     public double getRadius() {
         return radius_;
     }

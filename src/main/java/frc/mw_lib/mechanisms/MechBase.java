@@ -40,14 +40,32 @@ public abstract class MechBase implements SubsystemIoBase {
         logging_prefix_ = subsystem_name;
     }
 
+    /**
+     * Get the logging key for this mechanism
+     *
+     * @return the logging key
+     */
     public String getLoggingKey() {
         return logging_prefix_ + mech_name_ + "/";
     }
 
+    /**
+     * Get the name of the mechanism
+     *
+     * @return the name of the mechanism
+     */
     public String getMechName() {
         return mech_name_;
     }
 
+    /**
+     * Configures the motors based on the given motor configs
+     *
+     * @param motor_configs the list of motor configs
+     * @param sensor_to_mech_ratio the sensor to mechanism ratio
+     * @param configMaster a function to modify the master motor config before applying it
+     * @return the constructed motors and their signals
+     */
     public ConstructedMotors configMotors(
             List<FxMotorConfig> motor_configs,
             double sensor_to_mech_ratio,
@@ -111,6 +129,13 @@ public abstract class MechBase implements SubsystemIoBase {
         return constructed;
     }
 
+    /**
+     * Configures the motors based on the given motor configs
+     *
+     * @param motor_configs the list of motor configs
+     * @param sensor_to_mech_ratio the sensor to mechanism ratio
+     * @return the constructed motors and their signals
+     */
     public ConstructedMotors configMotors(
             List<FxMotorConfig> motor_configs, double sensor_to_mech_ratio) {
         return configMotors(motor_configs, sensor_to_mech_ratio, null);

@@ -66,7 +66,6 @@ public class SwerveMech extends MechBase {
 
     private final SwerveDriveSimulation swerve_sim_;
 
-    private final SwerveDrivePoseEstimator pose_estimator_;
     private final SwerveDriveKinematics kinematics_;
 
     public SwerveMech(
@@ -105,10 +104,6 @@ public class SwerveMech extends MechBase {
         // configure the kinematics after the modules are created
         kinematics_ = new SwerveDriveKinematics(getModuleTranslations());
 
-        // Finally configure the Pose Estimator
-        pose_estimator_ =
-                new SwerveDrivePoseEstimator(
-                        kinematics_, new Rotation2d(), module_positions, Pose2d.kZero);
 
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
@@ -212,19 +207,6 @@ public class SwerveMech extends MechBase {
         current_request_parameters.operatorForwardDirection = operator_forward_direction;
     }
 
-    /**
-     * Resets the robot pose in the pose estimator.
-     *
-     * @param pose The new robot pose.
-     */
-    public void resetPose(Pose2d pose) {
-        pose_estimator_.resetPosition(pose.getRotation(), new SwerveModulePosition[4], pose);
-
-        if (IS_SIM) {
-            swerve_sim_.setSimulationWorldPose(pose);
-        }
-    }
-
     /** Returns the current estimated robot pose. */
     public Module[] getModules() {
         return modules_;
@@ -296,6 +278,14 @@ public class SwerveMech extends MechBase {
      */
     public SwerveDriveSimulation getSwerveSimulation() {
         return swerve_sim_;
+    }
+
+    /**
+     * Returns the swerve drive kinematics instance
+     * @return SwerveDriveKinematics object representing the swerve drive
+     */
+    public SwerveDriveKinematics getKinematics(){
+        return kinematics_;
     }
 
     private void setDrivePositionGains(SlotConfigs gains) {
