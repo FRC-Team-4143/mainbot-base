@@ -7,6 +7,6 @@
 	remote = git@github.com:FRC-Team-4143/MW-Lib.git
 	branch = develop
 	commit = db9c2dcfd9f88b931eadc6796deb497874045394
-	parent = 
+	parent = 9c965084797f364f3358f261eea25afa8998e743
 	method = merge
 	cmdver = 0.4.9
