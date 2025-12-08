@@ -22,20 +22,16 @@ import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.swerve_lib.ChassisRequest;
 import frc.mw_lib.swerve_lib.SwerveMech;
 import frc.mw_lib.swerve_lib.ChassisRequest.XPositiveReference;
-import frc.mw_lib.swerve_lib.SwerveDriveConfig;
 import frc.mw_lib.swerve_lib.module.Module.DriveControlMode;
 import frc.mw_lib.swerve_lib.module.Module.SteerControlMode;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.SimulatedRobotState;
 import frc.robot.subsystems.swerve.SwerveConstants.OperatorPerspective;
 import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
@@ -133,7 +129,7 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
         tractorBeamState();
         break;
       case ROTATION_LOCK:
-        swerve_mech_.setChassisRequest(rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_));
+        swerve_mech_.setChassisRequest(rotation_lock_request_.withTargetHeading(desired_rotation_lock_rot_).withTwist(calculateSpeedsBasedOnJoystickInputs()));
         break;
       case CHOREO_PATH:
         choreoPathState();
@@ -232,14 +228,14 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
   private void choreoPathState() {
     if (choreo_sample_to_apply_.isPresent()) {
       SwerveSample sample = choreo_sample_to_apply_.get();
-      DogLog.log(getSubsystemKey() + "/Choreo/TimerValue", choreo_timer_.get());
-      DogLog.log(getSubsystemKey() + "/Choreo/TrajName", desired_choreo_traj_.name());
-      DogLog.log(getSubsystemKey() + "/Choreo/TotalTime", desired_choreo_traj_.getTotalTime());
-      DogLog.log(getSubsystemKey() + "/Choreo/sample/DesiredPose", sample.getPose());
+      DogLog.log(getSubsystemKey() + "Choreo/TimerValue", choreo_timer_.get());
+      DogLog.log(getSubsystemKey() + "Choreo/TrajName", desired_choreo_traj_.name());
+      DogLog.log(getSubsystemKey() + "Choreo/TotalTime", desired_choreo_traj_.getTotalTime());
+      DogLog.log(getSubsystemKey() + "Choreo/sample/DesiredPose", sample.getPose());
       DogLog.log(
-          getSubsystemKey() + "/Choreo/sample/DesiredChassisSpeeds", sample.getChassisSpeeds());
-      DogLog.log(getSubsystemKey() + "/Choreo/sample/ModuleForcesX", sample.moduleForcesX());
-      DogLog.log(getSubsystemKey() + "/Choreo/sample/ModuleForcesY", sample.moduleForcesY());
+          getSubsystemKey() + "Choreo/sample/DesiredChassisSpeeds", sample.getChassisSpeeds());
+      DogLog.log(getSubsystemKey() + "Choreo/sample/ModuleForcesX", sample.moduleForcesX());
+      DogLog.log(getSubsystemKey() + "Choreo/sample/ModuleForcesY", sample.moduleForcesY());
       Pose2d pose = getOdometryPose();
       ChassisSpeeds target_speeds = sample.getChassisSpeeds();
       target_speeds.vxMetersPerSecond += choreo_x_controller_.calculate(pose.getX(), sample.x);
