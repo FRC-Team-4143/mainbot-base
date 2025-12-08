@@ -30,5 +30,4 @@ public class ArmConstants extends MwConstants {
         arm_min_angle = Units.degreesToRadians(getDoubleConstant("arm_mech", "min_angle"));
         arm_max_angle = Units.degreesToRadians(getDoubleConstant("arm_mech", "max_angle"));
     }
-
 }

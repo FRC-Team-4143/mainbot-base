@@ -5,9 +5,6 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -15,17 +12,16 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.FxMotorConfig.FxMotorType;
 import frc.mw_lib.util.TunablePid;
+import java.util.List;
 
 public class ElevatorMech extends MechBase {
 
@@ -66,6 +62,7 @@ public class ElevatorMech extends MechBase {
 
     /**
      * Constructs a new ElevatorMech (assumes vertical elevator)
+     *
      * @param logging_prefix String prefix for logging
      * @param motor_configs List of motor configurations
      * @param gear_ratio Gear ratio from motor TO drum
@@ -74,14 +71,28 @@ public class ElevatorMech extends MechBase {
      * @param max_extension Maximum extension of the elevator in meters (Simulation only)
      * @param rigging_ratio Rigging ratio of the elevator
      */
-    public ElevatorMech(String logging_prefix, List<FxMotorConfig> motor_configs, double gear_ratio, double drum_radius,
+    public ElevatorMech(
+            String logging_prefix,
+            List<FxMotorConfig> motor_configs,
+            double gear_ratio,
+            double drum_radius,
             double carriage_mass_kg,
-            double max_extension, double rigging_ratio) {
-        this(logging_prefix, motor_configs, gear_ratio, drum_radius, carriage_mass_kg, max_extension, rigging_ratio, true);
+            double max_extension,
+            double rigging_ratio) {
+        this(
+                logging_prefix,
+                motor_configs,
+                gear_ratio,
+                drum_radius,
+                carriage_mass_kg,
+                max_extension,
+                rigging_ratio,
+                true);
     }
 
     /**
      * Constructs a new ElevatorMech
+     *
      * @param logging_prefix String prefix for logging
      * @param motor_configs List of motor configurations
      * @param gear_ratio Gear ratio from motor TO drum
@@ -89,11 +100,18 @@ public class ElevatorMech extends MechBase {
      * @param carriage_mass_kg Mass of the elevator carriage in kg (Simulation only)
      * @param max_extension Maximum extension of the elevator in meters (Simulation only)
      * @param rigging_ratio Rigging ratio of the elevator
-     * @param is_vertical Whether the elevator is vertical (affects gravity compensation in simulation)
+     * @param is_vertical Whether the elevator is vertical (affects gravity compensation in
+     *     simulation)
      */
-    public ElevatorMech(String logging_prefix, List<FxMotorConfig> motor_configs, double gear_ratio, double drum_radius,
+    public ElevatorMech(
+            String logging_prefix,
+            List<FxMotorConfig> motor_configs,
+            double gear_ratio,
+            double drum_radius,
             double carriage_mass_kg,
-            double max_extension, double rigging_ratio, boolean is_vertical) {
+            double max_extension,
+            double rigging_ratio,
+            boolean is_vertical) {
         super(logging_prefix);
 
         position_request_ = new PositionVoltage(0).withSlot(0);
@@ -102,21 +120,26 @@ public class ElevatorMech extends MechBase {
         duty_cycle_request_ = new DutyCycleOut(0);
 
         // load the motors
-        ConstructedMotors configured_motors = configMotors(motor_configs, gear_ratio, (cfg) -> {
-            // Configure the motor for position & velocity control with gravity compensation
-            cfg.config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-            cfg.config.Slot1.GravityType = GravityTypeValue.Elevator_Static;
-            cfg.config.Slot2.GravityType = GravityTypeValue.Elevator_Static;
+        ConstructedMotors configured_motors =
+                configMotors(
+                        motor_configs,
+                        gear_ratio,
+                        (cfg) -> {
+                            // Configure the motor for position & velocity control with gravity
+                            // compensation
+                            cfg.config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+                            cfg.config.Slot1.GravityType = GravityTypeValue.Elevator_Static;
+                            cfg.config.Slot2.GravityType = GravityTypeValue.Elevator_Static;
 
-            // set the kG value if we are not vertical
-            if (!is_vertical) {
-                cfg.config.Slot0.kG = 0;
-                cfg.config.Slot1.kG = 0;
-                cfg.config.Slot2.kG = 0;
-            }
+                            // set the kG value if we are not vertical
+                            if (!is_vertical) {
+                                cfg.config.Slot0.kG = 0;
+                                cfg.config.Slot1.kG = 0;
+                                cfg.config.Slot2.kG = 0;
+                            }
 
-            return cfg;
-        });
+                            return cfg;
+                        });
         motors_ = configured_motors.motors;
         signals_ = configured_motors.signals;
 
@@ -146,22 +169,31 @@ public class ElevatorMech extends MechBase {
         }
 
         // construct the simulation object
-        elevator_sim_ = new ElevatorSim(
-                motor_type, // Motor type
-                gear_ratio,
-                carriage_mass_kg, // Carriage mass (kg)
-                drum_radius, // Drum radius (m)
-                0,
-                max_extension, // Max height (m)
-                is_vertical, // Simulate gravity
-                0 // Starting height (m)
-        );
+        elevator_sim_ =
+                new ElevatorSim(
+                        motor_type, // Motor type
+                        gear_ratio,
+                        carriage_mass_kg, // Carriage mass (kg)
+                        drum_radius, // Drum radius (m)
+                        0,
+                        max_extension, // Max height (m)
+                        is_vertical, // Simulate gravity
+                        0 // Starting height (m)
+                        );
 
         // Setup tunable PIDs
-        TunablePid.create(getLoggingKey() + "PositionGains", this::configPositionSlot, SlotConfigs.from(motor_configs.get(0).config.Slot0));
-        DogLog.tunable(getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
-        TunablePid.create(getLoggingKey() + "VelocityGains", this::configVelocitySlot, SlotConfigs.from(motor_configs.get(0).config.Slot1));
-        DogLog.tunable(getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
+        TunablePid.create(
+                getLoggingKey() + "PositionGains",
+                this::configPositionSlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot0));
+        DogLog.tunable(
+                getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
+        TunablePid.create(
+                getLoggingKey() + "VelocityGains",
+                this::configVelocitySlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot1));
+        DogLog.tunable(
+                getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
     }
 
     @Override
@@ -170,7 +202,8 @@ public class ElevatorMech extends MechBase {
 
         // always read the sensor data
         position_ = position_to_rotations_ * motors_[0].getPosition().getValue().in(Rotations);
-        velocity_ = position_to_rotations_ * motors_[0].getVelocity().getValue().in(RotationsPerSecond);
+        velocity_ =
+                position_to_rotations_ * motors_[0].getVelocity().getValue().in(RotationsPerSecond);
         for (int i = 0; i < motors_.length; i++) {
             applied_voltage_[i] = motors_[i].getMotorVoltage().getValueAsDouble();
             current_draw_[i] = motors_[i].getSupplyCurrent().getValue().in(Amps);
@@ -187,8 +220,12 @@ public class ElevatorMech extends MechBase {
             elevator_sim_.update(0.020);
 
             // Convert meters to motor rotations
-            double motorPosition = elevator_sim_.getPositionMeters() * position_to_rotations_ * gear_ratio_;
-            double motorVelocity = elevator_sim_.getVelocityMetersPerSecond() * position_to_rotations_ * gear_ratio_;
+            double motorPosition =
+                    elevator_sim_.getPositionMeters() * position_to_rotations_ * gear_ratio_;
+            double motorVelocity =
+                    elevator_sim_.getVelocityMetersPerSecond()
+                            * position_to_rotations_
+                            * gear_ratio_;
 
             motors_[0].getSimState().setRawRotorPosition(motorPosition);
             motors_[0].getSimState().setRotorVelocity(motorVelocity);
@@ -290,5 +327,4 @@ public class ElevatorMech extends MechBase {
             DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
     }
-
 }

@@ -1,16 +1,14 @@
 package frc.mw_lib.mechanisms;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.util.FxMotorConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public abstract class MechBase implements SubsystemIoBase {
 
@@ -50,7 +48,9 @@ public abstract class MechBase implements SubsystemIoBase {
         return mech_name_;
     }
 
-    public ConstructedMotors configMotors(List<FxMotorConfig> motor_configs, double sensor_to_mech_ratio,
+    public ConstructedMotors configMotors(
+            List<FxMotorConfig> motor_configs,
+            double sensor_to_mech_ratio,
             Function<FxMotorConfig, FxMotorConfig> configMaster) {
         // throw a fit if we don't have any motors
         if (motor_configs == null || motor_configs.size() == 0) {
@@ -83,7 +83,8 @@ public abstract class MechBase implements SubsystemIoBase {
                 motor_signals.add(constructed.motors[i].getVelocity());
             } else {
                 // make the rest of the motors followers
-                constructed.motors[i].setControl(new StrictFollower(constructed.motors[0].getDeviceID()));
+                constructed.motors[i].setControl(
+                        new StrictFollower(constructed.motors[0].getDeviceID()));
             }
 
             motor_signals.add(constructed.motors[i].getMotorVoltage());
@@ -110,8 +111,8 @@ public abstract class MechBase implements SubsystemIoBase {
         return constructed;
     }
 
-    public ConstructedMotors configMotors(List<FxMotorConfig> motor_configs, double sensor_to_mech_ratio) {
+    public ConstructedMotors configMotors(
+            List<FxMotorConfig> motor_configs, double sensor_to_mech_ratio) {
         return configMotors(motor_configs, sensor_to_mech_ratio, null);
-    }   
-
+    }
 }

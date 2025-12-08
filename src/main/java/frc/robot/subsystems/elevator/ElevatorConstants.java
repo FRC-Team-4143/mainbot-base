@@ -29,5 +29,4 @@ public class ElevatorConstants extends MwConstants {
         elevator_rigging_ratio = getDoubleConstant("elevator_mech", "rigging_ratio");
         elevator_max_extension = getDoubleConstant("elevator_mech", "max_extension");
     }
-
 }

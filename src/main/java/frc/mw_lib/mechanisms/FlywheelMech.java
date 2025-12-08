@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.List;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -14,7 +12,6 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -23,6 +20,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.FxMotorConfig.FxMotorType;
 import frc.mw_lib.util.TunablePid;
+import java.util.List;
 
 public class FlywheelMech extends MechBase {
 
@@ -61,13 +59,18 @@ public class FlywheelMech extends MechBase {
 
     /**
      * Constructs a new FlywheelMech
+     *
      * @param logging_prefix String prefix for logging
      * @param motor_configs List of motor configurations
      * @param gear_ratio Gear ratio from motor TO wheel
      * @param wheel_inertia Inertia of the flywheel in kg*m^2 (Simulation only)
      * @param wheel_radius Radius of the flywheel in meters (Simulation only)
      */
-    public FlywheelMech(String logging_prefix, List<FxMotorConfig> motor_configs, double gear_ratio, double wheel_inertia,
+    public FlywheelMech(
+            String logging_prefix,
+            List<FxMotorConfig> motor_configs,
+            double gear_ratio,
+            double wheel_inertia,
             double wheel_radius) {
         super(logging_prefix);
 
@@ -100,12 +103,20 @@ public class FlywheelMech extends MechBase {
             throw new IllegalArgumentException("Unsupported motor type for FlywheelMech");
         }
 
-        flywheel_sim_ = new FlywheelSim(
-                LinearSystemId.createFlywheelSystem(motor_type_, wheel_inertia_, gear_ratio_), motor_type_);
+        flywheel_sim_ =
+                new FlywheelSim(
+                        LinearSystemId.createFlywheelSystem(
+                                motor_type_, wheel_inertia_, gear_ratio_),
+                        motor_type_);
 
         // Setup tunable PIDs
-        TunablePid.create(getLoggingKey() + "VelocityGains", this::configVelocitySlot, SlotConfigs.from(motor_configs.get(0).config.Slot1));
-        DogLog.tunable(getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));    }
+        TunablePid.create(
+                getLoggingKey() + "VelocityGains",
+                this::configVelocitySlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot1));
+        DogLog.tunable(
+                getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
+    }
 
     @Override
     public void readInputs(double timestamp) {
@@ -135,8 +146,9 @@ public class FlywheelMech extends MechBase {
             flywheel_sim_.update(0.020);
 
             // Convert meters to motor rotations
-            double motorVelocity = RadiansPerSecond.of(flywheel_sim_.getAngularVelocityRadPerSec() * gear_ratio_)
-                    .in(RotationsPerSecond);
+            double motorVelocity =
+                    RadiansPerSecond.of(flywheel_sim_.getAngularVelocityRadPerSec() * gear_ratio_)
+                            .in(RotationsPerSecond);
             position_ += motorVelocity * 0.020;
 
             motors_[0].getSimState().setRawRotorPosition(position_);
@@ -190,6 +202,7 @@ public class FlywheelMech extends MechBase {
 
     /**
      * Applies a load torque to the flywheel mechanism for simulation purposes.
+     *
      * @param torque_nm The load torque in Newton-meters (Nm). Positive values oppose motion.
      */
     public void applyLoadTorque(double torque_nm) {
@@ -222,5 +235,4 @@ public class FlywheelMech extends MechBase {
             DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
     }
-
 }

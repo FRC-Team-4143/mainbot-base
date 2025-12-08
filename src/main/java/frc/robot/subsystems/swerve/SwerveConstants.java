@@ -1,7 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MwConstants;
@@ -10,6 +8,7 @@ import frc.mw_lib.swerve_lib.module.ModuleType;
 import frc.mw_lib.swerve_lib.module.SwerveModuleConfig;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.PhoenixUtil;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
 public class SwerveConstants extends MwConstants {
     // Current system states for the swerve drive
@@ -35,11 +34,14 @@ public class SwerveConstants extends MwConstants {
     public final double STEER_FRICTION_VOLTAGE = 0.2;
 
     public final double ROBOT_MASS_KG = Units.lbsToKilograms(140.0); // Mass of the robot in pounds
-    public final double BUMPER_WIDTH_METERS = Units.inchesToMeters(34.75); // Width of the bumpers in meters (y
+    public final double BUMPER_WIDTH_METERS =
+            Units.inchesToMeters(34.75); // Width of the bumpers in meters (y
     // axis : left -> right)
-    public final double BUMPER_LENGTH_METERS = Units.inchesToMeters(34.75); // Length of the bumpers in meters (x
+    public final double BUMPER_LENGTH_METERS =
+            Units.inchesToMeters(34.75); // Length of the bumpers in meters (x
     // axis : front -> back)
-    public final double BUMPER_THICKNESS_METERS = Units.inchesToMeters(3.0); // Thickness of the bumpers in meters
+    public final double BUMPER_THICKNESS_METERS =
+            Units.inchesToMeters(3.0); // Thickness of the bumpers in meters
 
     // Forward Reference rotation constants
     public enum OperatorPerspective {
@@ -57,7 +59,8 @@ public class SwerveConstants extends MwConstants {
     public final double SLIP_CURRENT_AMPS = getDoubleConstant("com", "slip_current");
     public final double SPEED_AT_12V_MPS = getDoubleConstant("com", "speed_at_12v");
     public final double COUPLE_RATIO = getDoubleConstant("com", "couple_ratio");
-    public final double WHEEL_RADIUS_METERS = Units.inchesToMeters(getDoubleConstant("com", "wheel_radius_inches"));
+    public final double WHEEL_RADIUS_METERS =
+            Units.inchesToMeters(getDoubleConstant("com", "wheel_radius_inches"));
     public final double MAX_TRANSLATION_RATE = getDoubleConstant("com", "max_translation_rate");
     public final double MAX_ANGULAR_RATE = getDoubleConstant("com", "max_angular_rate");
 
@@ -70,7 +73,8 @@ public class SwerveConstants extends MwConstants {
     public final SwerveModuleConfig BR_MODULE_CONFIG = new SwerveModuleConfig();
 
     public final SwerveDriveConfig SWERVE_DRIVE_CONFIG;
-    public final DriveTrainSimulationConfig SIM_SWERVE_DRIVE_CONFIG = DriveTrainSimulationConfig.Default();
+    public final DriveTrainSimulationConfig SIM_SWERVE_DRIVE_CONFIG =
+            DriveTrainSimulationConfig.Default();
 
     // Choreo Constants
     public final boolean FLIP_TRAJECTORY_ON_RED = true;
@@ -92,7 +96,7 @@ public class SwerveConstants extends MwConstants {
     public final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
     public final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
 
-    public SwerveConstants(){
+    public SwerveConstants() {
 
         DRIVE_MOTOR_CONFIG.loadFromConfig("swerve", "com", "drive_motor");
         STEER_MOTOR_CONFIG.loadFromConfig("swerve", "com", "steer_motor");
@@ -110,7 +114,8 @@ public class SwerveConstants extends MwConstants {
         // Drive Motor Configuration
         final FxMotorConfig FL_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
         FL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fl", "drive_id");
-        FL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted = PhoenixUtil.toInvertedValue(getBoolConstant("fl", "invert_drive"));
+        FL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
+                PhoenixUtil.toInvertedValue(getBoolConstant("fl", "invert_drive"));
         FL_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
         // Steer Motor Configuration
         final FxMotorConfig FL_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
@@ -130,7 +135,8 @@ public class SwerveConstants extends MwConstants {
         FR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("fr", "y_position"));
         final FxMotorConfig FR_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
         FR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fr", "drive_id");
-        FR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted = PhoenixUtil.toInvertedValue(getBoolConstant("fr", "invert_drive"));
+        FR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
+                PhoenixUtil.toInvertedValue(getBoolConstant("fr", "invert_drive"));
         FR_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
         final FxMotorConfig FR_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
         FR_STEER_MOTOR_CONFIG.can_id = getIntConstant("fr", "steer_id");
@@ -149,7 +155,8 @@ public class SwerveConstants extends MwConstants {
         BL_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("bl", "y_position"));
         final FxMotorConfig BL_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
         BL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("bl", "drive_id");
-        BL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted = PhoenixUtil.toInvertedValue(getBoolConstant("bl", "invert_drive"));
+        BL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
+                PhoenixUtil.toInvertedValue(getBoolConstant("bl", "invert_drive"));
         BL_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
         final FxMotorConfig BL_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
         BL_STEER_MOTOR_CONFIG.can_id = getIntConstant("bl", "steer_id");
@@ -168,7 +175,8 @@ public class SwerveConstants extends MwConstants {
         BR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("br", "y_position"));
         final FxMotorConfig BR_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
         BR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("br", "drive_id");
-        BR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted = PhoenixUtil.toInvertedValue(getBoolConstant("br", "invert_drive"));
+        BR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
+                PhoenixUtil.toInvertedValue(getBoolConstant("br", "invert_drive"));
         BR_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
         final FxMotorConfig BR_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
         BR_STEER_MOTOR_CONFIG.can_id = getIntConstant("br", "steer_id");
@@ -176,7 +184,14 @@ public class SwerveConstants extends MwConstants {
         // TODO: Encoder offset
 
         // Swerve Drive Configuration
-        SWERVE_DRIVE_CONFIG = new SwerveDriveConfig(FL_MODULE_CONFIG, FR_MODULE_CONFIG, BL_MODULE_CONFIG, BR_MODULE_CONFIG, PIGEON2_ID, PIGEON2_CANBUS_NAME);
+        SWERVE_DRIVE_CONFIG =
+                new SwerveDriveConfig(
+                        FL_MODULE_CONFIG,
+                        FR_MODULE_CONFIG,
+                        BL_MODULE_CONFIG,
+                        BR_MODULE_CONFIG,
+                        PIGEON2_ID,
+                        PIGEON2_CANBUS_NAME);
 
         // Swerve Drive Simulation Configuration
         // @SuppressWarnings("unchecked")
@@ -187,6 +202,7 @@ public class SwerveConstants extends MwConstants {
         //     Meters.of(BUMPER_LENGTH_METERS - 2 * BUMPER_THICKNESS_METERS),
         //     Meters.of(BUMPER_WIDTH_METERS - 2 * BUMPER_THICKNESS_METERS),
         //     COTS.ofPigeon2(),
-        //     COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1), COTS.WHEELS.VEX_GRIP_V2.cof, 2));
+        //     COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1),
+        // COTS.WHEELS.VEX_GRIP_V2.cof, 2));
     }
 }

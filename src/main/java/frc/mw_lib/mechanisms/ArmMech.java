@@ -7,9 +7,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -18,10 +15,8 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -29,6 +24,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.FxMotorConfig.FxMotorType;
 import frc.mw_lib.util.TunablePid;
+import java.util.List;
 
 public class ArmMech extends MechBase {
 
@@ -67,6 +63,7 @@ public class ArmMech extends MechBase {
 
     /**
      * Constructs a new ArmMech
+     *
      * @param logging_prefix String prefix for logging
      * @param motor_configs List of motor configurations
      * @param gear_ratio Gear ratio from motor TO arm
@@ -75,8 +72,14 @@ public class ArmMech extends MechBase {
      * @param min_angle Minimum angle of the arm in radians (Simulation only)
      * @param max_angle Maximum angle of the arm in radians (Simulation only)
      */
-    public ArmMech(String logging_prefix, List<FxMotorConfig> motor_configs, double gear_ratio, double length, double mass_kg,
-            double min_angle, double max_angle) {
+    public ArmMech(
+            String logging_prefix,
+            List<FxMotorConfig> motor_configs,
+            double gear_ratio,
+            double length,
+            double mass_kg,
+            double min_angle,
+            double max_angle) {
         super(logging_prefix);
 
         position_request_ = new PositionVoltage(0).withSlot(0);
@@ -84,14 +87,19 @@ public class ArmMech extends MechBase {
         velocity_request_ = new VelocityVoltage(0).withSlot(1);
         duty_cycle_request_ = new DutyCycleOut(0);
 
-        ConstructedMotors configured_motors = configMotors(motor_configs, gear_ratio, (cfg) -> {
-            // Configure the motor for position & velocity control with gravity compensation
-            cfg.config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-            cfg.config.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-            cfg.config.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
+        ConstructedMotors configured_motors =
+                configMotors(
+                        motor_configs,
+                        gear_ratio,
+                        (cfg) -> {
+                            // Configure the motor for position & velocity control with gravity
+                            // compensation
+                            cfg.config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+                            cfg.config.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
+                            cfg.config.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
 
-            return cfg;
-        });
+                            return cfg;
+                        });
         motors_ = configured_motors.motors;
         signals_ = configured_motors.signals;
 
@@ -117,22 +125,31 @@ public class ArmMech extends MechBase {
             throw new IllegalArgumentException("Unsupported motor type for ArmMech");
         }
 
-        arm_sim_ = new SingleJointedArmSim(
-                motor_type, // Motor type
-                gear_ratio,
-                SingleJointedArmSim.estimateMOI(length, mass_kg),
-                length, // Length of the arm (meters)
-                min_angle, // Minimum angle (radians)
-                max_angle, // Maximum angle (radians)
-                true, // Simulate gravity
-                0 // Starting angle (radians)
-        );
+        arm_sim_ =
+                new SingleJointedArmSim(
+                        motor_type, // Motor type
+                        gear_ratio,
+                        SingleJointedArmSim.estimateMOI(length, mass_kg),
+                        length, // Length of the arm (meters)
+                        min_angle, // Minimum angle (radians)
+                        max_angle, // Maximum angle (radians)
+                        true, // Simulate gravity
+                        0 // Starting angle (radians)
+                        );
 
         // Setup tunable PIDs
-        TunablePid.create(getLoggingKey() + "PositionGains", this::configPositionSlot, SlotConfigs.from(motor_configs.get(0).config.Slot0));
-        DogLog.tunable(getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
-        TunablePid.create(getLoggingKey() + "VelocityGains", this::configVelocitySlot, SlotConfigs.from(motor_configs.get(0).config.Slot1));
-        DogLog.tunable(getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
+        TunablePid.create(
+                getLoggingKey() + "PositionGains",
+                this::configPositionSlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot0));
+        DogLog.tunable(
+                getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
+        TunablePid.create(
+                getLoggingKey() + "VelocityGains",
+                this::configVelocitySlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot1));
+        DogLog.tunable(
+                getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
     }
 
     public void configPositionSlot(SlotConfigs config) {
@@ -183,8 +200,9 @@ public class ArmMech extends MechBase {
 
             // Convert meters to motor rotations
             double motorPosition = Radians.of(arm_sim_.getAngleRads() * gear_ratio_).in(Rotations);
-            double motorVelocity = RadiansPerSecond.of(arm_sim_.getVelocityRadPerSec() * gear_ratio_)
-                    .in(RotationsPerSecond);
+            double motorVelocity =
+                    RadiansPerSecond.of(arm_sim_.getVelocityRadPerSec() * gear_ratio_)
+                            .in(RotationsPerSecond);
 
             motors_[0].getSimState().setRawRotorPosition(motorPosition);
             motors_[0].getSimState().setRotorVelocity(motorVelocity);
@@ -268,5 +286,4 @@ public class ArmMech extends MechBase {
             DogLog.log(getLoggingKey() + "motor" + i + "/bus_voltage", bus_voltage_[i]);
         }
     }
-
 }

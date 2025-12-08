@@ -19,73 +19,78 @@ import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 
 public class PhoenixUtil {
-  /** Attempts to run the command until no error is produced. */
-  public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
-    for (int i = 0; i < maxAttempts; i++) {
-      var error = command.get();
-      if (error.isOK()) break;
-    }
-  }
-
-  public static InvertedValue toInvertedValue(boolean isInverted) {
-    return isInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-  }
-
-  public static class TalonFXMotorControllerSim implements SimulatedMotorController {
-    private static int instances = 0;
-    public final int id;
-
-    private final TalonFXSimState talonFXSimState;
-
-    public TalonFXMotorControllerSim(TalonFX talonFX) {
-      this.id = instances++;
-
-      this.talonFXSimState = talonFX.getSimState();
+    /** Attempts to run the command until no error is produced. */
+    public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
+        for (int i = 0; i < maxAttempts; i++) {
+            var error = command.get();
+            if (error.isOK()) break;
+        }
     }
 
-    @Override
-    public Voltage updateControlSignal(
-        Angle mechanismAngle,
-        AngularVelocity mechanismVelocity,
-        Angle encoderAngle,
-        AngularVelocity encoderVelocity) {
-      talonFXSimState.setRawRotorPosition(encoderAngle);
-      talonFXSimState.setRotorVelocity(encoderVelocity);
-      talonFXSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
-      return talonFXSimState.getMotorVoltageMeasure();
-    }
-  }
-
-  public static class TalonFXMotorControllerWithRemoteCancoderSim
-      extends TalonFXMotorControllerSim {
-    private final CANcoderSimState remoteCancoderSimState;
-
-    public TalonFXMotorControllerWithRemoteCancoderSim(TalonFX talonFX, CANcoder cancoder) {
-      super(talonFX);
-      this.remoteCancoderSimState = cancoder.getSimState();
+    public static InvertedValue toInvertedValue(boolean isInverted) {
+        return isInverted
+                ? InvertedValue.Clockwise_Positive
+                : InvertedValue.CounterClockwise_Positive;
     }
 
-    @Override
-    public Voltage updateControlSignal(
-        Angle mechanismAngle,
-        AngularVelocity mechanismVelocity,
-        Angle encoderAngle,
-        AngularVelocity encoderVelocity) {
-      remoteCancoderSimState.setRawPosition(mechanismAngle);
-      remoteCancoderSimState.setVelocity(mechanismVelocity);
+    public static class TalonFXMotorControllerSim implements SimulatedMotorController {
+        private static int instances = 0;
+        public final int id;
 
-      return super.updateControlSignal(
-          mechanismAngle, mechanismVelocity, encoderAngle, encoderVelocity);
+        private final TalonFXSimState talonFXSimState;
+
+        public TalonFXMotorControllerSim(TalonFX talonFX) {
+            this.id = instances++;
+
+            this.talonFXSimState = talonFX.getSimState();
+        }
+
+        @Override
+        public Voltage updateControlSignal(
+                Angle mechanismAngle,
+                AngularVelocity mechanismVelocity,
+                Angle encoderAngle,
+                AngularVelocity encoderVelocity) {
+            talonFXSimState.setRawRotorPosition(encoderAngle);
+            talonFXSimState.setRotorVelocity(encoderVelocity);
+            talonFXSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
+            return talonFXSimState.getMotorVoltageMeasure();
+        }
     }
-  }
 
-  public static double[] getSimulationOdometryTimeStamps() {
-    final double[] odometryTimeStamps = new double[SimulatedArena.getSimulationSubTicksIn1Period()];
-    for (int i = 0; i < odometryTimeStamps.length; i++) {
-      odometryTimeStamps[i] =
-          Timer.getFPGATimestamp() - 0.02 + i * SimulatedArena.getSimulationDt().in(Seconds);
+    public static class TalonFXMotorControllerWithRemoteCancoderSim
+            extends TalonFXMotorControllerSim {
+        private final CANcoderSimState remoteCancoderSimState;
+
+        public TalonFXMotorControllerWithRemoteCancoderSim(TalonFX talonFX, CANcoder cancoder) {
+            super(talonFX);
+            this.remoteCancoderSimState = cancoder.getSimState();
+        }
+
+        @Override
+        public Voltage updateControlSignal(
+                Angle mechanismAngle,
+                AngularVelocity mechanismVelocity,
+                Angle encoderAngle,
+                AngularVelocity encoderVelocity) {
+            remoteCancoderSimState.setRawPosition(mechanismAngle);
+            remoteCancoderSimState.setVelocity(mechanismVelocity);
+
+            return super.updateControlSignal(
+                    mechanismAngle, mechanismVelocity, encoderAngle, encoderVelocity);
+        }
     }
 
-    return odometryTimeStamps;
-  }
+    public static double[] getSimulationOdometryTimeStamps() {
+        final double[] odometryTimeStamps =
+                new double[SimulatedArena.getSimulationSubTicksIn1Period()];
+        for (int i = 0; i < odometryTimeStamps.length; i++) {
+            odometryTimeStamps[i] =
+                    Timer.getFPGATimestamp()
+                            - 0.02
+                            + i * SimulatedArena.getSimulationDt().in(Seconds);
+        }
+
+        return odometryTimeStamps;
+    }
 }

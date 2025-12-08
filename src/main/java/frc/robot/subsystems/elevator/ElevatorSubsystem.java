@@ -1,13 +1,11 @@
 package frc.robot.subsystems.elevator;
 
-import java.util.Arrays;
-import java.util.List;
-
-import dev.doglog.DogLog;
 import frc.mw_lib.mechanisms.ElevatorMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorStates;
+import java.util.Arrays;
+import java.util.List;
 
 public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConstants> {
     private static ElevatorSubsystem instance_ = null;
@@ -25,9 +23,15 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
     public ElevatorSubsystem() {
         super(ElevatorStates.IDLE, new ElevatorConstants());
 
-        elevator_mech_ = new ElevatorMech(getSubsystemKey(), Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.elevator_gear_ratio,
-                CONSTANTS.elevator_drum_radius, CONSTANTS.elevator_carrige_mass, CONSTANTS.elevator_max_extension,
-                CONSTANTS.elevator_rigging_ratio);
+        elevator_mech_ =
+                new ElevatorMech(
+                        getSubsystemKey(),
+                        Arrays.asList(CONSTANTS.leader_motor_config),
+                        CONSTANTS.elevator_gear_ratio,
+                        CONSTANTS.elevator_drum_radius,
+                        CONSTANTS.elevator_carrige_mass,
+                        CONSTANTS.elevator_max_extension,
+                        CONSTANTS.elevator_rigging_ratio);
     }
 
     // @Override
@@ -68,5 +72,4 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
         elevator_mech_.setCurrentPosition(0);
         system_state_ = ElevatorStates.IDLE;
     }
-
 }

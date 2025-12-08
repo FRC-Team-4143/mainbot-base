@@ -7,9 +7,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -18,7 +15,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -27,6 +23,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.FxMotorConfig.FxMotorType;
 import frc.mw_lib.util.TunablePid;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RollerMech extends MechBase {
 
@@ -65,7 +63,8 @@ public class RollerMech extends MechBase {
     private final DCMotorSim roller_sim_;
 
     /**
-     * Constructs a new RollerMech     *
+     * Constructs a new RollerMech *
+     *
      * @param logging_prefix String prefix for logging
      * @param motor_config Configuration for the roller motor
      */
@@ -104,15 +103,25 @@ public class RollerMech extends MechBase {
             throw new IllegalArgumentException("Unsupported motor type for ArmMech");
         }
 
-        roller_sim_ = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor_type_, roller_inertia_, gear_ratio_),
-            motor_type_);
+        roller_sim_ =
+                new DCMotorSim(
+                        LinearSystemId.createDCMotorSystem(
+                                motor_type_, roller_inertia_, gear_ratio_),
+                        motor_type_);
 
         // Setup tunable PIDs
-        TunablePid.create(getLoggingKey() + "PositionGains", this::configPositionSlot, SlotConfigs.from(motor_configs.get(0).config.Slot0));
-        DogLog.tunable(getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
-        TunablePid.create(getLoggingKey() + "VelocityGains", this::configVelocitySlot, SlotConfigs.from(motor_configs.get(0).config.Slot1));
-        DogLog.tunable(getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
+        TunablePid.create(
+                getLoggingKey() + "PositionGains",
+                this::configPositionSlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot0));
+        DogLog.tunable(
+                getLoggingKey() + "PositionGains/Setpoint", 0.0, (val) -> setTargetPosition(val));
+        TunablePid.create(
+                getLoggingKey() + "VelocityGains",
+                this::configVelocitySlot,
+                SlotConfigs.from(motor_configs.get(0).config.Slot1));
+        DogLog.tunable(
+                getLoggingKey() + "VelocityGains/Setpoint", 0.0, (val) -> setTargetVelocity(val));
     }
 
     @Override
@@ -141,8 +150,9 @@ public class RollerMech extends MechBase {
 
             // Convert meters to motor rotations
             double motorPosition = Radians.of(roller_sim_.getAngularPositionRad()).in(Rotations);
-            double motorVelocity = RadiansPerSecond.of(roller_sim_.getAngularVelocityRadPerSec())
-                    .in(RotationsPerSecond);
+            double motorVelocity =
+                    RadiansPerSecond.of(roller_sim_.getAngularVelocityRadPerSec())
+                            .in(RotationsPerSecond);
 
             motor_.getSimState().setRawRotorPosition(motorPosition);
             motor_.getSimState().setRotorVelocity(motorVelocity);
@@ -164,7 +174,6 @@ public class RollerMech extends MechBase {
             default:
                 throw new IllegalStateException("Unexpected control mode: " + control_mode_);
         }
-
     }
 
     public void configPositionSlot(SlotConfigs config) {
@@ -221,6 +230,7 @@ public class RollerMech extends MechBase {
 
     /**
      * Applies a load torque to the roller mechanism for simulation purposes.
+     *
      * @param torque_nm The load torque in Newton-meters (Nm). Positive values oppose motion.
      */
     public void applyLoadTorque(double torque_nm) {
@@ -252,5 +262,4 @@ public class RollerMech extends MechBase {
         DogLog.log(getLoggingKey() + "motor/temp_c", motor_temp_c_);
         DogLog.log(getLoggingKey() + "motor/bus_voltage", bus_voltage_);
     }
-
 }

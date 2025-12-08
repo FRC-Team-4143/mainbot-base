@@ -8,46 +8,47 @@ import frc.mw_lib.mechanisms.MechBase;
 
 public abstract class Gyro extends MechBase {
 
-  private final Alert gyroDisconnectedAlert;
+    private final Alert gyroDisconnectedAlert;
 
-  protected boolean connected = false;
-  protected Rotation2d yawPosition = new Rotation2d();
-  protected double yawVelocityRadPerSec = 0.0;
+    protected boolean connected = false;
+    protected Rotation2d yawPosition = new Rotation2d();
+    protected double yawVelocityRadPerSec = 0.0;
 
-  public Gyro(String logging_prefix) {
-    super(logging_prefix);
-    gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
-  }
+    public Gyro(String logging_prefix) {
+        super(logging_prefix);
+        gyroDisconnectedAlert =
+                new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+    }
 
-  @Override
-  public void readInputs(double timestamp) {
-    readGyro();
-    gyroDisconnectedAlert.set(!connected);
-  }
+    @Override
+    public void readInputs(double timestamp) {
+        readGyro();
+        gyroDisconnectedAlert.set(!connected);
+    }
 
-  public abstract void readGyro();
+    public abstract void readGyro();
 
-  public boolean isConnected() {
-    return connected;
-  }
+    public boolean isConnected() {
+        return connected;
+    }
 
-  public Rotation2d getYawPosition() {
-    return yawPosition;
-  }
+    public Rotation2d getYawPosition() {
+        return yawPosition;
+    }
 
-  public double getYawVelocityRadPerSec() {
-    return yawVelocityRadPerSec;
-  }
+    public double getYawVelocityRadPerSec() {
+        return yawVelocityRadPerSec;
+    }
 
-  @Override
-  public void logData() {
-    DogLog.log(getLoggingKey()+ "Connected", connected);
-    DogLog.log(getLoggingKey()+ "YawPositionDeg", yawPosition.getDegrees());
-    DogLog.log(getLoggingKey()+ "YawVelocityRadPerSec", yawVelocityRadPerSec);
-  }
+    @Override
+    public void logData() {
+        DogLog.log(getLoggingKey() + "Connected", connected);
+        DogLog.log(getLoggingKey() + "YawPositionDeg", yawPosition.getDegrees());
+        DogLog.log(getLoggingKey() + "YawVelocityRadPerSec", yawVelocityRadPerSec);
+    }
 
-  @Override
-  public void writeOutputs(double timestamp) {
-    // no outputs to write
-  }
+    @Override
+    public void writeOutputs(double timestamp) {
+        // no outputs to write
+    }
 }

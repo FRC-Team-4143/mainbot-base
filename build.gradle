@@ -2,11 +2,44 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.1"
     id "com.peterabeles.gversion" version "1.10"
+    id "com.diffplug.spotless" version "6.25.0"
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+// Configure Spotless for code formatting
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat('1.23.0').aosp().reflowLongStrings()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target '*.gradle'
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target 'src/**/*.json', 'vendordeps/*.json'
+        jackson()
+    }
+    format 'misc', {
+        target '**/*.md', '**/*.xml'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// Suppress Spotless verbose output during builds
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
+    logging.captureStandardOutput LogLevel.INFO
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -106,6 +139,11 @@ jar {
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
+
+// Auto-format code after successful build
+build.finalizedBy spotlessApply
+// Only check formatting on explicit check task
+check.dependsOn spotlessCheck
 
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
