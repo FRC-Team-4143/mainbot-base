@@ -24,10 +24,10 @@ public class SwerveConstants extends MwConstants {
 
     // CAN bus name and CAN ID for the pigeon2
     public final int PIGEON2_ID = 0;
-    public final String PIGEON2_CANBUS_NAME = "CANivore";
+    public final String PIGEON2_CANBUS_NAME = "rio";
 
     // CAN bus names for each of the swerve modules
-    public final String MODULE_CANBUS_NAME = "CANivore";
+    public final String MODULE_CANBUS_NAME = "rio";
 
     public final double DRIVE_INERTIA = 0.025; // kg*m^2, inertia of the drive motor
     public final double STEER_INERTIA = 0.004; // kg*m^2, inertia of the steer motor
@@ -94,8 +94,8 @@ public class SwerveConstants extends MwConstants {
 
     public SwerveConstants(){
 
-        DRIVE_MOTOR_CONFIG.loadFromConfig("com", "drive_motor");
-        STEER_MOTOR_CONFIG.loadFromConfig("com", "steer_motor");
+        DRIVE_MOTOR_CONFIG.loadFromConfig("swerve", "com", "drive_motor");
+        STEER_MOTOR_CONFIG.loadFromConfig("swerve", "com", "steer_motor");
 
         // ---------------------------------
         // FL Swerve Module Configuration

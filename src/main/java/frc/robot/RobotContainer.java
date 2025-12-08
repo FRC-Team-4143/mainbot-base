@@ -21,9 +21,9 @@ public class RobotContainer extends SubsystemManager {
 
   public RobotContainer() {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
-    // registerSubsystem(Swerve.getInstance());
-    registerSubsystem(ElevatorSubsystem.getInstance());
-    registerSubsystem(ArmSubsystem.getInstance());
+    registerSubsystem(SwerveSubsystem.getInstance());
+    // registerSubsystem(ElevatorSubsystem.getInstance());
+    // registerSubsystem(ArmSubsystem.getInstance());
 
     // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
     reset();
