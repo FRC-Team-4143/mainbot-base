@@ -153,11 +153,6 @@ public abstract class Module extends MechBase {
         return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
     }
 
-    /** Returns the module positions received this cycle. */
-    public List<ModuleMeasurement> getOdometrySamples() {
-        return PhoenixOdometryThread.getInstance().getModuleSamples(module_index_);
-    }
-
     /** Returns the module position in radians. */
     public double getWheelRadiusCharacterizationPosition() {
         return drive_position_rad_;

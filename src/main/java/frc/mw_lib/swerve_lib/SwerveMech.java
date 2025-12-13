@@ -166,6 +166,10 @@ public class SwerveMech extends MechBase {
             current_request_parameters.kinematics = kinematics_;
             current_request_parameters.moduleLocations = getModuleTranslations();
             current_request.apply(current_request_parameters, modules_);
+
+            // for (Module module : modules_) {
+            //     module.writeOutputs(timestamp);
+            // }
         }
     }
 

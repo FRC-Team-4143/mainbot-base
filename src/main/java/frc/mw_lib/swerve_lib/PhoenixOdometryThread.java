@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.GyroMeasurement;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.ModuleMeasurement;
+import frc.mw_lib.swerve_lib.SwerveMeasurments.SwerveMeasurement;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -164,7 +166,7 @@ public class PhoenixOdometryThread extends Thread {
         all_signals_ = new_signals;
     }
 
-    public List<ModuleMeasurement> getModuleSamples(int index) {
+    private List<ModuleMeasurement> getModuleSamples(int index) {
         odometry_lock_.lock();
         List<ModuleMeasurement> samples = new ArrayList<>(module_queues_.get(index).size());
         try {
@@ -193,7 +195,7 @@ public class PhoenixOdometryThread extends Thread {
             for (int i = 0; i < stamps.length; i++) {
                 ModuleMeasurement sample = new ModuleMeasurement();
                 sample.timestamp = stamps[i];
-                sample.module_positions[index] =
+                sample.module_positions =
                         new SwerveModulePosition(drive_positions[i], turn_positons[i]);
 
                 // Add measurement to queue
@@ -209,7 +211,7 @@ public class PhoenixOdometryThread extends Thread {
         }
     }
 
-    public List<GyroMeasurement> getGyroSamples() {
+    private List<GyroMeasurement> getGyroSamples() {
         odometry_lock_.lock();
         List<GyroMeasurement> samples = new ArrayList<>(gyro_queue_.size());
         try {
@@ -249,6 +251,40 @@ public class PhoenixOdometryThread extends Thread {
         } finally {
             odometry_lock_.unlock();
         }
+    }
+
+    public List<SwerveMeasurement> getSwerveSamples(){
+        List<SwerveMeasurement> swerveSamples = new ArrayList<>();
+        odometry_lock_.lock();
+
+        try {
+            // Empty the odometry queue into the samples list
+            SwerveMeasurement sample;
+            int num_samples = gyro_queue_.size();
+            for(int i = 0; i <= 3; i++){
+                num_samples = Math.min(num_samples, module_queues_.get(i).size());
+            }
+
+            for(int i = 0; i < num_samples; i++){
+                sample = new SwerveMeasurement();
+                GyroMeasurement gyroMeasurement = gyro_queue_.poll();
+                sample.timestamp = gyroMeasurement.timestamp;
+                sample.gyro_yaw = gyroMeasurement.gyro_yaw;
+
+                SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+                for(int j = 0; j < 4; j++){
+                    ModuleMeasurement moduleMeasurement = module_queues_.get(j).poll();
+                    modulePositions[j] = moduleMeasurement.module_positions;
+                }
+                sample.module_positions = modulePositions;
+
+                swerveSamples.add(sample);
+            }
+        } finally {
+            odometry_lock_.unlock();
+        }
+
+        return swerveSamples;
     }
 
     @Override
@@ -291,7 +327,7 @@ public class PhoenixOdometryThread extends Thread {
                 for (int module_index = 0; module_index < 4; module_index++) {
                     ModuleMeasurement measurement = new ModuleMeasurement();
                     measurement.timestamp = timestamp;
-                    measurement.module_positions[module_index] =
+                    measurement.module_positions =
                             new SwerveModulePosition(
                                     drive_signals_.get(module_index).getValue().in(Rotations)
                                             * wheel_circumference_m_,

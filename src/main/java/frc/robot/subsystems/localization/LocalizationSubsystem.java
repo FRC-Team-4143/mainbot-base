@@ -10,8 +10,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
+import frc.mw_lib.swerve_lib.PhoenixOdometryThread;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.GyroMeasurement;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.ModuleMeasurement;
+import frc.mw_lib.swerve_lib.SwerveMeasurments.SwerveMeasurement;
 import frc.robot.subsystems.localization.LocalizationConstants.LocalizationStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -26,15 +28,15 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
         return instance_;
     }
 
-    private LocalizationIO localization_io_;
     private SwerveDrivePoseEstimator smooth_pose_estimator_;
     private SwerveDrivePoseEstimator field_pose_estimator_;
+    private List<SwerveMeasurement> swerve_measurements_;
+
 
     public LocalizationSubsystem() {
         // (Default State, Constants Class)
         super(LocalizationStates.ACTIVE, new LocalizationConstants());
 
-        localization_io_ = new LocalizationIO();
         SwerveDriveKinematics kinematics = SwerveSubsystem.getInstance().getKinematics();
         Rotation2d gyro_angle = SwerveSubsystem.getInstance().getGyroRotation();
         SwerveModulePosition[] module_positions = SwerveSubsystem.getInstance().getModulePositions();
@@ -45,7 +47,7 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
 
     @Override
     public List<SubsystemIoBase> getIos() {
-        return Arrays.asList(localization_io_);
+        return Arrays.asList();
     }
 
     @Override
@@ -57,15 +59,13 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
     public void updateLogic(double timestamp) {
         switch (system_state_) {
             case ACTIVE:
-                    for(int i = 0; i < localization_io_.module_measurements_.size(); i++){
-                        ModuleMeasurement module_measurement = localization_io_.module_measurements_.get(i);
-                        GyroMeasurement gyro_measurement = localization_io_.gyro_measurements_.get(i);
-
+                swerve_measurements_ = PhoenixOdometryThread.getInstance().getSwerveSamples();
+                    for(int i = 0; i < swerve_measurements_.size(); i++){
                         // Update Smooth Pose Estimator
-                        smooth_pose_estimator_.updateWithTime(module_measurement.timestamp, gyro_measurement.gyro_yaw, module_measurement.module_positions);
+                        smooth_pose_estimator_.updateWithTime(swerve_measurements_.get(i).timestamp, swerve_measurements_.get(i).gyro_yaw, swerve_measurements_.get(i).module_positions);
 
                         // Update Field Post Estimator
-                        field_pose_estimator_.updateWithTime(module_measurement.timestamp, gyro_measurement.gyro_yaw, module_measurement.module_positions);
+                        field_pose_estimator_.updateWithTime(swerve_measurements_.get(i).timestamp, swerve_measurements_.get(i).gyro_yaw, swerve_measurements_.get(i).module_positions);
                     }
                 break;
         }
