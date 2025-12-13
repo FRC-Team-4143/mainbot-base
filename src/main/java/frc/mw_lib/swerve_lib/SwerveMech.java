@@ -2,7 +2,6 @@ package frc.mw_lib.swerve_lib;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import dev.doglog.DogLog;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -56,7 +55,6 @@ public class SwerveMech extends MechBase {
 
     private ChassisSpeeds chassis_speeds = new ChassisSpeeds();
     private Rotation2d raw_gyro_rotation = Rotation2d.kZero;
-    private Pose2d pose = new Pose2d();
 
     private ChassisRequest current_request = new ChassisRequest.Idle();
     private ChassisRequestParameters current_request_parameters = new ChassisRequestParameters();
@@ -112,13 +110,15 @@ public class SwerveMech extends MechBase {
         TunablePid.create(
                 getLoggingKey() + "Drive/PositionGains",
                 this::setDrivePositionGains,
-                new SlotConfigs());
+                SlotConfigs.from(config.FL_MODULE_CONSTANTS.drive_motor_config.config.Slot0));
         TunablePid.create(
                 getLoggingKey() + "Drive/VelocityGains",
                 this::setDriveVelocityGains,
-                new SlotConfigs());
+                SlotConfigs.from(config.FL_MODULE_CONSTANTS.drive_motor_config.config.Slot1));
         TunablePid.create(
-                getLoggingKey() + "Turn/PositionGains", this::setSteerGains, new SlotConfigs());
+                getLoggingKey() + "Steer/PositionGains",
+                this::setSteerGains,
+                SlotConfigs.from(config.FL_MODULE_CONSTANTS.steer_motor_config.config.Slot0));
     }
 
     @Override
@@ -152,7 +152,7 @@ public class SwerveMech extends MechBase {
         }
 
         if (IS_SIM) {
-            DogLog.log("FieldSimulation/RobotPosition", swerve_sim_.getSimulatedDriveTrainPose());
+            DogLog.log(getLoggingKey() + "SimulatedPose", swerve_sim_.getSimulatedDriveTrainPose());
         }
     }
 
@@ -182,9 +182,7 @@ public class SwerveMech extends MechBase {
         DogLog.log(getLoggingKey() + "LastModulePositions", last_module_positions);
         DogLog.log(getLoggingKey() + "ChassisSpeeds", chassis_speeds);
         DogLog.log(getLoggingKey() + "RawGyroRotation", raw_gyro_rotation);
-        DogLog.log(getLoggingKey() + "Pose", pose);
-        DogLog.log(
-                getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
+        DogLog.log(getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
     }
 
     /**
@@ -264,15 +262,6 @@ public class SwerveMech extends MechBase {
      */
     public Rotation2d getRawGyroRotation() {
         return raw_gyro_rotation;
-    }
-
-    /**
-     * Returns the current estimated robot pose. Purely from odometry.
-     *
-     * @return Pose2d representing the robot's estimated pose
-     */
-    public Pose2d getPose() {
-        return pose;
     }
 
     /**

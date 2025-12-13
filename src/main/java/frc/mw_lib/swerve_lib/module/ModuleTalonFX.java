@@ -30,7 +30,7 @@ import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
 public class ModuleTalonFX extends Module {
     protected final TalonFX drive_talonfx_;
-    protected final TalonFX turn_talonfx_;
+    protected final TalonFX steer_talonfx_;
 
     // pick one of any of these encoders based on your configuration
     protected final CANcoder cancoder;
@@ -54,11 +54,11 @@ public class ModuleTalonFX extends Module {
     protected final StatusSignal<Voltage> drive_applied_volts_sig_;
     protected final StatusSignal<Current> drive_current_sig_;
 
-    // Inputs from turn motor
-    protected final StatusSignal<Angle> turn_absolute_position_sig_;
-    protected final StatusSignal<AngularVelocity> turn_velocity_sig_;
-    protected final StatusSignal<Voltage> turn_applied_volts_sig_;
-    protected final StatusSignal<Current> turn_current_sig_;
+    // Inputs from steer motor
+    protected final StatusSignal<Angle> steer_absolute_position_sig_;
+    protected final StatusSignal<AngularVelocity> steer_velocity_sig_;
+    protected final StatusSignal<Voltage> steer_applied_volts_sig_;
+    protected final StatusSignal<Current> steer_current_sig_;
 
     public ModuleTalonFX(
             String logging_prefix,
@@ -70,7 +70,7 @@ public class ModuleTalonFX extends Module {
         drive_talonfx_ =
                 new TalonFX(
                         config_.drive_motor_config.can_id, config_.drive_motor_config.canbus_name);
-        turn_talonfx_ =
+        steer_talonfx_ =
                 new TalonFX(
                         config_.steer_motor_config.can_id, config_.steer_motor_config.canbus_name);
 
@@ -91,10 +91,10 @@ public class ModuleTalonFX extends Module {
                                 .apply(config_.drive_motor_config.config, 0.25));
         tryUntilOk(5, () -> drive_talonfx_.setPosition(0.0, 0.25));
 
-        // Configure turn motor
-        var turnConfig = config_.steer_motor_config.config;
-        turnConfig.Feedback.RotorToSensorRatio = config_.module_type.steerRatio;
-        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        // Configure steer motor
+        var steerConfig = config_.steer_motor_config.config;
+        steerConfig.Feedback.RotorToSensorRatio = config_.module_type.steerRatio;
+        steerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
         // config the encoder offset for the steer motor
         // if (config_.encoder_type == SwerveModuleConfig.EncoderType.ANALOG_ENCODER) {
@@ -109,17 +109,17 @@ public class ModuleTalonFX extends Module {
         //   throw new IllegalArgumentException("Unsupported encoder type for ModuleTalonFX");
         // }
 
-        turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / config_.module_type.steerRatio;
-        turnConfig.MotionMagic.MotionMagicAcceleration =
-                turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
-        turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * config_.module_type.steerRatio;
-        turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
-        turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        turnConfig.MotorOutput.Inverted =
+        steerConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / config_.module_type.steerRatio;
+        steerConfig.MotionMagic.MotionMagicAcceleration =
+                steerConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
+        steerConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * config_.module_type.steerRatio;
+        steerConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
+        steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        steerConfig.MotorOutput.Inverted =
                 config_.module_type.steerInverted
                         ? InvertedValue.Clockwise_Positive
                         : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> turn_talonfx_.getConfigurator().apply(turnConfig, 0.25));
+        tryUntilOk(5, () -> steer_talonfx_.getConfigurator().apply(steerConfig, 0.25));
 
         // Create drive status signals
         drive_position_sig_ = drive_talonfx_.getPosition();
@@ -127,36 +127,36 @@ public class ModuleTalonFX extends Module {
         drive_applied_volts_sig_ = drive_talonfx_.getMotorVoltage();
         drive_current_sig_ = drive_talonfx_.getStatorCurrent();
 
-        // Create turn status signals
-        turn_absolute_position_sig_ = turn_talonfx_.getPosition();
-        turn_velocity_sig_ = turn_talonfx_.getVelocity();
-        turn_applied_volts_sig_ = turn_talonfx_.getMotorVoltage();
-        turn_current_sig_ = turn_talonfx_.getStatorCurrent();
+        // Create steer status signals
+        steer_absolute_position_sig_ = steer_talonfx_.getPosition();
+        steer_velocity_sig_ = steer_talonfx_.getVelocity();
+        steer_applied_volts_sig_ = steer_talonfx_.getMotorVoltage();
+        steer_current_sig_ = steer_talonfx_.getStatorCurrent();
 
         // Configure periodic frames
         BaseStatusSignal.setUpdateFrequencyForAll(
                 new CANBus(config_.drive_motor_config.canbus_name).isNetworkFD() ? 250.0 : 100.0,
-                turn_absolute_position_sig_,
+                steer_absolute_position_sig_,
                 drive_position_sig_);
         BaseStatusSignal.setUpdateFrequencyForAll(
                 50.0,
                 drive_velocity_sig_,
                 drive_applied_volts_sig_,
                 drive_current_sig_,
-                turn_velocity_sig_,
-                turn_applied_volts_sig_,
-                turn_current_sig_);
-        ParentDevice.optimizeBusUtilizationForAll(drive_talonfx_, turn_talonfx_);
+                steer_velocity_sig_,
+                steer_applied_volts_sig_,
+                steer_current_sig_);
+        ParentDevice.optimizeBusUtilizationForAll(drive_talonfx_, steer_talonfx_);
 
         if (!IS_SIM) {
             PhoenixOdometryThread.getInstance()
                     .registerModule(
-                            module_index_, turn_absolute_position_sig_, drive_position_sig_);
+                            module_index_, steer_absolute_position_sig_, drive_position_sig_);
         } else {
             simulation.useDriveMotorController(
                     new PhoenixUtil.TalonFXMotorControllerSim(drive_talonfx_));
             simulation.useSteerMotorController(
-                    new PhoenixUtil.TalonFXMotorControllerSim(turn_talonfx_));
+                    new PhoenixUtil.TalonFXMotorControllerSim(steer_talonfx_));
         }
     }
 
@@ -169,10 +169,10 @@ public class ModuleTalonFX extends Module {
                         drive_velocity_sig_,
                         drive_applied_volts_sig_,
                         drive_current_sig_);
-        var turnStatus =
+        var steerStatus =
                 BaseStatusSignal.refreshAll(
-                        turn_velocity_sig_, turn_applied_volts_sig_, turn_current_sig_);
-        var turnEncoderStatus = BaseStatusSignal.refreshAll(turn_absolute_position_sig_);
+                        steer_velocity_sig_, steer_applied_volts_sig_, steer_current_sig_);
+        var steerEncoderStatus = BaseStatusSignal.refreshAll(steer_absolute_position_sig_);
 
         // Update drive inputs
         drive_position_rad_ = Units.rotationsToRadians(drive_position_sig_.getValueAsDouble());
@@ -181,13 +181,13 @@ public class ModuleTalonFX extends Module {
         drive_applied_volts_ = drive_applied_volts_sig_.getValueAsDouble();
         drive_current_amps_ = drive_current_sig_.getValueAsDouble();
 
-        // Update turn inputs
-        turn_absolute_position_ =
-                Rotation2d.fromRotations(turn_absolute_position_sig_.getValueAsDouble());
-        turn_velocity_rad_per_sec_ =
-                Units.rotationsToRadians(turn_velocity_sig_.getValueAsDouble());
-        turn_applied_volts_ = turn_applied_volts_sig_.getValueAsDouble();
-        turn_current_amps_ = turn_current_sig_.getValueAsDouble();
+        // Update steer inputs
+        steer_absolute_position_ =
+                Rotation2d.fromRotations(steer_absolute_position_sig_.getValueAsDouble());
+        steer_velocity_rad_per_sec_ =
+                Units.rotationsToRadians(steer_velocity_sig_.getValueAsDouble());
+        steer_applied_volts_ = steer_applied_volts_sig_.getValueAsDouble();
+        steer_current_amps_ = steer_current_sig_.getValueAsDouble();
 
         // Update odometry inputs
         if (IS_SIM) {
@@ -196,21 +196,21 @@ public class ModuleTalonFX extends Module {
                     Arrays.stream(simulation.getCachedDriveWheelFinalPositions())
                             .mapToDouble(angle -> angle.in(Radians))
                             .toArray();
-            Rotation2d[] odometry_turn_positions = simulation.getCachedSteerAbsolutePositions();
+            Rotation2d[] odometry_steer_positions = simulation.getCachedSteerAbsolutePositions();
 
             PhoenixOdometryThread.getInstance()
                     .enqueueModuleSamples(
                             module_index_,
                             odometry_timestamps,
-                            odometry_turn_positions,
+                            odometry_steer_positions,
                             odometry_drive_positions_rad);
         }
 
         // Update alerts
         drive_disconnected_alert_.set(!drive_conn_deb_.calculate(driveStatus.isOK()));
-        turn_disconnected_alert_.set(!turn_conn_deb_.calculate(turnStatus.isOK()));
-        turn_encoder_disconnected_alert_.set(
-                !turn_encoder_conn_deb_.calculate(turnEncoderStatus.isOK()));
+        steer_disconnected_alert_.set(!steer_conn_deb_.calculate(steerStatus.isOK()));
+        steer_encoder_disconnected_alert_.set(
+                !steer_encoder_conn_deb_.calculate(steerEncoderStatus.isOK()));
     }
 
     @Override
@@ -225,14 +225,14 @@ public class ModuleTalonFX extends Module {
     }
 
     @Override
-    public void setTurnOpenLoop(double output) {
+    public void setSteerOpenLoop(double output) {
         ControlRequest req;
         if (config_.enable_foc) {
             req = voltage_req_.withOutput(output);
         } else {
             req = torque_current_req_.withOutput(output);
         }
-        turn_talonfx_.setControl(req);
+        steer_talonfx_.setControl(req);
     }
 
     @Override
@@ -249,14 +249,14 @@ public class ModuleTalonFX extends Module {
     }
 
     @Override
-    public void setTurnPosition(Rotation2d rotation) {
+    public void setSteerPosition(Rotation2d rotation) {
         ControlRequest req;
         if (config_.enable_foc) {
             req = position_torque_current_req_.withPosition(rotation.getRotations());
         } else {
             req = position_voltage_req_.withPosition(rotation.getRotations());
         }
-        turn_talonfx_.setControl(req);
+        steer_talonfx_.setControl(req);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class ModuleTalonFX extends Module {
 
     @Override
     public void setSteerGains(SlotConfigs gains) {
-        turn_talonfx_.getConfigurator().apply(Slot0Configs.from(gains));
+        steer_talonfx_.getConfigurator().apply(Slot0Configs.from(gains));
     }
 
     @Override
@@ -287,9 +287,9 @@ public class ModuleTalonFX extends Module {
         DogLog.log(getLoggingKey() + "Drive/VelocityRadPerSec", drive_velocity_rad_per_sec_);
         DogLog.log(getLoggingKey() + "Drive/AppliedVolts", drive_applied_volts_);
         DogLog.log(getLoggingKey() + "Drive/CurrentAmps", drive_current_amps_);
-        DogLog.log(getLoggingKey() + "Turn/AbsolutePosition", turn_absolute_position_);
-        DogLog.log(getLoggingKey() + "Turn/VelocityRadPerSec", turn_velocity_rad_per_sec_);
-        DogLog.log(getLoggingKey() + "Turn/AppliedVolts", turn_applied_volts_);
-        DogLog.log(getLoggingKey() + "Turn/CurrentAmps", turn_current_amps_);
+        DogLog.log(getLoggingKey() + "Steer/AbsolutePosition", steer_absolute_position_);
+        DogLog.log(getLoggingKey() + "Steer/VelocityRadPerSec", steer_velocity_rad_per_sec_);
+        DogLog.log(getLoggingKey() + "Steer/AppliedVolts", steer_applied_volts_);
+        DogLog.log(getLoggingKey() + "Steer/CurrentAmps", steer_current_amps_);
     }
 }

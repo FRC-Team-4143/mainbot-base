@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * time synchronization.
  */
 public class PhoenixOdometryThread extends Thread {
-    private List<StatusSignal<Angle>> turn_signals_ =
+    private List<StatusSignal<Angle>> steer_signals_ =
             new ArrayList<>(Arrays.asList(null, null, null, null));
     private List<StatusSignal<Angle>> drive_signals_ =
             new ArrayList<>(Arrays.asList(null, null, null, null));
@@ -136,7 +136,7 @@ public class PhoenixOdometryThread extends Thread {
     }
 
     public void registerModule(
-            int module_index, StatusSignal<Angle> turn_signal, StatusSignal<Angle> drive_signal) {
+            int module_index, StatusSignal<Angle> steer_signal, StatusSignal<Angle> drive_signal) {
         if (module_index < 0 || module_index >= 4) {
             throw new IllegalArgumentException("Module index must be between 0 and 3");
         }
@@ -144,11 +144,11 @@ public class PhoenixOdometryThread extends Thread {
         signals_lock_.lock();
         try {
             // Add the signals to the all_signals array
-            registerSignal(turn_signal);
+            registerSignal(steer_signal);
             registerSignal(drive_signal);
 
             // also add the signals to the respective lists
-            turn_signals_.set(module_index, turn_signal);
+            steer_signals_.set(module_index, steer_signal);
             drive_signals_.set(module_index, drive_signal);
 
             // create a new queue for the module
@@ -183,7 +183,7 @@ public class PhoenixOdometryThread extends Thread {
     }
 
     public void enqueueModuleSamples(
-            int index, double[] stamps, Rotation2d[] turn_positons, double[] drive_positions) {
+            int index, double[] stamps, Rotation2d[] steer_positons, double[] drive_positions) {
         if (!IS_SIM) {
             DriverStation.reportWarning(
                     "Attempted to enqueue module measurement on real robot!", false);
@@ -196,7 +196,7 @@ public class PhoenixOdometryThread extends Thread {
                 ModuleMeasurement sample = new ModuleMeasurement();
                 sample.timestamp = stamps[i];
                 sample.module_positions =
-                        new SwerveModulePosition(drive_positions[i], turn_positons[i]);
+                        new SwerveModulePosition(drive_positions[i], steer_positons[i]);
 
                 // Add measurement to queue
                 Queue<ModuleMeasurement> module_queue = module_queues_.get(index);
@@ -332,7 +332,7 @@ public class PhoenixOdometryThread extends Thread {
                                     drive_signals_.get(module_index).getValue().in(Rotations)
                                             * wheel_circumference_m_,
                                     Rotation2d.fromRadians(
-                                            turn_signals_
+                                            steer_signals_
                                                     .get(module_index)
                                                     .getValue()
                                                     .in(Radians)));

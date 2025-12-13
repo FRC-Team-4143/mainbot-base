@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.mw_lib.proxy_server.ProxyServer;
 import frc.robot.subsystems.swerve.SwerveConstants;
+import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
@@ -76,6 +77,7 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         ProxyServer.syncMatchData();
         CommandScheduler.getInstance().cancelAll();
+        SwerveSubsystem.getInstance().setWantedState(SwerveStates.FIELD_CENTRIC);
     }
 
     @Override

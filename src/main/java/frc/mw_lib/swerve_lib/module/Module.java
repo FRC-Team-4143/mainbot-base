@@ -23,9 +23,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.mw_lib.mechanisms.MechBase;
-import frc.mw_lib.swerve_lib.PhoenixOdometryThread;
-import frc.mw_lib.swerve_lib.SwerveMeasurments.ModuleMeasurement;
-import java.util.List;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
 public abstract class Module extends MechBase {
@@ -47,20 +44,20 @@ public abstract class Module extends MechBase {
     protected double drive_applied_volts_ = 0.0;
     protected double drive_current_amps_ = 0.0;
 
-    protected Rotation2d turn_absolute_position_ = new Rotation2d();
-    protected double turn_velocity_rad_per_sec_ = 0.0;
-    protected double turn_applied_volts_ = 0.0;
-    protected double turn_current_amps_ = 0.0;
+    protected Rotation2d steer_absolute_position_ = new Rotation2d();
+    protected double steer_velocity_rad_per_sec_ = 0.0;
+    protected double steer_applied_volts_ = 0.0;
+    protected double steer_current_amps_ = 0.0;
 
     // Connection debouncers
     protected final Debouncer drive_conn_deb_ = new Debouncer(0.5);
-    protected final Debouncer turn_conn_deb_ = new Debouncer(0.5);
-    protected final Debouncer turn_encoder_conn_deb_ = new Debouncer(0.5);
+    protected final Debouncer steer_conn_deb_ = new Debouncer(0.5);
+    protected final Debouncer steer_encoder_conn_deb_ = new Debouncer(0.5);
 
     // alerts for disconnections
     protected final Alert drive_disconnected_alert_;
-    protected final Alert turn_disconnected_alert_;
-    protected final Alert turn_encoder_disconnected_alert_;
+    protected final Alert steer_disconnected_alert_;
+    protected final Alert steer_encoder_disconnected_alert_;
 
     // SIM objects
     protected final SwerveModuleSimulation simulation;
@@ -82,15 +79,15 @@ public abstract class Module extends MechBase {
                                 + Integer.toString(config_.encoder_id)
                                 + ".",
                         AlertType.kError);
-        turn_disconnected_alert_ =
+        steer_disconnected_alert_ =
                 new Alert(
-                        "Disconnected turn motor on module "
+                        "Disconnected steer motor on module "
                                 + Integer.toString(config_.encoder_id)
                                 + ".",
                         AlertType.kError);
-        turn_encoder_disconnected_alert_ =
+        steer_encoder_disconnected_alert_ =
                 new Alert(
-                        "Disconnected turn encoder on module "
+                        "Disconnected steer encoder on module "
                                 + Integer.toString(config_.encoder_id)
                                 + ".",
                         AlertType.kError);
@@ -101,7 +98,7 @@ public abstract class Module extends MechBase {
             SwerveModuleState state, DriveControlMode DriveMode, SteerControlMode SteerMode) {
         // Optimize velocity setpoint
         state.optimize(getAngle());
-        state.cosineScale(turn_absolute_position_);
+        state.cosineScale(steer_absolute_position_);
 
         // Apply setpoints
         switch (DriveMode) {
@@ -111,7 +108,7 @@ public abstract class Module extends MechBase {
                     setDriveOpenLoop(state.speedMetersPerSecond / config_.speed_at_12_volts * 12.0);
         }
         switch (SteerMode) {
-            case CLOSED_LOOP -> setTurnPosition(state.angle);
+            case CLOSED_LOOP -> setSteerPosition(state.angle);
                 // Steer open loop is for characterization only
         }
     }
@@ -119,18 +116,18 @@ public abstract class Module extends MechBase {
     /** Runs the module with the specified output while controlling to zero degrees. */
     public void runCharacterization(double output) {
         setDriveOpenLoop(output);
-        setTurnPosition(new Rotation2d());
+        setSteerPosition(new Rotation2d());
     }
 
     /** Disables all outputs to motors. */
     public void stop() {
         setDriveOpenLoop(0.0);
-        setTurnOpenLoop(0.0);
+        setSteerOpenLoop(0.0);
     }
 
     /** Returns the current turn angle of the module. */
     public Rotation2d getAngle() {
-        return turn_absolute_position_;
+        return steer_absolute_position_;
     }
 
     /** Returns the current drive position of the module in meters. */
@@ -176,13 +173,13 @@ public abstract class Module extends MechBase {
     public abstract void setDriveOpenLoop(double output);
 
     /** Run the turn motor at the specified open loop value. */
-    public abstract void setTurnOpenLoop(double output);
+    public abstract void setSteerOpenLoop(double output);
 
     /** Run the drive motor at the specified velocity. */
     public abstract void setDriveVelocity(double velocityRadPerSec);
 
     /** Run the turn motor to the specified rotation. */
-    public abstract void setTurnPosition(Rotation2d rotation);
+    public abstract void setSteerPosition(Rotation2d rotation);
 
     /** Set the gains for the module drive motors to the given slot */
     public abstract void setDriveGains(int slot, SlotConfigs gains);

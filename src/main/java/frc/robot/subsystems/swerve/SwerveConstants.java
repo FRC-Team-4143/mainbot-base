@@ -12,7 +12,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
 public class SwerveConstants extends MwConstants {
     // Current system states for the swerve drive
-    enum SwerveStates {
+    public enum SwerveStates {
         FIELD_CENTRIC,
         ROBOT_CENTRIC,
         CHOREO_PATH,
