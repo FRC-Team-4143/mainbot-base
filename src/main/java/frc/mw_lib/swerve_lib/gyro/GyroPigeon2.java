@@ -21,6 +21,8 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -67,7 +69,7 @@ public class GyroPigeon2 extends Gyro {
     public void readGyro() {
         if (!IS_SIM) {
             connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
-            yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+            yawPosition = Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(yaw.getValueAsDouble())));
             yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
         } else {
             PhoenixOdometryThread.getInstance()
@@ -80,6 +82,15 @@ public class GyroPigeon2 extends Gyro {
             yawVelocityRadPerSec =
                     Units.degreesToRadians(
                             gyroSimulation.getMeasuredAngularVelocity().in(RadiansPerSecond));
+        }
+    }
+
+    @Override
+    public void setYaw(Rotation2d yaw) {
+        if (!IS_SIM) {
+            pigeon.setYaw(yaw.getDegrees());
+        } else {
+            gyroSimulation.setRotation(yaw);
         }
     }
 }

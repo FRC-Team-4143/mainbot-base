@@ -525,6 +525,16 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
     // Chassis Property Methods
     // ------------------------------------------------
 
+    /** Stores the current encoder readings as offsets */
+    public Command setModuleOffsets(){
+        return Commands.runOnce(() -> swerve_mech_.setModuleOffsets());
+    }
+
+    /** Zeros the gyro to the operator forward direction */
+    public Command zeroGyro(){
+       return Commands.runOnce(() -> swerve_mech_.setGyro(operator_forward_direction_));
+    }
+
     /** Returns the module states (turn angles and drive velocities) for all of the modules. */
     public SwerveModuleState[] getModuleStates() {
         return swerve_mech_.getModuleStates();

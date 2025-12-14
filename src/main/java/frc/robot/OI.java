@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
@@ -19,6 +19,8 @@ public abstract class OI {
     public static void configureBindings() {
         DriverStation.silenceJoystickConnectionWarning(true);
 
+        SmartDashboard.putData("Set Wheel Offsets", SwerveSubsystem.getInstance().setModuleOffsets().ignoringDisable(true));
+        SmartDashboard.putData("Zero Gyro", SwerveSubsystem.getInstance().zeroGyro().ignoringDisable(true));
         driver_controller_.rightStick().onTrue(SwerveSubsystem.getInstance().toggleFieldCentric());
     }
 

@@ -32,6 +32,8 @@ public abstract class Gyro extends MechBase {
         return connected;
     }
 
+    public void setYaw(Rotation2d yaw) {}
+
     public Rotation2d getYawPosition() {
         return yawPosition;
     }

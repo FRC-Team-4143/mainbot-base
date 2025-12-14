@@ -3,6 +3,7 @@ package frc.robot.subsystems.localization;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -69,6 +70,8 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
                     }
                 break;
         }
+        DogLog.log(getSubsystemKey() + "SmoothPose", getSmoothPose());
+        DogLog.log(getSubsystemKey() + "FieldPose", getFieldPose());
     }
 
     // Only override if you need custom state transitions!

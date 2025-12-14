@@ -169,6 +169,7 @@ public class SwerveMech extends MechBase {
             current_request_parameters.moduleLocations = getModuleTranslations();
             current_request.apply(current_request_parameters, modules_);
 
+            // Modules do not have a write outputs method
             // for (Module module : modules_) {
             //     module.writeOutputs(timestamp);
             // }
@@ -209,6 +210,21 @@ public class SwerveMech extends MechBase {
                 Timer.getFPGATimestamp() - current_request_parameters.timestamp;
         current_request_parameters.timestamp = Timer.getFPGATimestamp();
         current_request_parameters.operatorForwardDirection = operator_forward_direction;
+    }
+
+    /**
+     * Sets the gyro yaw position.
+     * @param yaw The desired yaw rotation.
+     */
+    public void setGyro(Rotation2d yaw) {
+        gyro_.setYaw(yaw);
+    }
+
+    /** Stores the current encoder readings as offsets */
+    public void setModuleOffsets(){
+        for(var module : modules_){
+            module.setModuleOffset();
+        }
     }
 
     /** Returns the current estimated robot pose. */
@@ -283,20 +299,37 @@ public class SwerveMech extends MechBase {
         return kinematics_;
     }
 
+    /**
+     * Sets the drive position gains for all modules.
+     * @param gains The SlotConfigs containing the position gains.
+     */
     private void setDrivePositionGains(SlotConfigs gains) {
         setDriveGains(0, gains);
     }
 
+    /**
+     * Sets the drive velocity gains for all modules.
+     * @param gains The SlotConfigs containing the velocity gains.
+     */
     private void setDriveVelocityGains(SlotConfigs gains) {
         setDriveGains(1, gains);
     }
 
+    /**
+     * Sets the drive gains for all modules.
+     * @param slot The slot number to set the gains for.
+     * @param gains The SlotConfigs containing the gains.
+     */
     private void setDriveGains(int slot, SlotConfigs gains) {
         for (var module : modules_) {
             module.setDriveGains(slot, gains);
         }
     }
 
+    /**
+     * Sets the steer gains for all modules.
+     * @param gains The SlotConfigs containing the steer gains.
+     */
     private void setSteerGains(SlotConfigs gains) {
         for (var module : modules_) {
             module.setSteerGains(gains);

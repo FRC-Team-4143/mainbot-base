@@ -23,6 +23,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.mw_lib.mechanisms.MechBase;
+import frc.mw_lib.util.MWPreferences;
+
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
 public abstract class Module extends MechBase {
@@ -186,4 +188,7 @@ public abstract class Module extends MechBase {
 
     /** Set the gains for the module steer motors to the given slot */
     public abstract void setSteerGains(SlotConfigs gains);
+
+    /** Stores the current encoder reading as an offset */
+    public void setModuleOffset(){}
 }
