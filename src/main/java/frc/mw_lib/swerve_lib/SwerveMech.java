@@ -125,8 +125,10 @@ public class SwerveMech extends MechBase {
     public void readInputs(double timestamp) {
         for (var module : modules_) {
             module.readInputs(timestamp);
+            module.logData();
         }
         gyro_.readInputs(timestamp);
+        gyro_.logData();
 
         for (int i = 0; i < modules_.length; i++) {
             module_states[i] = modules_[i].getState();

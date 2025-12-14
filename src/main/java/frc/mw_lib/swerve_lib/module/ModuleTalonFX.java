@@ -93,7 +93,7 @@ public class ModuleTalonFX extends Module {
 
         // Configure steer motor
         var steerConfig = config_.steer_motor_config.config;
-        steerConfig.Feedback.RotorToSensorRatio = config_.module_type.steerRatio;
+        steerConfig.Feedback.SensorToMechanismRatio = config_.module_type.steerRatio;
         steerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
         // config the encoder offset for the steer motor

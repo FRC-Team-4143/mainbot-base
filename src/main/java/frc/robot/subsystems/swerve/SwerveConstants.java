@@ -115,15 +115,15 @@ public class SwerveConstants extends MwConstants {
         FL_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("fl", "x_position"));
         FL_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("fl", "y_position"));
         // Drive Motor Configuration
-        final FxMotorConfig FL_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig FL_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         FL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fl", "drive_id");
         FL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
                 PhoenixUtil.toInvertedValue(getBoolConstant("fl", "invert_drive"));
-        FL_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
+        FL_MODULE_CONFIG.drive_motor_config = FL_DRIVE_MOTOR_CONFIG;
         // Steer Motor Configuration
-        final FxMotorConfig FL_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
+        final FxMotorConfig FL_STEER_MOTOR_CONFIG = new FxMotorConfig(STEER_MOTOR_CONFIG);
         FL_STEER_MOTOR_CONFIG.can_id = getIntConstant("fl", "steer_id");
-        FL_MODULE_CONFIG.steer_motor_config = STEER_MOTOR_CONFIG;
+        FL_MODULE_CONFIG.steer_motor_config = FL_STEER_MOTOR_CONFIG;
         // TODO: Encoder offset
 
         // ---------------------------------
@@ -136,14 +136,14 @@ public class SwerveConstants extends MwConstants {
         FR_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         FR_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("fr", "x_position"));
         FR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("fr", "y_position"));
-        final FxMotorConfig FR_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig FR_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         FR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fr", "drive_id");
         FR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
                 PhoenixUtil.toInvertedValue(getBoolConstant("fr", "invert_drive"));
-        FR_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
-        final FxMotorConfig FR_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
+        FR_MODULE_CONFIG.drive_motor_config = FR_DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig FR_STEER_MOTOR_CONFIG = new FxMotorConfig(STEER_MOTOR_CONFIG);
         FR_STEER_MOTOR_CONFIG.can_id = getIntConstant("fr", "steer_id");
-        FR_MODULE_CONFIG.steer_motor_config = STEER_MOTOR_CONFIG;
+        FR_MODULE_CONFIG.steer_motor_config = FR_STEER_MOTOR_CONFIG;
         // TODO: Encoder offset
 
         // ---------------------------------
@@ -156,14 +156,14 @@ public class SwerveConstants extends MwConstants {
         BL_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         BL_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("bl", "x_position"));
         BL_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("bl", "y_position"));
-        final FxMotorConfig BL_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig BL_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         BL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("bl", "drive_id");
         BL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
                 PhoenixUtil.toInvertedValue(getBoolConstant("bl", "invert_drive"));
-        BL_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
-        final FxMotorConfig BL_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
+        BL_MODULE_CONFIG.drive_motor_config = BL_DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig BL_STEER_MOTOR_CONFIG = new FxMotorConfig(STEER_MOTOR_CONFIG);
         BL_STEER_MOTOR_CONFIG.can_id = getIntConstant("bl", "steer_id");
-        BL_MODULE_CONFIG.steer_motor_config = STEER_MOTOR_CONFIG;
+        BL_MODULE_CONFIG.steer_motor_config = BL_STEER_MOTOR_CONFIG;
         // TODO: Encoder offset
 
         // ---------------------------------
@@ -176,14 +176,14 @@ public class SwerveConstants extends MwConstants {
         BR_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         BR_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("br", "x_position"));
         BR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("br", "y_position"));
-        final FxMotorConfig BR_DRIVE_MOTOR_CONFIG = DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig BR_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         BR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("br", "drive_id");
         BR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
                 PhoenixUtil.toInvertedValue(getBoolConstant("br", "invert_drive"));
-        BR_MODULE_CONFIG.drive_motor_config = DRIVE_MOTOR_CONFIG;
-        final FxMotorConfig BR_STEER_MOTOR_CONFIG = STEER_MOTOR_CONFIG;
+        BR_MODULE_CONFIG.drive_motor_config = BR_DRIVE_MOTOR_CONFIG;
+        final FxMotorConfig BR_STEER_MOTOR_CONFIG = new FxMotorConfig(STEER_MOTOR_CONFIG);
         BR_STEER_MOTOR_CONFIG.can_id = getIntConstant("br", "steer_id");
-        BR_MODULE_CONFIG.steer_motor_config = STEER_MOTOR_CONFIG;
+        BR_MODULE_CONFIG.steer_motor_config = BR_STEER_MOTOR_CONFIG;
         // TODO: Encoder offset
 
         // Swerve Drive Configuration

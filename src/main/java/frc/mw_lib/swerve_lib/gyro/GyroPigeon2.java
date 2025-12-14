@@ -42,7 +42,7 @@ public class GyroPigeon2 extends Gyro {
 
     public GyroPigeon2(
             String logging_prefix, int id, String can_bus_name, GyroSimulation gyroSimulation) {
-        super(logging_prefix + "/GyroPigeon2");
+        super(logging_prefix);
         if (!IS_SIM) {
             // Create Pigeon
             pigeon = new Pigeon2(id, can_bus_name);

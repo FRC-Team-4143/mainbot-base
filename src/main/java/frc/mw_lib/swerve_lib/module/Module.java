@@ -76,19 +76,19 @@ public abstract class Module extends MechBase {
         drive_disconnected_alert_ =
                 new Alert(
                         "Disconnected drive motor on module "
-                                + Integer.toString(config_.encoder_id)
+                                + Integer.toString(this.module_index_)
                                 + ".",
                         AlertType.kError);
         steer_disconnected_alert_ =
                 new Alert(
                         "Disconnected steer motor on module "
-                                + Integer.toString(config_.encoder_id)
+                                + Integer.toString(this.module_index_)
                                 + ".",
                         AlertType.kError);
         steer_encoder_disconnected_alert_ =
                 new Alert(
                         "Disconnected steer encoder on module "
-                                + Integer.toString(config_.encoder_id)
+                                + Integer.toString(this.module_index_)
                                 + ".",
                         AlertType.kError);
     }

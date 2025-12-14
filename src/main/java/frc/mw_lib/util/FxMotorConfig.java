@@ -23,6 +23,16 @@ public class FxMotorConfig {
 
     public TalonFXConfiguration config = new TalonFXConfiguration();
 
+    public FxMotorConfig(FxMotorConfig config) {
+        this.canbus_name = config.canbus_name;
+        this.can_id = config.can_id;
+        this.motor_type = config.motor_type;
+        this.use_motion_magic = config.use_motion_magic;
+        this.config = config.config;
+    }
+
+    public FxMotorConfig() {}
+
     public void loadFromConfig(String... base_steps) {
         canbus_name = loader.getStringValue(ConstantsLoader.combinePath(base_steps, "bus_name"));
         can_id = loader.getIntValue(ConstantsLoader.combinePath(base_steps, "bus_id"));
