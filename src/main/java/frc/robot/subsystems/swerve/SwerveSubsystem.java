@@ -164,7 +164,8 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
         }
 
         // Set state static request parameters
-        swerve_mech_.setChassisRequestParameters(LocalizationSubsystem.getInstance().getFieldPose(), operator_forward_direction_);
+        swerve_mech_.setChassisRequestParameters(
+                LocalizationSubsystem.getInstance().getFieldPose(), operator_forward_direction_);
     }
 
     // ------------------------------------------------
@@ -526,13 +527,13 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
     // ------------------------------------------------
 
     /** Stores the current encoder readings as offsets */
-    public Command setModuleOffsets(){
+    public Command setModuleOffsets() {
         return Commands.runOnce(() -> swerve_mech_.setModuleOffsets());
     }
 
     /** Zeros the gyro to the operator forward direction */
-    public Command zeroGyro(){
-       return Commands.runOnce(() -> swerve_mech_.setGyro(operator_forward_direction_));
+    public Command zeroGyro() {
+        return Commands.runOnce(() -> swerve_mech_.setGyro(operator_forward_direction_));
     }
 
     /** Returns the module states (turn angles and drive velocities) for all of the modules. */
@@ -569,7 +570,7 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
      *
      * @return SwerveDriveKinematics object representing the swerve drive
      */
-    public SwerveDriveKinematics getKinematics(){
+    public SwerveDriveKinematics getKinematics() {
         return swerve_mech_.getKinematics();
     }
 }

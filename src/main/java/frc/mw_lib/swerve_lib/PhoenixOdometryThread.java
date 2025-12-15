@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.GyroMeasurement;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.ModuleMeasurement;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.SwerveMeasurement;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -196,7 +195,7 @@ public class PhoenixOdometryThread extends Thread {
                 ModuleMeasurement sample = new ModuleMeasurement();
                 sample.timestamp = stamps[i];
                 sample.module_positions =
-                        new SwerveModulePosition(drive_positions[i], steer_positons[i]);
+                        new SwerveModulePosition(drive_positions[i] * wheel_circumference_m_, steer_positons[i]);
 
                 // Add measurement to queue
                 Queue<ModuleMeasurement> module_queue = module_queues_.get(index);
@@ -253,7 +252,7 @@ public class PhoenixOdometryThread extends Thread {
         }
     }
 
-    public List<SwerveMeasurement> getSwerveSamples(){
+    public List<SwerveMeasurement> getSwerveSamples() {
         List<SwerveMeasurement> swerveSamples = new ArrayList<>();
         odometry_lock_.lock();
 
@@ -261,18 +260,18 @@ public class PhoenixOdometryThread extends Thread {
             // Empty the odometry queue into the samples list
             SwerveMeasurement sample;
             int num_samples = gyro_queue_.size();
-            for(int i = 0; i <= 3; i++){
+            for (int i = 0; i <= 3; i++) {
                 num_samples = Math.min(num_samples, module_queues_.get(i).size());
             }
 
-            for(int i = 0; i < num_samples; i++){
+            for (int i = 0; i < num_samples; i++) {
                 sample = new SwerveMeasurement();
                 GyroMeasurement gyroMeasurement = gyro_queue_.poll();
                 sample.timestamp = gyroMeasurement.timestamp;
                 sample.gyro_yaw = gyroMeasurement.gyro_yaw;
 
                 SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-                for(int j = 0; j < 4; j++){
+                for (int j = 0; j < 4; j++) {
                     ModuleMeasurement moduleMeasurement = module_queues_.get(j).poll();
                     modulePositions[j] = moduleMeasurement.module_positions;
                 }

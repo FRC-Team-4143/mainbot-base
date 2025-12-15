@@ -27,7 +27,6 @@ import frc.mw_lib.swerve_lib.PhoenixOdometryThread;
 import frc.mw_lib.util.MWPreferences;
 import frc.mw_lib.util.PhoenixUtil;
 import java.util.Arrays;
-
 import org.ejml.simple.UnsupportedOperation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
@@ -99,18 +98,21 @@ public class ModuleTalonFX extends Module {
         steerConfig.Feedback.SensorToMechanismRatio = config_.module_type.steerRatio;
         steerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-        //config the encoder offset for the steer motor
+        // config the encoder offset for the steer motor
         if (config_.encoder_type == SwerveModuleConfig.EncoderType.ANALOG_ENCODER) {
-          // Use analog encoder
-          Rotation2d encoder_value = Rotation2d.fromRotations(encoder.get());
-          Rotation2d encoder_offset = Rotation2d.fromRotations(MWPreferences.getInstance().getPreferenceDouble("Encoder"+index+"Offset", 0.0));
+            // Use analog encoder
+            Rotation2d encoder_value = Rotation2d.fromRotations(encoder.get());
+            Rotation2d encoder_offset =
+                    Rotation2d.fromRotations(
+                            MWPreferences.getInstance()
+                                    .getPreferenceDouble("Encoder" + index + "Offset", 0.0));
             steer_talonfx_.setPosition(encoder_value.rotateBy(encoder_offset).getRotations() % 1.0);
         } else if (config_.encoder_type == SwerveModuleConfig.EncoderType.CTRE_CAN_CODER) {
-          // Use remote CANCoder
-          // TODO CJT implement for cancoder
-          throw new UnsupportedOperation("CANCoder not yet supported in ModuleTalonFX");
+            // Use remote CANCoder
+            // TODO CJT implement for cancoder
+            throw new UnsupportedOperation("CANCoder not yet supported in ModuleTalonFX");
         } else {
-          throw new IllegalArgumentException("Unsupported encoder type for ModuleTalonFX");
+            throw new IllegalArgumentException("Unsupported encoder type for ModuleTalonFX");
         }
 
         steerConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / config_.module_type.steerRatio;
@@ -280,8 +282,11 @@ public class ModuleTalonFX extends Module {
     }
 
     @Override
-    public void setModuleOffset(){
-        MWPreferences.getInstance().setPreference("Encoder"+encoder.getChannel()+"Offset", steer_absolute_position_.getRotations());
+    public void setModuleOffset() {
+        MWPreferences.getInstance()
+                .setPreference(
+                        "Encoder" + encoder.getChannel() + "Offset",
+                        steer_absolute_position_.getRotations());
         steer_talonfx_.setPosition(0.0);
     }
 

@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -14,7 +13,6 @@ import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
-import org.ironmaple.simulation.SimulatedArena;
 
 public class Robot extends TimedRobot {
 
@@ -95,18 +93,8 @@ public class Robot extends TimedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationInit() {
-        SimulatedArena.getInstance().resetFieldForAuto();
-    }
+    public void simulationInit() {}
 
     @Override
-    public void simulationPeriodic() {
-        SimulatedArena.getInstance().simulationPeriodic();
-        DogLog.log(
-                "FieldSimulation/Coral",
-                SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-        DogLog.log(
-                "FieldSimulation/Algae",
-                SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-    }
+    public void simulationPeriodic() {}
 }

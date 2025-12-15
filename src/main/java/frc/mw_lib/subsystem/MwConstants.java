@@ -32,6 +32,7 @@ public class MwConstants {
 
     /**
      * Get a double constant from the configuration file
+     *
      * @param path_steps comma separated list of strings representing the path to the constant
      * @return the double constant
      */
@@ -46,6 +47,7 @@ public class MwConstants {
 
     /**
      * Get an integer constant from the configuration file
+     *
      * @param path_steps comma separated list of strings representing the path to the constant
      * @return the integer constant
      */
@@ -60,6 +62,7 @@ public class MwConstants {
 
     /**
      * Get a string constant from the configuration file
+     *
      * @param path_steps comma separated list of strings representing the path to the constant
      * @return the string constant
      */
@@ -74,6 +77,7 @@ public class MwConstants {
 
     /**
      * Get a boolean constant from the configuration file
+     *
      * @param path_steps comma separated list of strings representing the path to the constant
      * @return the boolean constant
      */

@@ -1,8 +1,5 @@
 package frc.robot.subsystems.localization;
 
-import java.util.Arrays;
-import java.util.List;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,11 +9,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
 import frc.mw_lib.swerve_lib.PhoenixOdometryThread;
-import frc.mw_lib.swerve_lib.SwerveMeasurments.GyroMeasurement;
-import frc.mw_lib.swerve_lib.SwerveMeasurments.ModuleMeasurement;
 import frc.mw_lib.swerve_lib.SwerveMeasurments.SwerveMeasurement;
+import frc.robot.Robot;
 import frc.robot.subsystems.localization.LocalizationConstants.LocalizationStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import java.util.Arrays;
+import java.util.List;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
 public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, LocalizationConstants> {
     private static LocalizationSubsystem instance_ = null;
@@ -33,6 +33,8 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
     private SwerveDrivePoseEstimator field_pose_estimator_;
     private List<SwerveMeasurement> swerve_measurements_;
 
+    private final boolean IS_SIM = Robot.isSimulation();
+    private SwerveDriveSimulation swerve_sim_;
 
     public LocalizationSubsystem() {
         // (Default State, Constants Class)
@@ -40,10 +42,20 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
 
         SwerveDriveKinematics kinematics = SwerveSubsystem.getInstance().getKinematics();
         Rotation2d gyro_angle = SwerveSubsystem.getInstance().getGyroRotation();
-        SwerveModulePosition[] module_positions = SwerveSubsystem.getInstance().getModulePositions();
+        SwerveModulePosition[] module_positions =
+                SwerveSubsystem.getInstance().getModulePositions();
 
-        smooth_pose_estimator_ = new SwerveDrivePoseEstimator(kinematics, gyro_angle, module_positions, CONSTANTS.START_POSE);
-        field_pose_estimator_ = new SwerveDrivePoseEstimator(kinematics, gyro_angle, module_positions, CONSTANTS.START_POSE);
+        smooth_pose_estimator_ =
+                new SwerveDrivePoseEstimator(
+                        kinematics, gyro_angle, module_positions, CONSTANTS.START_POSE);
+        field_pose_estimator_ =
+                new SwerveDrivePoseEstimator(
+                        kinematics, gyro_angle, module_positions, CONSTANTS.START_POSE);
+
+        if (IS_SIM) {
+            swerve_sim_ = SwerveSubsystem.getInstance().getSwerveSimulation();
+            swerve_sim_.setSimulationWorldPose(CONSTANTS.START_POSE);
+        }
     }
 
     @Override
@@ -61,14 +73,26 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
         switch (system_state_) {
             case ACTIVE:
                 swerve_measurements_ = PhoenixOdometryThread.getInstance().getSwerveSamples();
-                    for(int i = 0; i < swerve_measurements_.size(); i++){
-                        // Update Smooth Pose Estimator
-                        smooth_pose_estimator_.updateWithTime(swerve_measurements_.get(i).timestamp, swerve_measurements_.get(i).gyro_yaw, swerve_measurements_.get(i).module_positions);
+                for (int i = 0; i < swerve_measurements_.size(); i++) {
+                    // Update Smooth Pose Estimator
+                    smooth_pose_estimator_.updateWithTime(
+                            swerve_measurements_.get(i).timestamp,
+                            swerve_measurements_.get(i).gyro_yaw,
+                            swerve_measurements_.get(i).module_positions);
+                    // DO NOT ADD ANY VISION MEASUREMENTS TO THIS ESTIMATOR
 
-                        // Update Field Post Estimator
-                        field_pose_estimator_.updateWithTime(swerve_measurements_.get(i).timestamp, swerve_measurements_.get(i).gyro_yaw, swerve_measurements_.get(i).module_positions);
-                    }
+                    // Update Field Post Estimator
+                    field_pose_estimator_.updateWithTime(
+                            swerve_measurements_.get(i).timestamp,
+                            swerve_measurements_.get(i).gyro_yaw,
+                            swerve_measurements_.get(i).module_positions);
+                    // This pose estimator will later have vision measurements added to it
+                }
                 break;
+        }
+
+        if (IS_SIM) {
+            simulateArena();
         }
         DogLog.log(getSubsystemKey() + "SmoothPose", getSmoothPose());
         DogLog.log(getSubsystemKey() + "FieldPose", getFieldPose());
@@ -82,16 +106,30 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
     /**
      * @return The smoothed pose estimate of the robot.
      */
-    public Pose2d getSmoothPose(){
+    public Pose2d getSmoothPose() {
         return smooth_pose_estimator_.getEstimatedPosition();
     }
 
     /**
      * @return The field-relative pose estimate of the robot.
      */
-    public Pose2d getFieldPose(){
+    public Pose2d getFieldPose() {
         return field_pose_estimator_.getEstimatedPosition();
     }
 
     // Private Helper Methods
+
+    /** Simulate the Arena and log game pieces */
+    private void simulateArena() {
+        SimulatedArena.getInstance().simulationPeriodic();
+        DogLog.log(
+                getSubsystemKey() + "FieldSimulation/Coral",
+                SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+        DogLog.log(
+                getSubsystemKey() + "FieldSimulation/Algae",
+                SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+        DogLog.log(
+                getSubsystemKey() + "FieldSimulation/RobotPose",
+                swerve_sim_.getSimulatedDriveTrainPose());
+    }
 }

@@ -19,8 +19,11 @@ public abstract class OI {
     public static void configureBindings() {
         DriverStation.silenceJoystickConnectionWarning(true);
 
-        SmartDashboard.putData("Set Wheel Offsets", SwerveSubsystem.getInstance().setModuleOffsets().ignoringDisable(true));
-        SmartDashboard.putData("Zero Gyro", SwerveSubsystem.getInstance().zeroGyro().ignoringDisable(true));
+        SmartDashboard.putData(
+                "Set Wheel Offsets",
+                SwerveSubsystem.getInstance().setModuleOffsets().ignoringDisable(true));
+        SmartDashboard.putData(
+                "Zero Gyro", SwerveSubsystem.getInstance().zeroGyro().ignoringDisable(true));
         driver_controller_.rightStick().onTrue(SwerveSubsystem.getInstance().toggleFieldCentric());
     }
 

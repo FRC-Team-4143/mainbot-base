@@ -16,8 +16,6 @@ public interface SubsystemIoBase {
      */
     public abstract void writeOutputs(double timestamp);
 
-    /**
-     * Log data to NetworkTables or other logging systems
-     */
+    /** Log data to NetworkTables or other logging systems */
     public abstract void logData();
 }

@@ -102,7 +102,6 @@ public class SwerveMech extends MechBase {
         // configure the kinematics after the modules are created
         kinematics_ = new SwerveDriveKinematics(getModuleTranslations());
 
-
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
 
@@ -185,7 +184,8 @@ public class SwerveMech extends MechBase {
         DogLog.log(getLoggingKey() + "LastModulePositions", last_module_positions);
         DogLog.log(getLoggingKey() + "ChassisSpeeds", chassis_speeds);
         DogLog.log(getLoggingKey() + "RawGyroRotation", raw_gyro_rotation);
-        DogLog.log(getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
+        DogLog.log(
+                getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
     }
 
     /**
@@ -214,6 +214,7 @@ public class SwerveMech extends MechBase {
 
     /**
      * Sets the gyro yaw position.
+     *
      * @param yaw The desired yaw rotation.
      */
     public void setGyro(Rotation2d yaw) {
@@ -221,8 +222,8 @@ public class SwerveMech extends MechBase {
     }
 
     /** Stores the current encoder readings as offsets */
-    public void setModuleOffsets(){
-        for(var module : modules_){
+    public void setModuleOffsets() {
+        for (var module : modules_) {
             module.setModuleOffset();
         }
     }
@@ -293,14 +294,16 @@ public class SwerveMech extends MechBase {
 
     /**
      * Returns the swerve drive kinematics instance
+     *
      * @return SwerveDriveKinematics object representing the swerve drive
      */
-    public SwerveDriveKinematics getKinematics(){
+    public SwerveDriveKinematics getKinematics() {
         return kinematics_;
     }
 
     /**
      * Sets the drive position gains for all modules.
+     *
      * @param gains The SlotConfigs containing the position gains.
      */
     private void setDrivePositionGains(SlotConfigs gains) {
@@ -309,6 +312,7 @@ public class SwerveMech extends MechBase {
 
     /**
      * Sets the drive velocity gains for all modules.
+     *
      * @param gains The SlotConfigs containing the velocity gains.
      */
     private void setDriveVelocityGains(SlotConfigs gains) {
@@ -317,6 +321,7 @@ public class SwerveMech extends MechBase {
 
     /**
      * Sets the drive gains for all modules.
+     *
      * @param slot The slot number to set the gains for.
      * @param gains The SlotConfigs containing the gains.
      */
@@ -328,6 +333,7 @@ public class SwerveMech extends MechBase {
 
     /**
      * Sets the steer gains for all modules.
+     *
      * @param gains The SlotConfigs containing the steer gains.
      */
     private void setSteerGains(SlotConfigs gains) {

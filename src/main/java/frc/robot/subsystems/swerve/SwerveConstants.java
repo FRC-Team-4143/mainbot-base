@@ -1,6 +1,11 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.mw_lib.subsystem.MwConstants;
 import frc.mw_lib.swerve_lib.SwerveDriveConfig;
@@ -8,6 +13,7 @@ import frc.mw_lib.swerve_lib.module.ModuleType;
 import frc.mw_lib.swerve_lib.module.SwerveModuleConfig;
 import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.PhoenixUtil;
+import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
 public class SwerveConstants extends MwConstants {
@@ -74,10 +80,13 @@ public class SwerveConstants extends MwConstants {
     public final SwerveModuleConfig FR_MODULE_CONFIG = new SwerveModuleConfig();
     public final SwerveModuleConfig BL_MODULE_CONFIG = new SwerveModuleConfig();
     public final SwerveModuleConfig BR_MODULE_CONFIG = new SwerveModuleConfig();
+    public final Translation2d FL_MODULE_TRANSLATION;
+    public final Translation2d FR_MODULE_TRANSLATION;
+    public final Translation2d BL_MODULE_TRANSLATION;
+    public final Translation2d BR_MODULE_TRANSLATION;
 
     public final SwerveDriveConfig SWERVE_DRIVE_CONFIG;
-    public final DriveTrainSimulationConfig SIM_SWERVE_DRIVE_CONFIG =
-            DriveTrainSimulationConfig.Default();
+    public final DriveTrainSimulationConfig SIM_SWERVE_DRIVE_CONFIG;
 
     // Choreo Constants
     public final boolean FLIP_TRAJECTORY_ON_RED = true;
@@ -99,6 +108,7 @@ public class SwerveConstants extends MwConstants {
     public final double TRACTOR_BEAM_CONTROLLER_KI = 0.0;
     public final double TRACTOR_BEAM_CONTROLLER_KD = 0.0;
 
+    @SuppressWarnings("unchecked")
     public SwerveConstants() {
 
         DRIVE_MOTOR_CONFIG.loadFromConfig("swerve", "com", "drive_motor");
@@ -114,6 +124,8 @@ public class SwerveConstants extends MwConstants {
         FL_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         FL_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("fl", "x_position"));
         FL_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("fl", "y_position"));
+        FL_MODULE_TRANSLATION =
+                new Translation2d(FL_MODULE_CONFIG.location_x, FL_MODULE_CONFIG.location_y);
         // Drive Motor Configuration
         final FxMotorConfig FL_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         FL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fl", "drive_id");
@@ -136,6 +148,8 @@ public class SwerveConstants extends MwConstants {
         FR_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         FR_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("fr", "x_position"));
         FR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("fr", "y_position"));
+        FR_MODULE_TRANSLATION =
+                new Translation2d(FR_MODULE_CONFIG.location_x, FR_MODULE_CONFIG.location_y);
         final FxMotorConfig FR_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         FR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("fr", "drive_id");
         FR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
@@ -156,6 +170,8 @@ public class SwerveConstants extends MwConstants {
         BL_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         BL_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("bl", "x_position"));
         BL_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("bl", "y_position"));
+        BL_MODULE_TRANSLATION =
+                new Translation2d(BL_MODULE_CONFIG.location_x, BL_MODULE_CONFIG.location_y);
         final FxMotorConfig BL_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         BL_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("bl", "drive_id");
         BL_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
@@ -176,6 +192,8 @@ public class SwerveConstants extends MwConstants {
         BR_MODULE_CONFIG.speed_at_12_volts = SPEED_AT_12V_MPS;
         BR_MODULE_CONFIG.location_x = Units.inchesToMeters(getDoubleConstant("br", "x_position"));
         BR_MODULE_CONFIG.location_y = Units.inchesToMeters(getDoubleConstant("br", "y_position"));
+        BR_MODULE_TRANSLATION =
+                new Translation2d(BR_MODULE_CONFIG.location_x, BR_MODULE_CONFIG.location_y);
         final FxMotorConfig BR_DRIVE_MOTOR_CONFIG = new FxMotorConfig(DRIVE_MOTOR_CONFIG);
         BR_DRIVE_MOTOR_CONFIG.can_id = getIntConstant("br", "drive_id");
         BR_DRIVE_MOTOR_CONFIG.config.MotorOutput.Inverted =
@@ -197,15 +215,21 @@ public class SwerveConstants extends MwConstants {
                         PIGEON2_CANBUS_NAME);
 
         // Swerve Drive Simulation Configuration
-        // @SuppressWarnings("unchecked")
-        // SIM_SWERVE_DRIVE_CONFIG = new DriveTrainSimulationConfig(
-        //     Kilograms.of(ROBOT_MASS_KG),
-        //     Meters.of(BUMPER_LENGTH_METERS),
-        //     Meters.of(BUMPER_WIDTH_METERS),
-        //     Meters.of(BUMPER_LENGTH_METERS - 2 * BUMPER_THICKNESS_METERS),
-        //     Meters.of(BUMPER_WIDTH_METERS - 2 * BUMPER_THICKNESS_METERS),
-        //     COTS.ofPigeon2(),
-        //     COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1),
-        // COTS.WHEELS.VEX_GRIP_V2.cof, 2));
+        SIM_SWERVE_DRIVE_CONFIG =
+                DriveTrainSimulationConfig.Default()
+                        .withBumperSize(
+                                Meters.of(BUMPER_LENGTH_METERS), Meters.of(BUMPER_WIDTH_METERS))
+                        .withCustomModuleTranslations(new Translation2d[]{
+                            FL_MODULE_TRANSLATION,
+                            FR_MODULE_TRANSLATION,
+                            BL_MODULE_TRANSLATION,
+                            BR_MODULE_TRANSLATION})
+                        .withGyro(COTS.ofPigeon2())
+                        .withSwerveModules(
+                                COTS.ofMark4i(
+                                        DCMotor.getKrakenX60(1),
+                                        DCMotor.getKrakenX60(1),
+                                        COTS.WHEELS.VEX_GRIP_V2.cof,
+                                        2));
     }
 }
