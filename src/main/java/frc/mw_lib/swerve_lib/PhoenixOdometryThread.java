@@ -21,6 +21,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -108,6 +109,11 @@ public class PhoenixOdometryThread extends Thread {
         // Queue of odometry measurements
         module_queues_ = new ArrayList<>(4);
         gyro_queue_ = new ArrayBlockingQueue<>(100);
+
+        // create a new queue for the module
+        for (int module_index = 0; module_index < 4; module_index++) {
+            module_queues_.add(module_index, new ArrayBlockingQueue<>(100));
+        }
     }
 
     @Override
@@ -150,8 +156,6 @@ public class PhoenixOdometryThread extends Thread {
             steer_signals_.set(module_index, steer_signal);
             drive_signals_.set(module_index, drive_signal);
 
-            // create a new queue for the module
-            module_queues_.add(module_index, new ArrayBlockingQueue<>(100));
         } finally {
             signals_lock_.unlock();
         }
@@ -195,7 +199,7 @@ public class PhoenixOdometryThread extends Thread {
                 ModuleMeasurement sample = new ModuleMeasurement();
                 sample.timestamp = stamps[i];
                 sample.module_positions =
-                        new SwerveModulePosition(drive_positions[i] * wheel_circumference_m_, steer_positons[i]);
+                        new SwerveModulePosition(Units.radiansToRotations(drive_positions[i]) * wheel_circumference_m_, steer_positons[i]);
 
                 // Add measurement to queue
                 Queue<ModuleMeasurement> module_queue = module_queues_.get(index);

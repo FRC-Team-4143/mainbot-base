@@ -121,7 +121,6 @@ public class LocalizationSubsystem extends MwSubsystem<LocalizationStates, Local
 
     /** Simulate the Arena and log game pieces */
     private void simulateArena() {
-        SimulatedArena.getInstance().simulationPeriodic();
         DogLog.log(
                 getSubsystemKey() + "FieldSimulation/Coral",
                 SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));

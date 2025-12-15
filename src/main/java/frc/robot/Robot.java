@@ -14,6 +14,8 @@ import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
 
+import org.ironmaple.simulation.SimulatedArena;
+
 public class Robot extends TimedRobot {
 
     private Alliance alliance_ = Alliance.Blue; // Current alliance, used to set driver perspective
@@ -75,7 +77,7 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         ProxyServer.syncMatchData();
         CommandScheduler.getInstance().cancelAll();
-        SwerveSubsystem.getInstance().setWantedState(SwerveStates.FIELD_CENTRIC);
+        SwerveSubsystem.getInstance().setWantedState(SwerveStates.ROBOT_CENTRIC);
     }
 
     @Override
@@ -93,8 +95,14 @@ public class Robot extends TimedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationInit() {}
+    public void simulationInit() {
+        // Configure the simulated robot state
+        SimulatedRobotState.configure();
+    }
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        // Update the physics simulation - this is CRITICAL for proper simulation data
+        SimulatedArena.getInstance().simulationPeriodic();
+    }
 }

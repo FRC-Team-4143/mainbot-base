@@ -15,6 +15,7 @@ import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.PhoenixUtil;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class SwerveConstants extends MwConstants {
     // Current system states for the swerve drive
@@ -76,10 +77,12 @@ public class SwerveConstants extends MwConstants {
     // Swerve Module Constants
     public final FxMotorConfig DRIVE_MOTOR_CONFIG = new FxMotorConfig();
     public final FxMotorConfig STEER_MOTOR_CONFIG = new FxMotorConfig();
+
     public final SwerveModuleConfig FL_MODULE_CONFIG = new SwerveModuleConfig();
     public final SwerveModuleConfig FR_MODULE_CONFIG = new SwerveModuleConfig();
     public final SwerveModuleConfig BL_MODULE_CONFIG = new SwerveModuleConfig();
     public final SwerveModuleConfig BR_MODULE_CONFIG = new SwerveModuleConfig();
+
     public final Translation2d FL_MODULE_TRANSLATION;
     public final Translation2d FR_MODULE_TRANSLATION;
     public final Translation2d BL_MODULE_TRANSLATION;
@@ -219,6 +222,7 @@ public class SwerveConstants extends MwConstants {
                 DriveTrainSimulationConfig.Default()
                         .withBumperSize(
                                 Meters.of(BUMPER_LENGTH_METERS), Meters.of(BUMPER_WIDTH_METERS))
+                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
                         .withCustomModuleTranslations(new Translation2d[]{
                             FL_MODULE_TRANSLATION,
                             FR_MODULE_TRANSLATION,

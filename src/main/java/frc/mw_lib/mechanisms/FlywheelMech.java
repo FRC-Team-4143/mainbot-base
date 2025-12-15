@@ -213,6 +213,13 @@ public class FlywheelMech extends MechBase {
     }
 
     /**
+     * @return The current velocity of the flywheel in radians per second
+     */
+    public double getCurrentVelocity() {
+        return velocity_;
+    }
+
+    /**
      * Sets the target velocity of the flywheel in radians per second
      *
      * @param velocity_rad_per_sec the target velocity in radians per second

@@ -392,6 +392,7 @@ public class SwerveSubsystem extends MwSubsystem<SwerveStates, SwerveConstants> 
                         x_magnitude * CONSTANTS.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
                         y_magnitude * CONSTANTS.MAX_TRANSLATION_RATE * tele_op_velocity_scalar_,
                         angular_magnitude * CONSTANTS.MAX_ANGULAR_RATE);
+        DogLog.log(getSubsystemKey() + "RequestedTwist", twist);
         return twist;
     }
 

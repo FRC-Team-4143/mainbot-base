@@ -151,10 +151,6 @@ public class SwerveMech extends MechBase {
             Twist2d twist = kinematics_.toTwist2d(module_deltas);
             raw_gyro_rotation = raw_gyro_rotation.plus(new Rotation2d(twist.dtheta));
         }
-
-        if (IS_SIM) {
-            DogLog.log(getLoggingKey() + "SimulatedPose", swerve_sim_.getSimulatedDriveTrainPose());
-        }
     }
 
     public void writeOutputs(double timestamp) {
@@ -184,8 +180,7 @@ public class SwerveMech extends MechBase {
         DogLog.log(getLoggingKey() + "LastModulePositions", last_module_positions);
         DogLog.log(getLoggingKey() + "ChassisSpeeds", chassis_speeds);
         DogLog.log(getLoggingKey() + "RawGyroRotation", raw_gyro_rotation);
-        DogLog.log(
-                getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
+        DogLog.log(getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
     }
 
     /**
