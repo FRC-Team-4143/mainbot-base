@@ -13,7 +13,6 @@ import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
-
 import org.ironmaple.simulation.SimulatedArena;
 
 public class Robot extends TimedRobot {

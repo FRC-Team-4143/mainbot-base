@@ -199,7 +199,10 @@ public class PhoenixOdometryThread extends Thread {
                 ModuleMeasurement sample = new ModuleMeasurement();
                 sample.timestamp = stamps[i];
                 sample.module_positions =
-                        new SwerveModulePosition(Units.radiansToRotations(drive_positions[i]) * wheel_circumference_m_, steer_positons[i]);
+                        new SwerveModulePosition(
+                                Units.radiansToRotations(drive_positions[i])
+                                        * wheel_circumference_m_,
+                                steer_positons[i]);
 
                 // Add measurement to queue
                 Queue<ModuleMeasurement> module_queue = module_queues_.get(index);

@@ -15,7 +15,6 @@ import frc.mw_lib.util.FxMotorConfig;
 import frc.mw_lib.util.PhoenixUtil;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class SwerveConstants extends MwConstants {
     // Current system states for the swerve drive
@@ -223,11 +222,13 @@ public class SwerveConstants extends MwConstants {
                         .withBumperSize(
                                 Meters.of(BUMPER_LENGTH_METERS), Meters.of(BUMPER_WIDTH_METERS))
                         .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-                        .withCustomModuleTranslations(new Translation2d[]{
-                            FL_MODULE_TRANSLATION,
-                            FR_MODULE_TRANSLATION,
-                            BL_MODULE_TRANSLATION,
-                            BR_MODULE_TRANSLATION})
+                        .withCustomModuleTranslations(
+                                new Translation2d[] {
+                                    FL_MODULE_TRANSLATION,
+                                    FR_MODULE_TRANSLATION,
+                                    BL_MODULE_TRANSLATION,
+                                    BR_MODULE_TRANSLATION
+                                })
                         .withGyro(COTS.ofPigeon2())
                         .withSwerveModules(
                                 COTS.ofMark4i(

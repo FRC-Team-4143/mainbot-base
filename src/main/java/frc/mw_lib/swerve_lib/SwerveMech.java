@@ -180,7 +180,8 @@ public class SwerveMech extends MechBase {
         DogLog.log(getLoggingKey() + "LastModulePositions", last_module_positions);
         DogLog.log(getLoggingKey() + "ChassisSpeeds", chassis_speeds);
         DogLog.log(getLoggingKey() + "RawGyroRotation", raw_gyro_rotation);
-        DogLog.log(getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
+        DogLog.log(
+                getLoggingKey() + "CurrentRequestType", current_request.getClass().getSimpleName());
     }
 
     /**
