@@ -5,27 +5,27 @@
 package frc.robot;
 
 import frc.mw_lib.subsystem.SubsystemManager;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.superstructure.Superstructure;
-import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.localization.LocalizationSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class RobotContainer extends SubsystemManager {
-  private static RobotContainer instance;
+    private static RobotContainer instance;
 
-  public static synchronized RobotContainer getInstance() {
-    if (instance == null) {
-      instance = new RobotContainer();
+    public static synchronized RobotContainer getInstance() {
+        if (instance == null) {
+            instance = new RobotContainer();
+        }
+        return instance;
     }
-    return instance;
-  }
 
-  public RobotContainer() {
-    // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
-    // registerSubsystem(Superstructure.getInstance());
-    // registerSubsystem(Swerve.getInstance());
-    registerSubsystem(ElevatorSubsystem.getInstance());
+    public RobotContainer() {
+        // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
+        registerSubsystem(SwerveSubsystem.getInstance());
+        registerSubsystem(LocalizationSubsystem.getInstance());
+        // registerSubsystem(ElevatorSubsystem.getInstance());
+        // registerSubsystem(ArmSubsystem.getInstance());
 
-    // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
-    reset();
-  }
+        // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
+        reset();
+    }
 }

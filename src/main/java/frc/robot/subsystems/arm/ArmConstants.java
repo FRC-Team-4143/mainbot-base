@@ -1,8 +1,8 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.util.Units;
-import frc.mw_lib.mechanisms.FxMotorConfig;
 import frc.mw_lib.subsystem.MwConstants;
+import frc.mw_lib.util.FxMotorConfig;
 
 public class ArmConstants extends MwConstants {
 
@@ -30,5 +30,4 @@ public class ArmConstants extends MwConstants {
         arm_min_angle = Units.degreesToRadians(getDoubleConstant("arm_mech", "min_angle"));
         arm_max_angle = Units.degreesToRadians(getDoubleConstant("arm_mech", "max_angle"));
     }
-
 }

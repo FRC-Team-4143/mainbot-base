@@ -1,17 +1,11 @@
 package frc.robot.subsystems.arm;
 
-import java.lang.constant.Constable;
-import java.util.Arrays;
-import java.util.List;
-
-import com.ctre.phoenix6.configs.SlotConfigs;
-
-import dev.doglog.DogLog;
 import frc.mw_lib.mechanisms.ArmMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
-import frc.mw_lib.util.TunablePid;
 import frc.robot.subsystems.arm.ArmConstants.ArmStates;
+import java.util.Arrays;
+import java.util.List;
 
 public class ArmSubsystem extends MwSubsystem<ArmStates, ArmConstants> {
     private static ArmSubsystem instance_ = null;
@@ -23,17 +17,21 @@ public class ArmSubsystem extends MwSubsystem<ArmStates, ArmConstants> {
         return instance_;
     }
 
-    private ArmMech  arm_mech_;
+    private ArmMech arm_mech_;
     private double target_arm_position_ = 0.0;
 
     public ArmSubsystem() {
         super(ArmStates.IDLE, new ArmConstants());
 
-        arm_mech_ = new ArmMech(Arrays.asList(CONSTANTS.leader_motor_config), CONSTANTS.arm_gear_ratio, CONSTANTS.arm_length, CONSTANTS.arm_mass, CONSTANTS.arm_min_angle, CONSTANTS.arm_max_angle);
-        arm_mech_.setLoggingPrefix(getSubsystemKey());
-
-        TunablePid.create(getSubsystemKey() + "Arm", arm_mech_::setPositionSlot, SlotConfigs.from(CONSTANTS.leader_motor_config.config.Slot0));
-        DogLog.tunable(getSubsystemKey() + "Arm/Setpoint", target_arm_position_, v -> target_arm_position_ = v);
+        arm_mech_ =
+                new ArmMech(
+                        getSubsystemKey(),
+                        Arrays.asList(CONSTANTS.leader_motor_config),
+                        CONSTANTS.arm_gear_ratio,
+                        CONSTANTS.arm_length,
+                        CONSTANTS.arm_mass,
+                        CONSTANTS.arm_min_angle,
+                        CONSTANTS.arm_max_angle);
     }
 
     // @Override
@@ -74,5 +72,4 @@ public class ArmSubsystem extends MwSubsystem<ArmStates, ArmConstants> {
         arm_mech_.setCurrentPosition(0);
         system_state_ = ArmStates.IDLE;
     }
-
 }
