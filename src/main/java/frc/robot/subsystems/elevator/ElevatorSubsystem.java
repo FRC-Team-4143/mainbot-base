@@ -6,6 +6,7 @@ import java.util.List;
 import com.ctre.phoenix6.configs.SlotConfigs;
 
 import dev.doglog.DogLog;
+import frc.mw_lib.mechanisms.ArmMech;
 import frc.mw_lib.mechanisms.ElevatorMech;
 import frc.mw_lib.subsystem.MwSubsystem;
 import frc.mw_lib.subsystem.SubsystemIoBase;
@@ -22,6 +23,8 @@ public class ElevatorSubsystem extends MwSubsystem<ElevatorStates, ElevatorConst
         return instance_;
     }
 
+    private ArmMech turret_mech_;
+    private ArmMech trunnion_mech_;
     private ElevatorMech elevator_mech_;
     private double target_elevator_position_ = 0.0;
 

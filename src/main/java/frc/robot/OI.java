@@ -13,6 +13,10 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.Optional;
 
+import frc.robot.commands.ExerciseExtend;
+import frc.robot.commands.ExerciseTrunnion;
+import frc.robot.commands.ExerciseTurret;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -46,6 +50,9 @@ public abstract class OI {
                                                                 () -> extend.set(0)));
     driver_controller_.rightBumper().whileTrue(Commands.startEnd(() -> extend.set(-.6),
                                                                  () -> extend.set(0)));
+    driver_controller_.leftTrigger().toggleOnTrue(new ExerciseTrunnion());
+    driver_controller_.rightTrigger().toggleOnTrue(new ExerciseTurret());
+    driver_controller_.start().toggleOnTrue(new ExerciseExtend());
     SmartDashboard.putData("SeedFieldCentric", Commands.runOnce(Swerve.getInstance()::seedFieldCentric));
   }
 
