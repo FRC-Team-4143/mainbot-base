@@ -1,6 +1,6 @@
 package frc.robot;
 
-import frc.mw_lib.simulation.ArenaEvergreen;
+import com.marswars.simulation.ArenaEvergreen;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;

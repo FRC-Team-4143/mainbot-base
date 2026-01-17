@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.mw_lib.subsystem.SubsystemManager;
+import com.marswars.subsystem.SubsystemManager;
 import frc.robot.subsystems.localization.LocalizationSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -19,6 +19,7 @@ public class RobotContainer extends SubsystemManager {
     }
 
     public RobotContainer() {
+        super(BuildConstants.class);
         // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
         registerSubsystem(SwerveSubsystem.getInstance());
         registerSubsystem(LocalizationSubsystem.getInstance());

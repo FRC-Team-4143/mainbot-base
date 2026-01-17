@@ -1,8 +1,8 @@
 package frc.robot.subsystems.arm;
 
-import frc.mw_lib.mechanisms.ArmMech;
-import frc.mw_lib.subsystem.MwSubsystem;
-import frc.mw_lib.subsystem.SubsystemIoBase;
+import com.marswars.mechanisms.ArmMech;
+import com.marswars.subsystem.MwSubsystem;
+import com.marswars.subsystem.SubsystemIoBase;
 import frc.robot.subsystems.arm.ArmConstants.ArmStates;
 import java.util.Arrays;
 import java.util.List;

@@ -1,7 +1,7 @@
 package frc.robot.subsystems.elevator;
 
-import frc.mw_lib.subsystem.MwConstants;
-import frc.mw_lib.util.FxMotorConfig;
+import com.marswars.subsystem.MwConstants;
+import com.marswars.util.FxMotorConfig;
 
 public class ElevatorConstants extends MwConstants {
 

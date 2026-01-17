@@ -1,8 +1,8 @@
 package frc.robot.subsystems.arm;
 
+import com.marswars.subsystem.MwConstants;
+import com.marswars.util.FxMotorConfig;
 import edu.wpi.first.math.util.Units;
-import frc.mw_lib.subsystem.MwConstants;
-import frc.mw_lib.util.FxMotorConfig;
 
 public class ArmConstants extends MwConstants {
 

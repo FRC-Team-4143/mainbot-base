@@ -10,6 +10,16 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+repositories {
+    maven {
+        url = uri('https://maven.pkg.github.com/FRC-Team-4143/MW-Lib')
+        credentials {
+            username = "4143-Software-Student"
+            password = "SOME_GHE_TOKEN_HERE"
+        }
+    }
+}
+
 // Configure Spotless for code formatting
 spotless {
     java {
@@ -106,6 +116,8 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'com.github.frc-team-4143:mw-lib-java:26.0.0'
 }
 
 repositories {

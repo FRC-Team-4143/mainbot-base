@@ -7,16 +7,16 @@
 
 package frc.reefscape_lib;
 
+import com.marswars.geometry.CircularRegion;
+import com.marswars.geometry.PolygonRegion;
+import com.marswars.geometry.Region;
+import com.marswars.geometry.TightRope;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.mw_lib.geometry.CircularRegion;
-import frc.mw_lib.geometry.PolygonRegion;
-import frc.mw_lib.geometry.Region;
-import frc.mw_lib.geometry.TightRope;
 
 public class AllianceFlipUtil {
 
