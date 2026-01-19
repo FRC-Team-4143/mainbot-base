@@ -7,6 +7,7 @@ package frc.robot;
 import com.marswars.proxy_server.ProxyServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.swerve.SwerveConstants;
@@ -76,7 +77,13 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         ProxyServer.syncMatchData();
         CommandScheduler.getInstance().cancelAll();
-        SwerveSubsystem.getInstance().setWantedState(SwerveStates.ROBOT_CENTRIC);
+
+        // In simulation, keep simple sim control. Otherwise use robot centric.
+        if (RobotBase.isSimulation()) {
+            SwerveSubsystem.getInstance().setWantedState(SwerveStates.SIMPLE_SIM_CONTROL);
+        } else {
+            SwerveSubsystem.getInstance().setWantedState(SwerveStates.FIELD_CENTRIC);
+        }
     }
 
     @Override

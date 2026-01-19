@@ -24,7 +24,15 @@ public abstract class OI {
                 SwerveSubsystem.getInstance().setModuleOffsets().ignoringDisable(true));
         SmartDashboard.putData(
                 "Zero Gyro", SwerveSubsystem.getInstance().zeroGyro().ignoringDisable(true));
-        driver_controller_.rightStick().onTrue(SwerveSubsystem.getInstance().toggleFieldCentric());
+        SmartDashboard.putData(
+                "Toggle Simple Sim Control",
+                SwerveSubsystem.getInstance().toggleSimpleSimulationControl());
+
+        driver_controller_.a().onTrue(SwerveSubsystem.getInstance().toggleFieldCentric());
+        // Bind the back button to toggle simple simulation control (only works in simulation)
+        driver_controller_
+                .back()
+                .onTrue(SwerveSubsystem.getInstance().toggleSimpleSimulationControl());
     }
 
     /**
