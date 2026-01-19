@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "com.diffplug.spotless" version "6.25.0"
 }
@@ -18,6 +18,9 @@ repositories {
             password = "\u0067\u0068\u0070\u005f\u0046\u0034\u0075\u0075\u0031\u0076\u004b\u0039\u0050\u006e\u0056\u004d\u0056\u0042\u0061\u0053\u0038\u0054\u0074\u0068\u0077\u004f\u005a\u0075\u0057\u0054\u0041\u004e\u0065\u0041\u0034\u0032\u004e\u0077\u0035\u0072"
         }
     }
+    // flatDir {
+    //     dirs '/home/crhunt/frc/software/MW-Lib/build/libs'
+    // }
 }
 
 // Configure Spotless for code formatting
@@ -117,7 +120,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.github.frc-team-4143:mw-lib-java:26.1.0'
+    // Using local MW-Lib JAR instead of remote dependency
+    // implementation name: 'MW-Lib', version: '', ext: 'jar'
+    implementation 'com.github.frc-team-4143:mw-lib-java:26.2.0'
 }
 
 repositories {
