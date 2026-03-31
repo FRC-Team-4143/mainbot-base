@@ -172,6 +172,8 @@ out/
 networktables.json
 simgui.json
 *-window.json
+preferences.json
+simgui-ds.json
 
 # Simulation data log directory
 logs/
@@ -186,5 +188,5 @@ compile_commands.json
 # Eclipse generated file for annotation processors
 .factorypath
 
-# ignore build constants
-src/main/java/frc/robot/BuildConstants.java
+# Build related files
+BuildConstants.java

@@ -1,6 +1,0 @@
-# MW-Lib
-
-## Subsystems
-
-## Mechanisms
-
