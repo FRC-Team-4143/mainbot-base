@@ -7,52 +7,113 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.localization.LocalizationSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
 
 public abstract class OI {
 
     // Sets up both controllers
-    private static CommandXboxController driver_controller_ = new CommandXboxController(0);
+    private static final CommandXboxController driver_controller_ = new CommandXboxController(0);
+    private static final CommandXboxController operator_controller_ = new CommandXboxController(1);
 
     public static void configureBindings() {
         DriverStation.silenceJoystickConnectionWarning(true);
 
+        // =============================================================================
+        // SMARTDASHBOARD COMMANDS
+        // =============================================================================
         SmartDashboard.putData(
-                "Set Wheel Offsets",
+                "Zero Gyro Yaw", SwerveSubsystem.getInstance().zeroGyroYaw().ignoringDisable(true));
+        SmartDashboard.putData(
+                "Set Start Pose",
+                Commands.runOnce(LocalizationSubsystem.getInstance()::resetPoseEstimatorAuto)
+                        .ignoringDisable(true));
+        SmartDashboard.putData(
+                "Zero Wheel Offsets",
                 SwerveSubsystem.getInstance().setModuleOffsets().ignoringDisable(true));
-        SmartDashboard.putData(
-                "Zero Gyro", SwerveSubsystem.getInstance().zeroGyro().ignoringDisable(true));
-        driver_controller_.rightStick().onTrue(SwerveSubsystem.getInstance().toggleFieldCentric());
+
+        // =============================================================================
+        // DRIVER CONTROLLER BINDINGS
+        // =============================================================================
+        driver_controller_
+                .rightStick()
+                .onTrue(SwerveSubsystem.getInstance().toggleFieldCentric().ignoringDisable(true));
+        // =============================================================================
+        // OPERATOR CONTROLLER BINDINGS
+        // =============================================================================
+
+        // =============================================================================
+        // TESTING BINDINGS (THESE SHOULD BE REMOVED BEFORE COMPETITION)
+
+        // =============================================================================
     }
 
     /**
-     * @return driver controller left joystick x axis scaled quadratically
+     * @return driver controller left joystick x axis
      */
     public static double getDriverJoystickLeftX() {
         return driver_controller_.getLeftX();
     }
 
     /**
-     * @return driver controller left joystick y axis scaled quadratically
+     * @return driver controller left joystick y axis
      */
     public static double getDriverJoystickLeftY() {
         return driver_controller_.getLeftY();
     }
 
     /**
-     * @return driver controller right joystick x axis scaled quadratically
+     * @return driver controller right joystick x axis
      */
     public static double getDriverJoystickRightX() {
         return driver_controller_.getRightX();
     }
 
+    public static boolean getDriverControllerX() {
+        return driver_controller_.x().getAsBoolean();
+    }
+
+    public static boolean getDriverControllerA() {
+        return driver_controller_.a().getAsBoolean();
+    }
+
     /**
-     * @return driver controller joystick pov angle in degs. empty if nothing is pressed
+     * @return operator controller right joystick x axis
+     */
+    public static double getOperatorJoystickRightX() {
+        return operator_controller_.getRightX();
+    }
+
+    /**
+     * @return operator controller right joystick y axis
+     */
+    public static double getOperatorJoystickRightY() {
+        return operator_controller_.getRightY();
+    }
+
+    /**
+     * @return operator controller left joystick y axis
+     */
+    public static double getOperatorJoystickLeftY() {
+        return operator_controller_.getLeftY();
+    }
+
+    /**
+     * @return driver controller joystick pov angle in degrees, empty if nothing is pressed
      */
     public static Optional<Rotation2d> getDriverJoystickPOV() {
         int pov = driver_controller_.getHID().getPOV();
+        return (pov != -1) ? Optional.of(Rotation2d.fromDegrees(pov)) : Optional.empty();
+    }
+
+    /**
+     * @return operator controller joystick pov angle in degrees, empty if nothing is pressed
+     */
+    public static Optional<Rotation2d> getOperatorJoystickPOV() {
+        int pov = operator_controller_.getHID().getPOV();
         return (pov != -1) ? Optional.of(Rotation2d.fromDegrees(pov)) : Optional.empty();
     }
 }

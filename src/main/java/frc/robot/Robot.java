@@ -4,16 +4,13 @@
 
 package frc.robot;
 
-import com.marswars.proxy_server.ProxyServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveConstants.SwerveStates;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.Optional;
-import org.ironmaple.simulation.SimulatedArena;
 
 public class Robot extends TimedRobot {
 
@@ -21,12 +18,12 @@ public class Robot extends TimedRobot {
     private RobotContainer robot_container_;
 
     public Robot() {
+
         // Load the subsystems
         robot_container_ = RobotContainer.getInstance();
 
         // Configure External Interfaces
         OI.configureBindings();
-        ProxyServer.configureServer();
     }
 
     @Override
@@ -34,12 +31,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        // updates data from chassis proxy server
-        ProxyServer.updateData();
-
         // Call the scheduler so that commands work for buttons
-        CommandScheduler.getInstance().run();
-
         // run the main robot loop for each subsystem
         robot_container_.doControlLoop();
     }
@@ -49,17 +41,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-
-            if (alliance.get() != alliance_) {
-                alliance_ = alliance.get();
-                SwerveSubsystem.getInstance()
-                        .setOperatorForwardDirection(
-                                alliance_ == Alliance.Blue
-                                        ? SwerveConstants.OperatorPerspective.BLUE_ALLIANCE
-                                        : SwerveConstants.OperatorPerspective.RED_ALLIANCE);
-            }
+        // Allow chaning alliance perspective while disabled
+        if (hasAllianceChanged()) {
+            SwerveSubsystem.getInstance()
+                    .setOperatorForwardDirection(
+                            alliance_ == Alliance.Blue
+                                    ? SwerveConstants.OperatorPerspective.BLUE_ALLIANCE
+                                    : SwerveConstants.OperatorPerspective.RED_ALLIANCE);
         }
     }
 
@@ -74,18 +62,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        ProxyServer.syncMatchData();
-        CommandScheduler.getInstance().cancelAll();
-        SwerveSubsystem.getInstance().setWantedState(SwerveStates.ROBOT_CENTRIC);
+        SwerveSubsystem.getInstance().setWantedState(SwerveStates.FIELD_CENTRIC);
     }
 
     @Override
     public void teleopPeriodic() {}
 
     @Override
-    public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
-    }
+    public void testInit() {}
 
     @Override
     public void testPeriodic() {}
@@ -93,15 +77,20 @@ public class Robot extends TimedRobot {
     @Override
     public void testExit() {}
 
-    @Override
-    public void simulationInit() {
-        // Configure the simulated robot state
-        SimulatedRobotState.configure();
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        // Update the physics simulation - this is CRITICAL for proper simulation data
-        SimulatedArena.getInstance().simulationPeriodic();
+    /**
+     * Check if the alliance has changed since the last check
+     *
+     * @return true if the alliance has changed, false otherwise
+     */
+    public boolean hasAllianceChanged() {
+        Optional<Alliance> current_alliance = DriverStation.getAlliance();
+        if (alliance_ == null && current_alliance.isPresent()) {
+            alliance_ = current_alliance.get();
+            return true;
+        } else if (current_alliance.isPresent() && alliance_ != current_alliance.get()) {
+            alliance_ = current_alliance.get();
+            return true;
+        }
+        return false;
     }
 }

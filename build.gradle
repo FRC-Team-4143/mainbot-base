@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "com.diffplug.spotless" version "6.25.0"
 }
@@ -54,6 +54,39 @@ tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
+// Configure Spotless for code formatting
+spotless {
+    java {
+        target 'src/**/*.java'
+        targetExclude 'src/main/java/frc/robot/autos/ChoreoTraj.java', 'src/main/java/frc/robot/autos/ChoreoVars.java'
+        googleJavaFormat('1.23.0').aosp().reflowLongStrings()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target '*.gradle'
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target 'src/**/*.json', 'vendordeps/*.json'
+        jackson()
+    }
+    format 'misc', {
+        target '**/*.md', '**/*.xml'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// Suppress Spotless verbose output during builds
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
+    logging.captureStandardOutput LogLevel.INFO
+}
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
@@ -87,11 +120,25 @@ deploy {
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
-// Set to true to use debug for JNI.
+// Set to true to use debug for all targets including JNI, which will drastically impact
+// performance.
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
+
+repositories {
+    maven {
+        url = uri('https://maven.pkg.github.com/FRC-Team-4143/MW-Lib')
+        credentials {
+            username = '4143-Software-Student'
+            password = '\u0067\u0068\u0070\u005f\u004d\u006b\u0076\u006c\u0074\u0073\u0049\u0045\u004a\u0070\u006c\u0078\u0073\u0069\u0031\u0076\u0037\u0049\u0070\u0047\u0039\u0030\u004b\u0062\u006f\u0068\u0050\u0034\u0047\u0032\u0032\u0044\u0030\u0059\u0032\u0064'
+        }
+    }
+    // flatDir{
+    //     dirs '/prj/frc/MW-Lib/build/libs'
+    // }
+}
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
@@ -116,12 +163,8 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    implementation 'com.github.frc-team-4143:mw-lib-java:26.1.0'
-}
-
-repositories {
-    maven { url 'https://jitpack.io' }
+    implementation 'com.github.frc-team-4143:mw-lib-java:26.12.1'
+    //implementation name: 'MW-Lib', version: '', ext: 'jar'
 }
 
 test {
@@ -142,7 +185,9 @@ jar {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-    from sourceSets.main.allSource
+    from('src') { into 'backup/src' }
+    from('vendordeps') { into 'backup/vendordeps' }
+    from('build.gradle') { into 'backup' }
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
