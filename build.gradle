@@ -54,33 +54,6 @@ tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
-// Configure Spotless for code formatting
-spotless {
-    java {
-        target 'src/**/*.java'
-        targetExclude 'src/main/java/frc/robot/autos/ChoreoTraj.java', 'src/main/java/frc/robot/autos/ChoreoVars.java'
-        googleJavaFormat('1.23.0').aosp().reflowLongStrings()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-    groovyGradle {
-        target '*.gradle'
-        greclipse()
-        indentWithSpaces(4)
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-    json {
-        target 'src/**/*.json', 'vendordeps/*.json'
-        jackson()
-    }
-    format 'misc', {
-        target '**/*.md', '**/*.xml'
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-}
 
 // Suppress Spotless verbose output during builds
 tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
