@@ -8,7 +8,7 @@
         "layouts": [
           {
             "title": "Subsystem States",
-            "x": 1408.0,
+            "x": 896.0,
             "y": 0.0,
             "width": 384.0,
             "height": 640.0,
@@ -17,26 +17,6 @@
               "label_position": "LEFT"
             },
             "children": [
-              {
-                "title": "GSM",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/GameStates/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "GameStates",
-                    "type": "enum"
-                  }
-                }
-              },
               {
                 "title": "Swerve",
                 "x": 640.0,
@@ -58,26 +38,6 @@
                 }
               },
               {
-                "title": "Shooter",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Shooter/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ShooterStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
                 "title": "Localization",
                 "x": 640.0,
                 "y": 512.0,
@@ -93,66 +53,6 @@
                       "variant"
                     ],
                     "schema_name": "LocalizationStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Hopper",
-                "x": 640.0,
-                "y": 512.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Hopper/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "HopperStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Intake",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Intake/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "IntakeStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Climber",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Climber/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ClimberStates",
                     "type": "enum"
                   }
                 }
@@ -191,32 +91,6 @@
             "properties": {
               "topic": "/SmartDashboard/Alerts",
               "period": 0.06
-            }
-          },
-          {
-            "title": "Hub - Alliance",
-            "x": 896.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Multi Color View",
-            "properties": {
-              "topic": "/Robot/HubMonitor/Alliance",
-              "period": 0.06,
-              "data_type": "string[]"
-            }
-          },
-          {
-            "title": "Hub - Active",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Single Color View",
-            "properties": {
-              "topic": "/Robot/HubMonitor/Active",
-              "period": 0.06,
-              "data_type": "string"
             }
           },
           {
@@ -262,35 +136,6 @@
             }
           },
           {
-            "title": "Hub - Shift Time Remaining",
-            "x": 1152.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Match Time",
-            "properties": {
-              "topic": "/Robot/HubMonitor/ShiftTimeRemaining",
-              "period": 0.06,
-              "data_type": "double",
-              "time_display_mode": "Minutes and Seconds",
-              "red_start_time": 3,
-              "yellow_start_time": 10
-            }
-          },
-          {
-            "title": "Hub - Current Shift",
-            "x": 1152.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/Robot/HubMonitor/CurrentShift",
-              "period": 0.06,
-              "data_type": "string"
-            }
-          },
-          {
             "title": "Field",
             "x": 256.0,
             "y": 0.0,
@@ -322,52 +167,6 @@
               "topic": "/FMSInfo",
               "period": 0.06
             }
-          },
-          {
-            "title": "Hub - First Shift",
-            "x": 1152.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/Robot/HubMonitor/GameData",
-              "period": 0.06,
-              "data_type": "enum",
-              "struct_meta": {
-                "path": [
-                  "variant"
-                ],
-                "schema_name": "ActiveAlliance",
-                "type": "enum"
-              }
-            }
-          },
-          {
-            "title": "Hub - First Alliance",
-            "x": 896.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Split Button Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Hub - First Alliance",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "Target Distance",
-            "x": 896.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Robot/Subsystem/Shooter/LaunchCalculator/Distance/Raw",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
           }
         ]
       }
@@ -387,26 +186,6 @@
               "label_position": "LEFT"
             },
             "children": [
-              {
-                "title": "GSM",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/GameStates/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "GameStates",
-                    "type": "enum"
-                  }
-                }
-              },
               {
                 "title": "Swerve",
                 "x": 640.0,
@@ -428,26 +207,6 @@
                 }
               },
               {
-                "title": "Shooter",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Shooter/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ShooterStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
                 "title": "Localization",
                 "x": 640.0,
                 "y": 512.0,
@@ -463,66 +222,6 @@
                       "variant"
                     ],
                     "schema_name": "LocalizationStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Hopper",
-                "x": 640.0,
-                "y": 512.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Hopper/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "HopperStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Intake",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Intake/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "IntakeStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Climber",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Climber/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ClimberStates",
                     "type": "enum"
                   }
                 }
@@ -599,7 +298,7 @@
           },
           {
             "title": "Set Start Pose",
-            "x": 1152.0,
+            "x": 896.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
@@ -705,26 +404,6 @@
             },
             "children": [
               {
-                "title": "GSM",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/GameStates/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "GameStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
                 "title": "Swerve",
                 "x": 640.0,
                 "y": 640.0,
@@ -745,26 +424,6 @@
                 }
               },
               {
-                "title": "Shooter",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Shooter/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ShooterStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
                 "title": "Localization",
                 "x": 640.0,
                 "y": 512.0,
@@ -780,66 +439,6 @@
                       "variant"
                     ],
                     "schema_name": "LocalizationStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Hopper",
-                "x": 640.0,
-                "y": 512.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Hopper/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "HopperStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Intake",
-                "x": 640.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Intake/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "IntakeStates",
-                    "type": "enum"
-                  }
-                }
-              },
-              {
-                "title": "Climber",
-                "x": 768.0,
-                "y": 640.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/Robot/Subsystem/Climber/State",
-                  "period": 0.06,
-                  "data_type": "enum",
-                  "struct_meta": {
-                    "path": [
-                      "variant"
-                    ],
-                    "schema_name": "ClimberStates",
                     "type": "enum"
                   }
                 }
@@ -878,34 +477,6 @@
             },
             "children": [
               {
-                "title": "Home Hood Position",
-                "x": 896.0,
-                "y": 384.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Home Hood Position",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Home Pivot",
-                "x": 896.0,
-                "y": 512.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Home Pivot",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
                 "title": "Zero Gyro Yaw",
                 "x": 1024.0,
                 "y": 256.0,
@@ -914,48 +485,6 @@
                 "type": "Command",
                 "properties": {
                   "topic": "/SmartDashboard/Zero Gyro Yaw",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Zero Climber Deploy",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Zero Climber Deploy",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Zero Climber Flip",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Zero Climber Flip",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Spin Down Flywheel",
-                "x": 896.0,
-                "y": 512.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Spin Down Flywheel",
                   "period": 0.06,
                   "show_type": false,
                   "maximize_button_space": true
